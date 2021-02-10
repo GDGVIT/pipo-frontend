@@ -2,8 +2,9 @@
 <a href="https://dscvit.com">
 	<img src="https://user-images.githubusercontent.com/30529572/92081025-fabe6f00-edb1-11ea-9169-4a8a61a5dd45.png" alt="DSC VIT"/>
 </a>
-	<h2 align="center"> < Insert Project Title Here > </h2>
-	<h4 align="center"> < Insert Project Description Here > <h4>
+	<h2 align="center">  🐧PiPo ~ Post In Post Out </h2>
+	<h4 align="center"> ✨Inspired from 100 Days Of Code. <h4>
+	<h4 align="center"> An online scrapbook website where the user chooses a challenge and tries to maintain the streak for the number of days the challenge specifies. Upon completing the challenge the user earns the badge which will be displayed in the user's profile. Incase the user loses the streak the user can reclaim it by spending points for that day and in order to obtain points the user has to challenge other users to a contest of their choice and the winner will be decided by the public. <h4>
 </p>
 
 ---
@@ -15,30 +16,24 @@
 
 
 ## Features
-- [ ]  < feature >
-- [ ]  < feature >
-- [ ]  < feature >
-- [ ]  < feature >
+- [ ]  Users can see other famous posts updated by other users
+- [ ]  User can see, modify and add tags and comments to his posts 
+- [ ]  Profile section displaying the badges the user has earned on completing the challenge and calendar view for each of the badges earned
+- [ ]  Challenges page were the user can view on going challenges as a guest
+- [ ]  Challenge requests to other users for earning points 
 
 <br>
 
 ## Dependencies
- - < dependency >
- - < dependency >
+ - React ⚛ 
+ - Axios 🔄
 
 
 ## Running
 
-
-< directions to install > 
+Clone the repository and run the command 
 ```bash
-< insert code >
-```
-
-< directions to execute >
-
-```bash
-< insert code >
+npm start
 ```
 
 ## Contributors
@@ -46,15 +41,15 @@
 <table>
 	<tr align="center">
 		<td>
-		John Doe
+		Sai Teja T
 		<p align="center">
 			<img src = "https://dscvit.com/images/dsc-logo-square.svg" width="150" height="150" alt="Your Name Here (Insert Your Image Link In Src">
 		</p>
 			<p align="center">
-				<a href = "https://github.com/person1">
+				<a href = "https://github.com/saikun0293">
 					<img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/>
 				</a>
-				<a href = "https://www.linkedin.com/in/person1">
+				<a href = "https://www.linkedin.com/in/sai-teja-reddy-tileti-ba0645126/">
 					<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
 				</a>
 			</p>
