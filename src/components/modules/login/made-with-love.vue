@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="made-with-love">
     <span class="content">Made with</span>
     <svg class="love" xmlns="http://www.w3.org/2000/svg" width="30" height="31">
       <g class="heart">
@@ -19,20 +19,20 @@ export default {
 };
 </script>
 <style scoped>
-.container {
+.made-with-love {
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: Gilroy-Bold;
-  color: #707070;
+  color: #b1b1b1;
   font-size: 20px;
 }
 .content {
   padding: 5px;
 }
 .b {
-  fill: #707070;
-  stroke: #707070;
+  fill: #b1b1b1;
+  stroke: #b1b1b1;
   stroke-width: 1.5px;
 }
 </style>

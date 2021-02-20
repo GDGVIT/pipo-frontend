@@ -15,15 +15,16 @@ export default {
 <style>
 @font-face {
   font-family: Gilroy;
-  src: url("./components/fonts/Gilroy-Light.otf") format("opentype");
+  src: url("../fonts/Gilroy-Light.otf") format("opentype");
 }
 @font-face {
   font-family: Gilroy-Bold;
   font-weight: bold;
-  src: url("./components/fonts/Gilroy-ExtraBold.otf") format("opentype");
+  src: url("../fonts/Gilroy-ExtraBold.otf") format("opentype");
 }
 
 #app {
   font-family: Gilroy;
+  overflow: hidden;
 }
 </style>
