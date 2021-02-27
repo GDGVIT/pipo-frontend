@@ -2,6 +2,7 @@ import { createWebHistory, createRouter } from "vue-router";
 import generalPosts from "../components/generalPosts";
 import login from "../components/loginPage";
 import notFound from "../components/notFound";
+import badges from "../components/badgesPage";
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
     path: "/general",
     name: "generalPosts",
     component: generalPosts,
+  },
+  {
+    path: "/badge",
+    name: "badges",
+    component: badges,
   },
   {
     path: "/:catchAll(.*)",

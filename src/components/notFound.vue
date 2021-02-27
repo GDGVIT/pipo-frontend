@@ -1,4 +1,5 @@
 <template>
+  <!-- done -->
   <div class="title">Error 404</div>
   <h1>Not Found</h1>
   <div class="content">PiPo couldn't find the page you're looking for 😓</div>

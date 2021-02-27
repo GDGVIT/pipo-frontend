@@ -32,7 +32,7 @@
   <svg
     v-else-if="name === 'login-bg'"
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="150 0 700 1000"
+    viewBox="0 0 1937 812.838"
   >
     <g transform="translate(11)">
       <g transform="translate(-13.8 -5)">
@@ -226,8 +226,6 @@
   <svg
     v-else-if="name === 'pipoPenguin'"
     xmlns="http://www.w3.org/2000/svg"
-    width="242.851"
-    height="251.5"
     viewBox="0 0 242.851 251.5"
   >
     <g transform="translate(-397.471 -764.5)">
@@ -297,20 +295,6 @@
           style="fill: #f66"
           d="M214.621,227.791H195.844l10.309,32.355Z"
           transform="translate(-86.041 -100.148)"
-        />
-        <ellipse
-          cx="13.99"
-          cy="26.472"
-          rx="13.99"
-          ry="26.472"
-          transform="translate(70.777 88.67)"
-        />
-        <ellipse
-          cx="13.99"
-          cy="26.472"
-          rx="13.99"
-          ry="26.472"
-          transform="translate(139.993 88.67)"
         />
         <ellipse
           class="c"

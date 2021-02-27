@@ -1,10 +1,20 @@
 <template>
+  <Navbar v-if="isAuthenticated" />
   <router-view />
 </template>
 
 <script>
+import Navbar from "../components/modules/navbar/navbar";
 export default {
   name: "App",
+  components: {
+    Navbar,
+  },
+  data() {
+    return {
+      isAuthenticated: false,
+    };
+  },
 };
 </script>
 
@@ -22,5 +32,10 @@ export default {
 #app {
   font-family: Gilroy;
   overflow: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
 </style>

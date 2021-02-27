@@ -23,11 +23,6 @@ export default {
 };
 </script>
 <style scoped>
-/* .container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-} */
 .login {
   font-family: Gilroy-Bold;
   color: white;
@@ -39,13 +34,13 @@ export default {
 }
 .login-bg {
   position: absolute;
-  z-index: -1;
+  transform: translate(0, -10%);
 }
 .pipo-penguin {
-  width: 40%;
-  margin-left: 50%;
+  width: 150px;
+  margin-left: 30%;
   transform: translate(-50%, 0);
-  margin-top: 95%;
+  margin-top: 75vh;
 }
 
 .login-btn {
@@ -64,8 +59,8 @@ export default {
 
 .pipoLogo {
   position: absolute;
-  width: 30%;
-  left: 10px;
-  top: 5px;
+  width: 150px;
+  left: 30px;
+  top: 10px;
 }
 </style>
