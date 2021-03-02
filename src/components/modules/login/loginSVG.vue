@@ -162,20 +162,6 @@
           cy="12.5"
           rx="6.5"
           ry="12.5"
-          transform="translate(146 118)"
-        />
-        <ellipse
-          cx="6.5"
-          cy="12.5"
-          rx="6.5"
-          ry="12.5"
-          transform="translate(179 118)"
-        />
-        <ellipse
-          cx="6.5"
-          cy="12.5"
-          rx="6.5"
-          ry="12.5"
           transform="translate(179 118)"
         />
         <ellipse

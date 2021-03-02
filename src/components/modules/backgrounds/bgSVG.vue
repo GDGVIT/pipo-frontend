@@ -25,11 +25,11 @@ export default {
 </script>
 <style scoped>
 .bg {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  min-height: 100%;
+  min-width: 100%;
   z-index: -10;
 }
 </style>

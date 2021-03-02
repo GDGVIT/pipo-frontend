@@ -12,7 +12,7 @@ export default {
   },
   data() {
     return {
-      isAuthenticated: false,
+      isAuthenticated: true,
     };
   },
 };

@@ -1,6 +1,7 @@
 <template>
   <!-- badges constantly change hence its better to have data on badges in firebase -->
-  <div class="badges-container">
+  <Background name="darkBg" />
+  <div class="container">
     <div class="title">Badges</div>
     <div class="about">
       Lorem ipsum dolor, sit amet consectetur adipisicing elit. Saepe asperiores
@@ -10,85 +11,76 @@
     <div class="streak">
       <div class="sub-title">With Streak Recovery</div>
       <div class="badge-container">
-        <div v-for="badge in badges" :key="badge.id">
-          <BadgeSVG name="medal" class="badge" />
+        <div class="badge" v-for="index in 1" :key="index">
+          <BadgeSVG name="medal" class="badge-icon" />
+          <div class="badge-name">Vue.js</div>
         </div>
       </div>
     </div>
     <div class="without-streak">
       <div class="sub-title">Without Streak Recovery</div>
       <div class="badge-container">
-        <div v-for="badge in badges" :key="badge.id">
-          <BadgeSVG name="medal" class="badge" />
+        <div class="badge" v-for="index in 1" :key="index">
+          <BadgeSVG name="medal" class="badge-icon" />
+          <div class="badge-name">Vue.js</div>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
+import Background from "./modules/backgrounds/bgSVG";
 import BadgeSVG from "./modules/badges/badgesSVG";
 export default {
   name: "badge-page",
-  data() {
-    return {
-      badges: [
-        {
-          badgeId: "0c35c5d7-6757-4b41-96e2-6587ef4f0282",
-          badgeName: "pipo1",
-          days: 30,
-          badgeImgUrl: "bitly",
-          upvotes: 20,
-        },
-        {
-          badgeId: "0c35c5d7-6757-4b41-96e2-6587eg4f0282",
-          badgeName: "pipo1",
-          days: 30,
-          badgeImgUrl: "bitly",
-          upvotes: 20,
-        },
-        {
-          badgeId: "0c35c5d7-6757-4b41-96e2-6587eh4f0282",
-          badgeName: "pipo1",
-          days: 30,
-          badgeImgUrl: "bitly",
-          upvotes: 20,
-        },
-        {
-          badgeId: "0c35c5d7-6757-4b41-96e2-6587ei4f0282",
-          badgeName: "pipo1",
-          days: 30,
-          badgeImgUrl: "bitly",
-          upvotes: 20,
-        },
-        {
-          badgeId: "0c35c5d7-6757-4b41-96e2-6587ej4f0282",
-          badgeName: "pipo1",
-          days: 30,
-          badgeImgUrl: "bitly",
-          upvotes: 20,
-        },
-        {
-          badgeId: "0c35c5d7-6757-4b41-96e2-6587ek4f0282",
-          badgeName: "pipo1",
-          days: 30,
-          badgeImgUrl: "bitly",
-          upvotes: 20,
-        },
-      ],
-    };
-  },
   components: {
     BadgeSVG,
+    Background,
   },
 };
 </script>
 <style scoped>
+.container {
+  width: 90%;
+  box-sizing: border-box;
+  background-color: white;
+  margin: 15vh auto;
+  padding: 15px 20px;
+}
+
+.title {
+  font-family: Gilroy-Bold;
+  font-size: 30px;
+  margin: 30px 0;
+}
+
 .badge-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 60px);
+  grid-template-columns: repeat(auto-fit, 100px);
+  grid-gap: 10px;
+}
+
+.streak,
+.without-streak {
+  margin-top: 30px;
+  height: 390px;
+  overflow: scroll;
 }
 
 .badge {
+  text-align: center;
+  border-radius: 20px;
+  background-color: rgb(248, 248, 248);
+  padding: 10px;
+}
+
+.sub-title {
+  font-family: Gilroy-Bold;
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+
+.badge-icon {
   width: 60px;
 }
 </style>
