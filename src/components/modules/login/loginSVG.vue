@@ -250,19 +250,6 @@
           ry="65"
           transform="translate(50 82)"
         />
-        <ellipse
-          cx="13.99"
-          cy="26.472"
-          rx="13.99"
-          ry="26.472"
-          transform="translate(70.777 88.67)"
-        />
-        <ellipse
-          cx="13.99"
-          cy="26.472"
-          rx="13.99"
-          ry="26.472"
-          transform="translate(139.993 88.67)"
         />
         <path
           class="d"
@@ -281,6 +268,20 @@
           style="fill: #f66"
           d="M214.621,227.791H195.844l10.309,32.355Z"
           transform="translate(-86.041 -100.148)"
+        />
+        <ellipse
+          cx="13.99"
+          cy="26.472"
+          rx="13.99"
+          ry="26.472"
+          transform="translate(70.777 88.67)"
+        />
+        <ellipse
+          cx="13.99"
+          cy="26.472"
+          rx="13.99"
+          ry="26.472"
+          transform="translate(139.993 88.67)"
         />
         <ellipse
           class="c"

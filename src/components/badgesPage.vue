@@ -20,10 +20,10 @@
     <div class="without-streak">
       <div class="sub-title">Without Streak Recovery</div>
       <div class="badge-container">
-        <div class="badge" v-for="index in 1" :key="index">
+        <!-- <div class="badge" v-for="index in 1" :key="index">
           <BadgeSVG name="medal" class="badge-icon" />
           <div class="badge-name">Vue.js</div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
