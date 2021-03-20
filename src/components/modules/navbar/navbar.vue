@@ -4,7 +4,7 @@
     <LoginSVG name="pipoLogo" class="logo" />
     <div class="routes" :class="{ open: isToggle }">
       <div class="nav" :class="{ fade: isToggle }">
-        <router-link to="/general">Home</router-link>
+        <router-link to="/">Home</router-link>
       </div>
       <div class="nav" :class="{ fade: isToggle }">My Posts</div>
       <div class="nav" :class="{ fade: isToggle }">

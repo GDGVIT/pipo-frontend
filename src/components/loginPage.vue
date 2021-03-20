@@ -3,12 +3,16 @@
     <loginSVG name="login-bg" class="login-bg" />
     <div class="login">Login</div>
     <loginSVG name="pipoPenguin" class="pipo-penguin" />
-    <loginButton class="login-btn" />
+    <loginButton @click="authenticateUser()" class="login-btn" />
     <loginSVG name="pipoLogo" class="pipoLogo" />
     <madeWithLove class="made" />
   </div>
 </template>
 <script>
+import firebase from "firebase/app";
+import "firebase/auth";
+import axios from "axios";
+
 import loginSVG from "./modules/login/loginSVG";
 import loginButton from "./modules/login/login-btn";
 import madeWithLove from "./modules/login/made-with-love";
@@ -19,6 +23,24 @@ export default {
     madeWithLove,
     loginButton,
     loginSVG,
+  },
+  methods: {
+    authenticateUser() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then((result) => {
+          console.log(result);
+          axios
+            .post("http://pipo-api.herokuapp.com/auth", result)
+            .then((res) => console.log(res).catch((err) => console.log(err)));
+          this.$router.replace("/");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
   },
 };
 </script>

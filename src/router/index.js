@@ -1,34 +1,34 @@
-import { createWebHistory, createRouter } from 'vue-router'
-import generalPosts from '../components/generalPosts'
-import login from '../components/loginPage'
-import notFound from '../components/notFound'
-import badges from '../components/badgesPage'
+import { createWebHistory, createRouter } from "vue-router";
+import generalPosts from "../components/generalPosts";
+import login from "../components/loginPage";
+import notFound from "../components/notFound";
+import badges from "../components/badgesPage";
 
 const routes = [
   {
-    path: '/',
-    name: 'login',
-    component: login
+    path: "/login",
+    name: "login",
+    component: login,
   },
   {
-    path: '/general',
-    name: 'generalPosts',
-    component: generalPosts
+    path: "/",
+    name: "generalPosts",
+    component: generalPosts,
   },
   {
-    path: '/badge',
-    name: 'badges',
-    component: badges
+    path: "/badge",
+    name: "badges",
+    component: badges,
   },
   {
-    path: '/:catchAll(.*)',
-    component: notFound
-  }
-]
+    path: "/:catchAll(.*)",
+    component: notFound,
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;
