@@ -1,17 +1,23 @@
 <template>
+  <Navbar v-if="isAuthenticated" />
   <router-view />
 </template>
 
 <script>
 import { mapState } from "vuex";
+import Navbar from "../components/modules/navbar/navbar";
 export default {
   name: "App",
-  computed() {
-    mapState({
-      isAuthenticated: (state) => state.isAuthenticated,
-    });
+  components: {
+    Navbar,
   },
-  created() {
+  computed: {
+    ...mapState({
+      isAuthenticated: (state) => state.auth.isAuthenticated,
+    }),
+  },
+  mounted() {
+    console.log("Home Page", this.isAuthenticated);
     if (!this.isAuthenticated) {
       this.$router.replace("/login");
     }
