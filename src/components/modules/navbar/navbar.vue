@@ -4,11 +4,14 @@
     <LoginSVG name="pipoLogo" class="logo" />
     <div class="routes" :class="{ open: isToggle }">
       <div class="nav" :class="{ fade: isToggle }">
-        <router-link to="/general">Home</router-link>
+        <router-link to="/">Home</router-link>
       </div>
       <div class="nav" :class="{ fade: isToggle }">My Posts</div>
       <div class="nav" :class="{ fade: isToggle }">
         <router-link to="/badge">Badges</router-link>
+      </div>
+      <div class="nav" :class="{ fade: isToggle }">
+        <button class="sign-out-btn" @click="signOutUser">Sign Out</button>
       </div>
     </div>
     <div class="nav-icons">
@@ -26,6 +29,10 @@
 <script>
 import NavbarSVG from "./navbarSVG";
 import LoginSVG from "../login/loginSVG";
+import firebase from "firebase/app";
+import { mapActions } from "vuex";
+import "firebase/auth";
+
 export default {
   name: "navbar",
   components: {
@@ -38,8 +45,16 @@ export default {
     };
   },
   methods: {
+    ...mapActions({
+      signOut: "signOutUser",
+    }),
     toggleNav() {
       this.isToggle = !this.isToggle;
+    },
+    signOutUser() {
+      firebase.auth().signOut();
+      this.signOut();
+      this.$router.replace("/login");
     },
   },
 };
@@ -71,11 +86,18 @@ export default {
 }
 
 .nav-icons {
-  flex-basis: 30%;
+  flex-basis: 20%;
   display: flex;
   justify-content: flex-end;
 }
 
+.sign-out-btn {
+  background: #ff4242;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-family: Gilroy-Bold !important;
+}
 .icon {
   width: 30px;
   margin: 0 20px;
@@ -85,7 +107,7 @@ export default {
   display: none;
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 960px) {
   .hamburger {
     display: inline-block;
     cursor: pointer;
@@ -103,11 +125,16 @@ export default {
     -webkit-clip-path: circle(100px at 150% -10%);
     transition: all 1s ease-out;
     pointer-events: none;
-    background-color: #f3f3f3;
+    background-color: #fffbfb;
   }
 
   .nav {
     text-align: center;
+  }
+
+  .sign-out-btn:hover {
+    cursor: pointer;
+    opacity: 0.9;
   }
 
   .routes.open {

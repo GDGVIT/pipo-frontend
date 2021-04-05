@@ -4,16 +4,23 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import Navbar from "../components/modules/navbar/navbar";
 export default {
   name: "App",
   components: {
     Navbar,
   },
-  data() {
-    return {
-      isAuthenticated: true,
-    };
+  computed: {
+    ...mapState({
+      isAuthenticated: (state) => state.auth.isAuthenticated,
+    }),
+  },
+  mounted() {
+    console.log("Home Page", this.isAuthenticated);
+    if (!this.isAuthenticated) {
+      this.$router.replace("/login");
+    }
   },
 };
 </script>
