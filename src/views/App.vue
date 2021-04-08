@@ -1,26 +1,45 @@
 <template>
-  <Navbar v-if="isAuthenticated" />
+  <Background name="darkBg" />
+  <Navbar v-if="enableNavbar" />
   <router-view />
 </template>
 
 <script>
-import { mapState } from "vuex";
+import Background from "../components/modules/backgrounds/bgSVG";
+import firebase from "firebase/app";
+import "firebase/auth";
 import Navbar from "../components/modules/navbar/navbar";
+import { mapActions } from "vuex";
+
 export default {
   name: "App",
   components: {
     Navbar,
+    Background,
   },
-  computed: {
-    ...mapState({
-      isAuthenticated: (state) => state.auth.isAuthenticated,
+  data() {
+    return {
+      enableNavbar: false,
+    };
+  },
+  methods: {
+    ...mapActions({
+      authenticate: "authenticateUser",
     }),
   },
   mounted() {
-    console.log("Home Page", this.isAuthenticated);
-    if (!this.isAuthenticated) {
-      this.$router.replace("/login");
-    }
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.enableNavbar = true;
+        user.getIdToken().then((idToken) => {
+          console.log(idToken);
+          this.authenticate(idToken);
+          this.$router.replace("/");
+        });
+      } else {
+        this.$router.replace("/login");
+      }
+    });
   },
 };
 </script>
@@ -44,5 +63,18 @@ export default {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+.user-container {
+  position: fixed;
+  width: 80%;
+  height: 80vh;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  z-index: 3;
+  padding: 30px;
+  box-sizing: border-box;
 }
 </style>

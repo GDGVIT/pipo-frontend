@@ -1,6 +1,5 @@
 <template>
   <!-- badges constantly change hence its better to have data on badges in firebase -->
-  <Background name="darkBg" />
   <div class="container">
     <div class="title">Badges</div>
     <div class="about">
@@ -29,13 +28,11 @@
   </div>
 </template>
 <script>
-import Background from "./modules/backgrounds/bgSVG";
 import BadgeSVG from "./modules/badges/badgesSVG";
 export default {
   name: "badge-page",
   components: {
     BadgeSVG,
-    Background,
   },
 };
 </script>

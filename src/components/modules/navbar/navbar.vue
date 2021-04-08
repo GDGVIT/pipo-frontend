@@ -17,9 +17,21 @@
     <div class="nav-icons">
       <NavbarSVG class="icon challenge" name="challengesIcon" />
       <NavbarSVG class="icon notification" name="notificationsIcon" />
-      <NavbarSVG class="icon profile" name="profileIcon" />
       <NavbarSVG
-        @click="toggleNav()"
+        @click="showUserProfile"
+        v-if="!hasPhotoURL"
+        class="profile-pic"
+        name="profileIcon"
+      />
+      <img
+        v-if="hasPhotoURL"
+        @click="showUserProfile"
+        :src="photoURL"
+        alt="profile-pic"
+        class="profile-pic"
+      />
+      <NavbarSVG
+        @click="toggleNav"
         class="icon hamburger"
         name="hamburgerIcon"
       />
@@ -42,7 +54,16 @@ export default {
   data() {
     return {
       isToggle: false,
+      hasPhotoURL: false,
+      photoURL: "",
     };
+  },
+  mounted() {
+    const photoURL = firebase.auth().currentUser.photoURL;
+    if (photoURL) {
+      this.hasPhotoURL = true;
+      this.photoURL = photoURL;
+    }
   },
   methods: {
     ...mapActions({
@@ -55,6 +76,9 @@ export default {
       firebase.auth().signOut();
       this.signOut();
       this.$router.replace("/login");
+    },
+    showUserProfile() {
+      this.$router.replace("/user");
     },
   },
 };
@@ -72,7 +96,17 @@ export default {
   font-family: Gilroy-Bold;
   background-color: white;
   box-shadow: 0 0 25px 0 black;
-  z-index: 99;
+  z-index: 1;
+}
+
+.profile-pic {
+  width: 40px;
+  border-radius: 50%;
+  margin: 0 15px;
+}
+
+.profile-pic:hover {
+  cursor: pointer;
 }
 
 .logo {
@@ -97,7 +131,14 @@ export default {
   border: none;
   padding: 10px 15px;
   font-family: Gilroy-Bold !important;
+  outline: none;
 }
+
+.sign-out-btn:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
 .icon {
   width: 30px;
   margin: 0 20px;
@@ -130,11 +171,6 @@ export default {
 
   .nav {
     text-align: center;
-  }
-
-  .sign-out-btn:hover {
-    cursor: pointer;
-    opacity: 0.9;
   }
 
   .routes.open {

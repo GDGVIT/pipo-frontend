@@ -1,49 +1,74 @@
-import { createWebHistory, createRouter } from 'vue-router'
-import firebase from 'firebase/app'
-import 'firebase/auth'
-import generalPosts from '../components/generalPosts'
-import login from '../components/loginPage'
-import notFound from '../components/notFound'
-import badges from '../components/badgesPage'
+import { createWebHistory, createRouter } from "vue-router";
 
-function routeGuard (to, from, next) {
-  const user = firebase.auth().currentUser
-  console.log(user)
-  if (user) {
-    next()
-  } else {
-    next('/login')
-  }
-}
+import generalPosts from "../components/generalPosts";
+import login from "../components/loginPage";
+import notFound from "../components/notFound";
+import badges from "../components/badgesPage";
+import User from "../views/User";
+import {
+  UserProfile,
+  CompletedBadges,
+  InProgressBadges,
+  Friends,
+  Tags,
+  TodoList,
+} from "./user";
 
 const routes = [
   {
-    path: '/login',
-    name: 'login',
-    component: login
+    path: "/login",
+    name: "login",
+    component: login,
   },
   {
-    path: '/',
-    name: 'generalPosts',
-    beforeEnter: routeGuard,
-    component: generalPosts
+    path: "/",
+    name: "generalPosts",
+    component: generalPosts,
   },
   {
-    path: '/badge',
-    name: 'badges',
-    beforeEnter: routeGuard,
-    component: badges
+    path: "/badge",
+    name: "badges",
+    component: badges,
   },
   {
-    path: '/:catchAll(.*)',
-    beforeEnter: routeGuard,
-    component: notFound
-  }
-]
+    path: "/user/",
+    component: User,
+    children: [
+      {
+        path: "profile",
+        component: UserProfile,
+      },
+      {
+        path: "completed-badges",
+        component: CompletedBadges,
+      },
+      {
+        path: "in-progress-badges",
+        component: InProgressBadges,
+      },
+      {
+        path: "tags",
+        component: Tags,
+      },
+      {
+        path: "friends",
+        component: Friends,
+      },
+      {
+        path: "todolist",
+        component: TodoList,
+      },
+    ],
+  },
+  {
+    path: "/:catchAll(.*)",
+    component: notFound,
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

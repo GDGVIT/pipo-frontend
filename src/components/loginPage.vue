@@ -28,14 +28,7 @@ export default {
     loginButton,
     loginSVG,
   },
-  mounted() {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.authenticate();
-        this.$router.replace("/");
-      }
-    });
-  },
+  mounted() {},
   methods: {
     ...mapActions({
       authenticate: "authenticateUser",
@@ -48,9 +41,7 @@ export default {
         const idToken = await signIn.user.getIdToken(true);
         const result = await axios.post(URL, { idToken: idToken });
 
-        console.log(result);
-
-        this.authenticate();
+        console.log("Auth request to backend", result);
         this.$router.replace("/");
       } catch (error) {
         console.log(error);

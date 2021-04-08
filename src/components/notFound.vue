@@ -1,9 +1,11 @@
 <template>
   <!-- done -->
-  <div class="title">Error 404</div>
-  <h1>Not Found</h1>
-  <div class="content">PiPo couldn't find the page you're looking for 😓</div>
-  <loginSVG name="pipoPenguin" class="pipo-penguin" />
+  <div class="user-container">
+    <div class="title">Error 404</div>
+    <h1>Not Found</h1>
+    <div class="content">PiPo couldn't find the page you're looking for 😓</div>
+    <loginSVG name="pipoPenguin" class="pipo-penguin" />
+  </div>
 </template>
 <script>
 import loginSVG from "./modules/login/loginSVG";
@@ -16,7 +18,7 @@ export default {
 </script>
 <style scoped>
 .title {
-  font-size: 70px;
+  font-size: 50px;
   font-family: Gilroy-Bold;
   text-align: center;
   padding-top: 30px;
@@ -24,7 +26,7 @@ export default {
 h1 {
   font-family: Gilroy-Bold;
   text-align: center;
-  font-size: 50px;
+  font-size: 30px;
 }
 .content {
   width: 60%;
@@ -36,6 +38,7 @@ h1 {
   position: absolute;
   margin-left: 50%;
   margin-top: 30vh;
+  width: 200px;
   transform: translate(-50%, -50%);
 }
 </style>

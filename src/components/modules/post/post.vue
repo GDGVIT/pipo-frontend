@@ -2,27 +2,41 @@
   <div class="post-container">
     <div class="post-details">
       <div class="user-details">
-        <span class="username">@nicoline mark</span>
-        <span class="streak">100</span>
+        <span class="username">@{{ post.username }}</span>
+        <span class="streak">{{ post.streak }}</span>
       </div>
       <div class="upvote-details">
         <postSVG name="likeLight" />
-        <span style="font-size:12px">1010</span>
+        <span style="font-size:12px">{{ post.upvotes }}</span>
       </div>
     </div>
     <div class="post-body">
       <div class="post-tags"></div>
       <div class="post-content">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed,
-        praesentium aliquam laboriosam magni suscipit animi maxime, tempora nemo
-        culpa quo labore repellat quam odit iusto sequi error dolorem tenetur
-        totam.
+        {{ post.content }}
       </div>
-      <img
-        src="https://www.economist.com/sites/default/files/images/2015/09/blogs/economist-explains/code2.png"
-        alt="code-img"
-        style="width:100%"
-      />
+      <div class="post-attachments">
+        <div
+          v-for="(attachment, index) in post.attachments"
+          :key="index"
+          class="attachment"
+        >
+          <img
+            class="post-image"
+            v-if="attachment.type === 'image'"
+            :src="attachment.url"
+            alt="post-image"
+          />
+          <video
+            class="post-video"
+            v-if="attachment.type === 'video'"
+            title="video"
+          >
+            <source :src="attachment.url" type="video/mp4" />
+          </video>
+          <!-- <iframe width="788" height="443" src="https://www.youtube.com/embed/1zkgdLZEdwM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -30,6 +44,7 @@
 import postSVG from "./postSVG";
 export default {
   name: "post",
+  props: ["post"],
   components: {
     postSVG,
   },
@@ -79,6 +94,18 @@ export default {
 .post-body {
   position: relative;
   padding: 10px 40px;
+}
+
+.post-image {
+  width: 80%;
+  margin-left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.post-video {
+  width: 90%;
+  margin-left: 50%;
+  transform: translate(-50%, 0);
 }
 
 .post-content {
