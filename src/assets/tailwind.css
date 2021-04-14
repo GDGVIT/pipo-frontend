@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+
+@font-face {
+  font-family: "Gilroy";
+  src: local("Gilroy"), url("../../fonts/Gilroy-Light.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Gilroy-Bold";
+  src: local("Gilroy-Bold"),
+    url("../../fonts/Gilroy-ExtraBold.otf") format("opentype");
+}
+
+@tailwind utilities;
+
+.enlarge {
+  @apply transition duration-500 ease-in-out transform hover:scale-125;
+}
+
+.streak-btn {
+  @apply px-2 py-1 bg-myRed rounded-full text-white font-glight;
+}
+
+.nav-icon {
+  @apply w-12 h-12 rounded-full object-cover mx-3;
+}
+
+.navbar {
+  @apply fixed top-0 left-0 right-0 flex items-center justify-between h-16 font-gbold bg-white z-50;
+}

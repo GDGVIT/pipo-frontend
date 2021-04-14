@@ -3,6 +3,7 @@ import App from './views/App.vue'
 import router from './router'
 import firebase from 'firebase/app'
 import store from './store'
+import './assets/tailwind.css'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDVDVeUjgQ4MRV8371SCvMk4mQn02T_uZ0',
