@@ -46,11 +46,15 @@
 
 - Axios
 
+- Tailwind CSS
+
 ## Running
 
 Clone the repository and run the command
 
 ```bash
+
+npm install
 
 npm run serve
 

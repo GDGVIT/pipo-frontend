@@ -68,8 +68,7 @@
 <script>
 import ModalSVG from "./modalSVG";
 import PostSVG from "../post/postSVG";
-import axios from "axios";
-const URL = "http://localhost:3000/challenges";
+// import api from "@/api.js";
 
 export default {
   name: "add-post-modal",
@@ -87,10 +86,7 @@ export default {
     };
   },
   mounted() {
-    axios.get(URL).then((result) => {
-      const data = result.data;
-      this.challenges = data;
-    });
+    // api.get("/",)
   },
   methods: {
     closeModal() {
