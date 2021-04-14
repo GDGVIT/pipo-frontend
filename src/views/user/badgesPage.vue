@@ -28,7 +28,7 @@
   </div>
 </template>
 <script>
-import BadgeSVG from "./modules/badges/badgesSVG";
+import BadgeSVG from "../../components/badges/badgesSVG";
 export default {
   name: "badge-page",
   components: {

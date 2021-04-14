@@ -8,7 +8,7 @@
   </div>
 </template>
 <script>
-import loginSVG from "./modules/login/loginSVG";
+import loginSVG from "../components/login/loginSVG";
 export default {
   name: "not-found",
   components: {
