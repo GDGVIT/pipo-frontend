@@ -1,18 +1,17 @@
 import { createWebHistory, createRouter } from "vue-router";
+import login from "@/views/loginPage";
+import User from "@/views/User";
+import notFound from "@/views/notFound";
+import { generalPosts, badges, myPosts } from "./basic";
 
-import generalPosts from "../components/generalPosts";
-import login from "../components/loginPage";
-import notFound from "../components/notFound";
-import badges from "../components/badgesPage";
-import User from "../views/User";
-import {
-  UserProfile,
-  CompletedBadges,
-  InProgressBadges,
-  Friends,
-  Tags,
-  TodoList,
-} from "./user";
+// import {
+//   UserProfile,
+//   CompletedBadges,
+//   InProgressBadges,
+//   Friends,
+//   Tags,
+//   TodoList,
+// } from "./userProfile";
 
 const routes = [
   {
@@ -21,42 +20,20 @@ const routes = [
     component: login,
   },
   {
-    path: "/",
-    name: "generalPosts",
-    component: generalPosts,
-  },
-  {
-    path: "/badge",
-    name: "badges",
-    component: badges,
-  },
-  {
-    path: "/user/",
+    path: "/:userId",
     component: User,
     children: [
       {
-        path: "profile",
-        component: UserProfile,
+        path: "",
+        component: generalPosts,
       },
       {
-        path: "completed-badges",
-        component: CompletedBadges,
+        path: "posts",
+        component: myPosts,
       },
       {
-        path: "in-progress-badges",
-        component: InProgressBadges,
-      },
-      {
-        path: "tags",
-        component: Tags,
-      },
-      {
-        path: "friends",
-        component: Friends,
-      },
-      {
-        path: "todolist",
-        component: TodoList,
+        path: "badges",
+        component: badges,
       },
     ],
   },

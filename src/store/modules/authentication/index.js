@@ -5,7 +5,7 @@ let state = {
 
 const mutations = {
   AUTHENTICATE_USER(state, payload) {
-    console.log("mutation", payload);
+    // console.log("mutation", payload);
     state.isAuthenticated = true;
     state.idToken = payload;
   },
@@ -17,7 +17,7 @@ const mutations = {
 
 const actions = {
   authenticateUser(context, payload) {
-    console.log("context", payload);
+    // console.log("context", payload);
     context.commit("AUTHENTICATE_USER", payload);
   },
   signOutUser(context) {
