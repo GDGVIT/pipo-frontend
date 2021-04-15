@@ -1,253 +1,165 @@
 <template>
-  <div class="modal">
-    <div class="overlay" @click="closeModal"></div>
-
-    <form class="add-post-box">
-      <div class="header">
-        <div class="title">New Post</div>
+  <div
+    @click="closeModal"
+    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
+  />
+  <div
+    class="fixed bg-white z-20 bottom-10 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3"
+  >
+    <div>
+      <div>Add a Post</div>
+      <div>
+        Record your experience with people around the world!. Select the
+        challenge you wish to conquer!. Along with that enter the title,
+        description and atleast one image of your work. Be creative with your
+        words. As most upvoted posts get to be in the main page!
       </div>
-
-      <div class="idea">
-        A new day, a new post select the challenge you aim to solve today 🎯 and
-        explain about it in the description. Add images or videos to make the
-        post look even better so that it gets the upvotes ⬆ you like!
-      </div>
-      <div class="add-post-challenge">
+    </div>
+    <form @submit.prevent="onSubmit">
+      <div>
         <label for="challenge">Challenge</label>
         <select v-model="selectedChallenge" name="challenge" id="challenge">
           <option
             v-for="challenge in challenges"
-            :key="challenge.id"
-            :value="challenge.name"
-            >{{ challenge.name }}
-            <img class="badge-icon" :src="challenge.badgeURL" alt="badge-img" />
+            :key="challenge"
+            :value="challenge"
+            >{{ challenge }}
           </option>
         </select>
       </div>
-      <div class="add-post-content">
-        <label for="content">Description</label>
-        <textarea v-model="content" name="content" id="content"></textarea>
+      <div>
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" v-model="title" />
       </div>
-      <div class="add-post-attachment">
-        <div class="image-attachment">
-          <label for="img">
-            <ModalSVG name="imageIcon" />
-          </label>
-          <div class="file-name">{{ imageFile.name }}</div>
-          <input
-            @change="onSelectImage"
-            type="file"
-            id="img"
-            name="img"
-            accept="image/*"
-          />
-        </div>
-        <div class="video-attachment">
-          <label for="video">
-            <ModalSVG name="videoIcon" />
-          </label>
-
-          <div class="file-name">{{ videoFile.name }}</div>
-          <input
-            @change="onSelectVideo"
-            type="file"
-            id="video"
-            name="video"
-            accept="video/*"
-          />
+      <div>
+        <label for="description">Description</label>
+        <input
+          type="text"
+          name="description"
+          id="description"
+          v-model="description"
+        />
+      </div>
+      <div>
+        <label for="tags">Tags</label>
+        <input type="text" name="tags" v-model="tag" @keydown="addTag" />
+        <div v-for="(t, index) in tags" :key="index">
+          <div>
+            {{ t }}
+            <span @click="removeTag(index)">x</span>
+          </div>
         </div>
       </div>
-      <button @submit.prevent="onSubmit" class="post-submit" type="submit">
-        Add Post
-        <PostSVG name="plus" class="plus" />
-      </button>
+      <div>
+        <label for="img">
+          <ModalSVG name="imageIcon" />
+        </label>
+        <div class="file-name">{{ imageFile.name }}</div>
+        <input
+          @change="onSelectImage"
+          type="file"
+          id="img"
+          name="img"
+          accept="image/*"
+        />
+      </div>
+      <div>
+        <button type="submit">Submit</button>
+      </div>
     </form>
   </div>
 </template>
 
 <script>
 import ModalSVG from "./modalSVG";
-import PostSVG from "../post/postSVG";
-// import api from "@/api.js";
+import api from "@/api.js";
+import { mapState } from "vuex";
 
 export default {
-  name: "add-post-modal",
   components: {
     ModalSVG,
-    PostSVG,
+  },
+  emits: {
+    closeModal: (post) => {
+      if (post) {
+        return post;
+      } else {
+        return false;
+      }
+    },
+  },
+  computed: {
+    ...mapState({
+      authToken: (state) => state.auth.idToken,
+    }),
   },
   data() {
     return {
       challenges: [],
       imageFile: "",
-      videoFile: "",
-      content: "",
+      title: "",
+      description: "",
       selectedChallenge: "",
+      tag: "",
+      tags: [],
     };
   },
   mounted() {
-    // api.get("/",)
+    console.log("Add Post Button was clicked!");
+    this.getBadges();
   },
   methods: {
+    addTag(event) {
+      if (event.which === 13) {
+        this.tags.push(this.tag);
+        this.tag = "";
+      }
+    },
+    removeTag(index) {
+      this.tags.splice(index, 1);
+    },
+    async getBadges() {
+      const config = {
+        headers: {
+          Authorization: this.authToken,
+        },
+      };
+
+      let result = await api.get("/badge", config);
+      this.challenges = result.data.map((badge) => badge.badgeName);
+    },
     closeModal() {
-      this.$emit("closeModal");
+      this.$emit("closeModal", false);
     },
     onSelectImage(event) {
       const imageFile = event.target.files[0];
       console.log("image", imageFile);
       this.imageFile = imageFile;
     },
-    onSelectVideo(event) {
-      const videoFile = event.target.files[0];
-      console.log("video", videoFile);
-      this.videoFile = videoFile;
-    },
-    onSubmit() {
-      if (this.selectedChallenge === "" || this.content === "")
-        console.log("video", this.videoFile);
-      console.log("image", this.imageFile);
+    async onSubmit() {
+      try {
+        const formData = new FormData();
+        formData.append("post", this.imageFile);
+        formData.append("title", this.title);
+        formData.append("description", this.description);
+        formData.append("badgeName", this.selectedChallenge);
 
-      const formData = new FormData();
-      formData.append("file", this.imageFile);
-      formData.append("file", this.videoFile);
+        const config = {
+          headers: {
+            Authorization: this.authToken,
+            "Content-Type": "multipart/form-data",
+          },
+        };
 
-      console.log("formData", formData);
+        const result = await api.post("/posts", formData, config);
+        const postCreated = result.data.response.postCreated;
+        console.log("postCreated", postCreated);
+
+        this.$emit("closeModal", postCreated);
+      } catch (error) {
+        console.log("Error occured while submitting the form " + error);
+      }
     },
   },
 };
 </script>
-
-<style scoped>
-.title {
-  font-size: 30px;
-  font-family: "Gilroy-Bold";
-}
-
-.idea {
-  margin: 20px 0;
-}
-
-.overlay {
-  position: fixed;
-  z-index: 2;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.6);
-}
-
-.add-post-box {
-  position: fixed;
-  width: 80%;
-  height: 70vh;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  z-index: 3;
-  padding: 30px;
-  box-sizing: border-box;
-}
-
-.add-post-challenge {
-  display: flex;
-  align-items: center;
-  margin: 10px 0;
-}
-
-.add-post-attachment {
-  display: flex;
-  justify-content: center;
-}
-
-#content {
-  width: 100%;
-  margin: 10px 0;
-  height: 20vh;
-  resize: none;
-  outline: none;
-  font-size: 15px;
-  font-family: "Gilroy";
-}
-
-#challenge {
-  padding: 5px 10px;
-  border-radius: 10px;
-  width: 200px;
-  outline: none;
-  font-family: "Gilroy";
-}
-
-#img,
-#video {
-  display: none;
-}
-
-label {
-  margin-right: 30px;
-}
-
-.post-submit {
-  font-family: "Gilroy-Bold";
-  font-size: 15px;
-  background-color: white;
-  border: 1px solid black;
-  padding: 10px 15px;
-  outline: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 10px auto;
-}
-
-.plus {
-  fill: black;
-}
-
-.post-submit:hover {
-  cursor: pointer;
-  background-color: rgba(250, 250, 250);
-}
-</style>
-
-<!-- <div v-if="confirmDisplay" class="confirm-container">
-        <button
-          class="confirm-btn yes"
-          @submit.prevent="onSubmit"
-          type="submit"
-        >
-          Yes
-        </button>
-        <button
-          class="confirm-btn no"
-          @click="() => (confirmDisplay = false)"
-          type="submit"
-        >
-          No
-        </button>
-      </div> -->
-
-<!-- .confirm-btn {
-  border: none;
-  padding: 10px 15px;
-  border-radius: 10px;
-  color: white;
-  font-family: "Gilroy-Bold";
-  letter-spacing: 1px;
-  margin: 10px 10px;
-}
-
-.yes {
-  background-color: #38db53;
-}
-.no {
-  background-color: rgb(255, 63, 50);
-} 
-
-.yes:hover,
-.no:hover {
-  opacity: 0.9;
-  cursor: pointer;
-}-->

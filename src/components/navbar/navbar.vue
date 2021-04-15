@@ -85,8 +85,8 @@ export default {
       if (this.isToggle === true) this.hide();
       else this.show();
     },
-    signOutUser() {
-      firebase.auth().signOut();
+    async signOutUser() {
+      await firebase.auth().signOut();
       this.signOut();
       this.$router.replace("/login");
     },

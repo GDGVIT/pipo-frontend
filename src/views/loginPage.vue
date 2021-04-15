@@ -36,24 +36,32 @@ export default {
     loginButton,
     loginSVG,
   },
+  created() {
+    console.log("Loading Page");
+  },
   mounted() {
     firebase.auth().onAuthStateChanged(async (user) => {
+      console.log("1");
       if (user) {
         try {
           console.log("user", user);
 
           const uid = user.uid;
           const idToken = await user.getIdToken();
+          console.log("2");
+
           const result = await api.post("/user/oAuth", { idToken: idToken });
+          console.log("3");
 
           const authorizationToken = result.data.token;
           this.authenticate(authorizationToken);
-
+          console.log("4");
           this.$router.replace(`/${uid}`);
         } catch (error) {
           console.error("Error has occured while logging in", error);
         }
       }
+      console.log("End loading page");
     });
   },
   methods: {
