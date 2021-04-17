@@ -1,49 +1,55 @@
 <template>
-  <div class="navbar-container">
+  <div class="navbar">
     <!-- Pipo logo -->
-    <LoginSVG name="pipoLogo" class="logo" />
+    <LoginSVG name="pipoLogo" class="w-28 mx-10" />
+
     <div class="routes" :class="{ open: isToggle }">
-      <div class="nav" :class="{ fade: isToggle }">
+      <div :class="{ fade: isToggle }">
         <router-link to="/">Home</router-link>
       </div>
-      <div class="nav" :class="{ fade: isToggle }">My Posts</div>
-      <div class="nav" :class="{ fade: isToggle }">
+      <div :class="{ fade: isToggle }">
+        <router-link to="/posts">My Posts</router-link>
+      </div>
+      <div :class="{ fade: isToggle }">
         <router-link to="/badge">Badges</router-link>
       </div>
-      <div class="nav" :class="{ fade: isToggle }">
-        <button class="sign-out-btn" @click="signOutUser">Sign Out</button>
+      <div :class="{ fade: isToggle }">
+        <button
+          class="bg-myRed text-white px-4 py-2 cursor-pointer hover:opacity-90"
+          @click="signOutUser"
+        >
+          Sign Out
+        </button>
       </div>
     </div>
-    <div class="nav-icons">
+    <div class="flex justify-items-end">
       <NavbarSVG class="icon challenge" name="challengesIcon" />
       <NavbarSVG class="icon notification" name="notificationsIcon" />
       <NavbarSVG
         @click="showUserProfile"
         v-if="!hasPhotoURL"
-        class="profile-pic"
         name="profileIcon"
+        class="w-12 h-12 rounded-full object-cover mx-3"
       />
       <img
         v-if="hasPhotoURL"
         @click="showUserProfile"
         :src="photoURL"
         alt="profile-pic"
-        class="profile-pic"
+        class="w-12 h-12 rounded-full object-cover mx-3"
       />
-      <NavbarSVG
-        @click="toggleNav"
-        class="icon hamburger"
-        name="hamburgerIcon"
-      />
+      <NavbarSVG @click="setNav" class="icon hamburger" name="hamburgerIcon" />
     </div>
   </div>
 </template>
 <script>
 import NavbarSVG from "./navbarSVG";
 import LoginSVG from "../login/loginSVG";
+
 import firebase from "firebase/app";
-import { mapActions } from "vuex";
 import "firebase/auth";
+
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "navbar",
@@ -51,9 +57,13 @@ export default {
     NavbarSVG,
     LoginSVG,
   },
+  computed: {
+    ...mapState({
+      isToggle: (state) => state.nav.navbarShow,
+    }),
+  },
   data() {
     return {
-      isToggle: false,
       hasPhotoURL: false,
       photoURL: "",
     };
@@ -68,12 +78,15 @@ export default {
   methods: {
     ...mapActions({
       signOut: "signOutUser",
+      show: "showNavbar",
+      hide: "hideNavbar",
     }),
-    toggleNav() {
-      this.isToggle = !this.isToggle;
+    setNav() {
+      if (this.isToggle === true) this.hide();
+      else this.show();
     },
-    signOutUser() {
-      firebase.auth().signOut();
+    async signOutUser() {
+      await firebase.auth().signOut();
       this.signOut();
       this.$router.replace("/login");
     },
@@ -84,61 +97,6 @@ export default {
 };
 </script>
 <style scoped>
-.navbar-container {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 8vh;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: Gilroy-Bold;
-  background-color: white;
-  box-shadow: 0 0 25px 0 black;
-  z-index: 1;
-}
-
-.profile-pic {
-  width: 40px;
-  border-radius: 50%;
-  margin: 0 15px;
-}
-
-.profile-pic:hover {
-  cursor: pointer;
-}
-
-.logo {
-  width: 120px;
-  margin-left: 20px;
-}
-
-.nav {
-  display: inline;
-  margin: 0 40px;
-}
-
-.nav-icons {
-  flex-basis: 20%;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.sign-out-btn {
-  background: #ff4242;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  font-family: Gilroy-Bold !important;
-  outline: none;
-}
-
-.sign-out-btn:hover {
-  cursor: pointer;
-  opacity: 0.9;
-}
-
 .icon {
   width: 30px;
   margin: 0 20px;
@@ -146,6 +104,16 @@ export default {
 
 .hamburger {
   display: none;
+}
+
+.routes {
+  display: flex;
+  justify-items: flex-end;
+  align-items: center;
+}
+
+.routes > div {
+  margin: 0 40px;
 }
 
 @media only screen and (max-width: 960px) {
@@ -166,11 +134,7 @@ export default {
     -webkit-clip-path: circle(100px at 150% -10%);
     transition: all 1s ease-out;
     pointer-events: none;
-    background-color: #fffbfb;
-  }
-
-  .nav {
-    text-align: center;
+    background-color: white;
   }
 
   .routes.open {
