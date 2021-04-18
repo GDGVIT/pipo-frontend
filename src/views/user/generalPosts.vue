@@ -1,18 +1,17 @@
 <template>
-  <div class="posts-container">
-    <!-- add post button -->
-    <!-- TODO: add popper showing this is add post -->
-    <div
-      @click="openModal"
-      class="m-auto md:absolute md:right-10 md:top-13 cursor-pointer"
-    >
+  <!-- add post button -->
+  <!-- TODO: add popper showing this is add post -->
+  <div>
+    <div @click="openModal" class="cursor-pointer mt-20 mb-2 w-32 m-auto">
       <div
-        class="flex items-center bg-myRed w-10 h-10 rounded-full focus:outline-none enlarge"
+        class="flex items-center bg-myRed pr-3 h-10 rounded-full focus:outline-none enlarge"
       >
         <PostSVG style="fill:white" name="plus" />
+        <span class="text-white font-gbold">Add Post</span>
       </div>
     </div>
-
+  </div>
+  <div class="posts-container">
     <!-- posts display -->
     <div v-for="post in posts" :key="post.postId">
       <Post class="cursor-pointer" :post="post" @open="openPost" />
@@ -21,6 +20,7 @@
     <PostViewModal
       v-if="postViewActive"
       @upvote="upvotePost"
+      @downvote="downvotePost"
       @close="closePost"
       :post="posts[currentModalPostIndex]"
       @shift="shiftIndex"
@@ -66,7 +66,7 @@ export default {
         this.currentModalPostIndex += factor;
       } else if (
         factor === +1 &&
-        this.currentModalPostIndex !== this.posts.length
+        this.currentModalPostIndex !== this.posts.length - 1
       ) {
         this.currentModalPostIndex += factor;
       }
@@ -85,6 +85,10 @@ export default {
       console.log("upvote clicked in general posts", index);
       this.posts[index].upvoted.push("currentUser"); //TODO: Change to userID
     },
+    downvotePost(index) {
+      console.log("downvote clicked in general posts", index);
+      this.posts[index].upvoted.splice(0, 1); //TODO: find user and remove that user
+    },
     async getPosts() {
       try {
         console.log("auth token", this.idToken);
@@ -97,7 +101,7 @@ export default {
         // console.log("config", config);
 
         const result = await api.get("/posts/allLatestPosts", config);
-        const latestPosts = result.data;
+        const latestPosts = result.data.posts;
 
         console.log("latestPosts", latestPosts);
 
@@ -109,6 +113,12 @@ export default {
             if (post.username === null) post.username = "anonymous";
             // TODO: Remove this later once tags are added
             post.tags = ["Tag 1", "Tag 2", "Tag 3"];
+
+            //changing date format
+            let date = post.createDate;
+            post.createDate =
+              date.substring(0, 10) + " " + date.substring(11, 19);
+
             post.index = index;
             return post;
           });
@@ -134,9 +144,9 @@ export default {
 <style scoped>
 .posts-container {
   display: grid;
-  width: 80%;
-  margin: 10vh auto;
+  margin: 0 auto;
   padding: 10px;
+  width: 90%;
   justify-content: center;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   grid-gap: 15px;

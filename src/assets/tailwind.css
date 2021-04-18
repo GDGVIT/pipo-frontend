@@ -29,3 +29,11 @@
 .navbar {
   @apply fixed top-0 left-0 right-0 flex items-center justify-between h-16 font-gbold bg-white z-50;
 }
+
+.tag {
+  @apply mr-3 border-2 border-myBlue text-myBlue px-3 py-1 text-xs rounded-lg;
+}
+
+.input-border {
+  @apply border-2 border-myBlue w-full block focus:outline-none;
+}

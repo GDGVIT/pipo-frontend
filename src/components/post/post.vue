@@ -1,35 +1,35 @@
 <template>
   <div
     :style="{ border: '4px solid ' + border }"
-    class="bg-gray-50 font-glight"
+    class="bg-gray-50 font-glight p-9 transition duration-200 ease-in-out transform hover:scale-105"
     @click="this.$emit('open', post?.index)"
   >
-    <div class="post-details">
-      <div class="user-details">
-        <span class="username">@ {{ post?.username }}</span>
+    <div class="flex justify-between">
+      <div class="flex items-center">
+        <span class="text-xl font-gbold">@ {{ post?.username }}</span>
         <span class="streak-btn font-semibold ml-2 text-xs">{{
           post.points
         }}</span>
       </div>
-      <div class="upvote-details">
+      <div class="flex items-center">
         <postSVG name="likeLight" />
         <span style="font-size:12px">{{ post.upvoted?.length }}</span>
       </div>
     </div>
-    <div class="post-body">
-      <div class="text-xl font-bold my-2 tracking-wider">
+    <div class="">
+      <div class="text-2xl font-gbold tracking-widest my-8">
         {{ post?.title }}
       </div>
-      <div class="tracking-wide">
+      <div class="tracking-wider">
         {{ post?.description }}
       </div>
-      <div class="flex flex-col justify-items-center">
+      <div class="flex flex-col justify-items-center mt-5">
         <div v-for="(img, index) in post?.image" :key="index">
           <img :src="img" alt="post-image" />
         </div>
       </div>
-      <div>
-        <div v-for="(tag, index) in post?.tags" :key="index">
+      <div class="flex mt-4">
+        <div class="tag" v-for="(tag, index) in post?.tags" :key="index">
           {{ tag }}
         </div>
       </div>
