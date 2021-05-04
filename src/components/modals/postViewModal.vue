@@ -28,7 +28,7 @@
               @click="toggleLike"
               :name="liked ? 'likeDark' : 'likeLight'"
             />
-            <span>{{ post?.upvoted.length }}</span>
+            <span>{{ post?.upvotes.length }}</span>
             <div class="ml-5">
               <PostSVG
                 name="comment"
@@ -88,11 +88,30 @@
         <PostSVG name="comment" />
         <div>Comments</div>
       </div>
-      <div>
+      <div class="h-96 overflow-y-scroll">
         <div v-for="comment in comments" :key="comment?.commentId">
-          <div>@anonymous</div>
-          <div>{{ comment?.comment }}</div>
-          <div>{{ comment?.createdAt }}</div>
+          <div>
+            <div>
+              <img :src="comment.photoURL" alt="profile-pic" />
+              <div>@ {{ comment.username }}</div>
+            </div>
+            <div>{{ comment.createdAt }}</div>
+          </div>
+          <div>{{ comment.comment }}</div>
+        </div>
+      </div>
+      <div>
+        <input
+          v-model="userComment"
+          class="border-b border-gray-400"
+          type="text"
+          placeholder="write a comment here..."
+        />
+        <div
+          @click="sendComment"
+          class="bg-myRed w-10 h-10 rounded-full flex items-center cursor-pointer enlarge"
+        >
+          <PostSVG name="sendComment" />
         </div>
       </div>
     </div>
@@ -100,6 +119,7 @@
 </template>
 
 <script>
+import { timeAgo } from "@/generate.js";
 import PostSVG from "../post/postSVG";
 import { mapState } from "vuex";
 import api from "@/api.js";
@@ -119,14 +139,69 @@ export default {
     return {
       liked: false, //TODO: doesn't change the UI
       isCommentActive: false,
+      userComment: "",
       comments: [],
+      config: {
+        headers: {
+          Authorization: "",
+        },
+      },
     };
   },
   mounted() {
+    this.config.headers.Authorization = this.authToken;
     this.getComments();
   },
   methods: {
+    async sendComment() {
+      try {
+        const commentBody = {
+          comment: this.userComment,
+          postId: this.post.postId,
+        };
+
+        console.log("mydetails", commentBody, this.config);
+
+        const res = await api.post("/posts/comments", commentBody, this.config);
+        console.log("Response to comment sent", res);
+
+        const comment = res.data.response;
+
+        let commentObj = {
+          username: "SaiTeja T",
+          photoURL:
+            "https://lh3.googleusercontent.com/a-/AOh14GgW8OnoGpycEgKFsN1Fvnl6nONwKhXSi2VboLv_Iw=s96-c",
+          comment: comment.comment,
+          createdAt: timeAgo(new Date(), new Date(comment.createdAt)),
+        };
+
+        console.log("New comment object created", commentObj);
+        this.comments.unshift(commentObj);
+
+        this.userComment = "";
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async getComments() {
+      //TODO: Sort comments based on dates
+
+      for (let i = 0; i < 10; i++) {
+        let commentObj = {
+          username: "SaiTeja T",
+          photoURL:
+            "https://lh3.googleusercontent.com/a-/AOh14GgW8OnoGpycEgKFsN1Fvnl6nONwKhXSi2VboLv_Iw=s96-c",
+          comment: "Keep up the good work",
+        };
+
+        commentObj.id = i;
+
+        let date = new Date();
+        date.setDate(date.getDate() - i);
+        commentObj.createdAt = timeAgo(new Date(), date); //current date vs previous date
+
+        this.comments.push(commentObj);
+      }
       // try {
       //   const config = {
       //     headers: {
@@ -145,23 +220,22 @@ export default {
     },
     async toggleLike() {
       try {
-        const config = {
-          headers: {
-            Authorization: this.authToken,
-          },
-        };
         const data = {
           postId: this.post.postId,
         };
         console.log(this.post.postId);
         if (!this.liked) {
-          const result = await api.post("/posts/upvote", data, config);
+          const result = await api.post("/posts/upvote", data, this.config);
           console.log(result);
           if (result.data.message) window.alert(result.data.message);
           this.$emit("upvote", this.post?.index);
           this.liked = !this.liked;
         } else {
-          const result = await api.post("/posts/removeUpvote", data, config);
+          const result = await api.post(
+            "/posts/removeUpvote",
+            data,
+            this.config
+          );
           if (result.data.message) window.alert(result.data.message);
           this.$emit("downvote", this.post?.index);
           this.liked = !this.liked;

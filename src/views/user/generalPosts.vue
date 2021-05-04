@@ -1,11 +1,8 @@
 <template>
   <!-- add post button -->
-  <!-- TODO: add popper showing this is add post -->
   <div>
-    <div @click="openModal" class="cursor-pointer mt-20 mb-2 w-32 m-auto">
-      <div
-        class="flex items-center bg-myRed pr-3 h-10 rounded-full focus:outline-none enlarge"
-      >
+    <div @click="openModal" class="cursor-pointer mt-20 mb-2 m-auto w-40">
+      <div class="add-post-btn">
         <PostSVG style="fill:white" name="plus" />
         <span class="text-white font-gbold">Add Post</span>
       </div>
@@ -25,12 +22,16 @@
       :post="posts[currentModalPostIndex]"
       @shift="shiftIndex"
     />
-    <AddPostModal v-if="addPostActive" @closeModal="closeModal" />
+    <AddPostModal
+      v-if="addPostActive"
+      @onPost="addPost"
+      @closeModal="closeModal()"
+    />
   </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import api from "@/api";
 
 import PostSVG from "@/components/post/postSVG";
@@ -46,9 +47,14 @@ export default {
     AddPostModal,
     PostViewModal,
   },
-  computed: mapState({
-    idToken: (state) => state.auth.idToken,
-  }),
+  computed: {
+    ...mapState({
+      config: (state) => state.auth.config,
+    }),
+    ...mapGetters({
+      filteredPosts: "generalPosts",
+    }),
+  },
   data() {
     return {
       posts: [],
@@ -59,8 +65,12 @@ export default {
   },
   mounted() {
     this.getPosts();
+    console.log(this.filteredPosts);
   },
   methods: {
+    closeModal() {
+      this.addPostActive = false;
+    },
     shiftIndex(factor) {
       if (factor === -1 && this.currentModalPostIndex !== 0) {
         this.currentModalPostIndex += factor;
@@ -71,6 +81,10 @@ export default {
         this.currentModalPostIndex += factor;
       }
     },
+    addPost(post) {
+      // update my latest post to the currently added post
+      this.post[0] = post;
+    },
     openPost(index) {
       console.log("open posted clicked by " + index);
       this.postViewActive = true; //if not set to true
@@ -78,38 +92,28 @@ export default {
     },
     closePost() {
       this.postViewActive = false;
-      this.currentModalPostIndex = 0;
       this.currentModalPost = {};
     },
     upvotePost(index) {
-      console.log("upvote clicked in general posts", index);
+      console.log("Upvoted the post which is at the index " + index);
       this.posts[index].upvoted.push("currentUser"); //TODO: Change to userID
     },
     downvotePost(index) {
-      console.log("downvote clicked in general posts", index);
+      console.log("Downvoted the post which is at the " + index);
       this.posts[index].upvoted.splice(0, 1); //TODO: find user and remove that user
     },
     async getPosts() {
       try {
-        console.log("auth token", this.idToken);
-        const config = {
-          headers: {
-            Authorization: this.idToken,
-          },
-        };
-
-        // console.log("config", config);
-
-        const result = await api.get("/posts/allLatestPosts", config);
+        const result = await api.get("/posts/allLatestPosts", this.config);
         const latestPosts = result.data.posts;
 
         console.log("latestPosts", latestPosts);
 
         //data cleaning
-        this.posts = latestPosts
+        const posts = latestPosts
           .filter((post) => post !== null)
           .map((post, index) => {
-            if (post.upvoted === null) post.upvoted = [];
+            if (post.upvotes === null) post.upvotes = [];
             if (post.username === null) post.username = "anonymous";
             // TODO: Remove this later once tags are added
             post.tags = ["Tag 1", "Tag 2", "Tag 3"];
@@ -122,6 +126,8 @@ export default {
             post.index = index;
             return post;
           });
+
+        this.posts = posts;
       } catch (error) {
         console.error(error);
       }
@@ -129,13 +135,6 @@ export default {
 
     openModal() {
       this.addPostActive = true;
-    },
-    closeModal(post) {
-      if (post) {
-        console.log("Post received by general posts", post);
-        this.posts[0] = post;
-      }
-      this.addPostActive = false;
     },
   },
 };

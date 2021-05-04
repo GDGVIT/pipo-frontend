@@ -1,71 +1,102 @@
 <template>
   <div class="navbar">
-    <!-- Pipo logo -->
-    <LoginSVG name="pipoLogo" class="w-28 mx-10" />
+    <div class="flex items-center">
+      <!-- Logo -->
+      <Icon name="pipoLogo" />
 
-    <div class="routes" :class="{ open: isToggle }">
-      <div :class="{ fade: isToggle }">
-        <router-link to="/">Home</router-link>
-      </div>
-      <div :class="{ fade: isToggle }">
-        <router-link to="/posts">My Posts</router-link>
-      </div>
-      <div :class="{ fade: isToggle }">
-        <router-link to="/badge">Badges</router-link>
-      </div>
-      <div :class="{ fade: isToggle }">
-        <button
-          class="bg-myRed text-white px-4 py-2 cursor-pointer hover:opacity-90"
-          @click="signOutUser"
-        >
-          Sign Out
-        </button>
+      <!-- Routes -->
+      <div class="hidden xl:flex xl:items-center">
+        <router-link class="mx-8 ml-16" to="/">Home</router-link>
+        <router-link class="mx-8" to="/posts">My Posts</router-link>
+        <router-link class="mx-8" to="/badges">Badges</router-link>
+        <div>
+          <button
+            class="bg-myRed text-white ml-7 px-4 py-2 cursor-pointer hover:opacity-90 rounded-sm"
+            @click="signOutUser"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
     </div>
-    <div class="flex justify-items-end">
-      <NavbarSVG class="icon challenge" name="challengesIcon" />
-      <NavbarSVG class="icon notification" name="notificationsIcon" />
-      <NavbarSVG
-        @click="showUserProfile"
-        v-if="!hasPhotoURL"
-        name="profileIcon"
-        class="w-12 h-12 rounded-full object-cover mx-3"
+
+    <div class="flex items-center">
+      <!-- Filter -->
+      <Dropdown />
+
+      <!-- Icons -->
+      <div class="flex items-center xl:ml-16">
+        <Icon name="challengesIcon" />
+        <Icon name="notificationsIcon" />
+
+        <!-- Profile pic -->
+        <router-link to="/user/profile">
+          <Icon v-if="!hasPhotoURL" name="profileIcon" />
+          <img
+            v-if="hasPhotoURL"
+            class="w-12 h-12 rounded-full mx-4"
+            :src="photoURL"
+          />
+        </router-link>
+      </div>
+
+      <!-- Hamburger -->
+      <Icon
+        name="hamburger"
+        :open="showSideBar"
+        @show="showSideBar = !showSideBar"
       />
-      <img
-        v-if="hasPhotoURL"
-        @click="showUserProfile"
-        :src="photoURL"
-        alt="profile-pic"
-        class="w-12 h-12 rounded-full object-cover mx-3"
-      />
-      <NavbarSVG @click="setNav" class="icon hamburger" name="hamburgerIcon" />
+    </div>
+
+    <!-- Sidebar -->
+    <div
+      :class="[
+        showSideBar ? '' : 'translate-x-full',
+        'fixed h-screen xl:hidden -z-10 w-80 bg-white right-0 top-0 transform transition-all duration-500',
+      ]"
+    >
+      <div class="flex flex-col mt-32 text-center">
+        <div class="flex items-center transform translate-x-1/3 md:invisible">
+          <Icon name="challengeIconSidebar" />
+          <Icon name="notifyIconSidebar" />
+        </div>
+        <router-link class="my-14 text-xl font-glight" to="/">Home</router-link>
+        <router-link class="my-14 text-xl font-glight" to="/posts"
+          >My Posts</router-link
+        >
+        <router-link class="my-14 text-xl font-glight" to="/badge"
+          >Badges</router-link
+        >
+        <div>
+          <button
+            class="bg-myRed text-white my-14 px-4 py-2 cursor-pointer hover:opacity-90 rounded-md"
+            @click="signOutUser"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
-import NavbarSVG from "./navbarSVG";
-import LoginSVG from "../login/loginSVG";
+import Icon from "./navbarSVG";
+import Dropdown from "./dropdown";
 
 import firebase from "firebase/app";
 import "firebase/auth";
 
-import { mapState, mapActions } from "vuex";
+import { mapActions } from "vuex";
 
 export default {
   name: "navbar",
-  components: {
-    NavbarSVG,
-    LoginSVG,
-  },
-  computed: {
-    ...mapState({
-      isToggle: (state) => state.nav.navbarShow,
-    }),
-  },
+  components: { Icon, Dropdown },
   data() {
     return {
       hasPhotoURL: false,
       photoURL: "",
+      isToggle: false,
+      showSideBar: false,
     };
   },
   mounted() {
@@ -78,16 +109,13 @@ export default {
   methods: {
     ...mapActions({
       signOut: "signOutUser",
-      show: "showNavbar",
-      hide: "hideNavbar",
+      clearUser: "clearUser",
     }),
-    setNav() {
-      if (this.isToggle === true) this.hide();
-      else this.show();
-    },
     async signOutUser() {
       await firebase.auth().signOut();
       this.signOut();
+      this.clearUser();
+
       this.$router.replace("/login");
     },
     showUserProfile() {
@@ -96,63 +124,4 @@ export default {
   },
 };
 </script>
-<style scoped>
-.icon {
-  width: 30px;
-  margin: 0 20px;
-}
-
-.hamburger {
-  display: none;
-}
-
-.routes {
-  display: flex;
-  justify-items: flex-end;
-  align-items: center;
-}
-
-.routes > div {
-  margin: 0 40px;
-}
-
-@media only screen and (max-width: 960px) {
-  .hamburger {
-    display: inline-block;
-    cursor: pointer;
-  }
-  .routes {
-    position: fixed;
-    right: 0;
-    top: 60px;
-    width: 100%;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    clip-path: circle(100px at 80% -10%);
-    -webkit-clip-path: circle(100px at 150% -10%);
-    transition: all 1s ease-out;
-    pointer-events: none;
-    background-color: white;
-  }
-
-  .routes.open {
-    clip-path: circle(1000px at 90% -10%);
-    -webkit-clip-path: circle(1000px at 90% -10%);
-    pointer-events: all;
-  }
-  .nav:nth-child(1) {
-    transition: all 0.5s ease 0.2s;
-  }
-  .nav:nth-child(2) {
-    transition: all 0.5s ease 0.4s;
-  }
-  .nav:nth-child(3) {
-    transition: all 0.5s ease 0.6s;
-  }
-  nav.fade {
-    opacity: 1;
-  }
-}
-</style>
+<style scoped></style>

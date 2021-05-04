@@ -1,22 +1,41 @@
 <template>
-  <!-- Login background -->
-  <loginSVG name="login-bg" class="login-bg" />
+  <div class="bg-blue-100 h-screen">
+    <!-- Login background -->
+    <Background name="login-bg" class="login-bg" />
 
-  <div class="login">Login</div>
-  <!-- TODO: Add tagline for login page -->
-  <!-- <div
-    class="absolute lg:block lg:top-1/3 lg:left-1/2 font-gbold text-center tracking-wide"
-  >
-    <div class="text-white text-3xl my-2">Post In Post Out</div>
-    <div class="text-white text-xl">
-      Learn Share and Record Your Journey <br />
-      on becoming PiPo master
+    <!-- Logo -->
+    <LoginSVG name="pipoLogo" />
+
+    <!-- Login button -->
+    <div
+      class="absolute top-1/4 left-1/2 transform -translate-x-1/2 md:top-8 md:translate-x-0 md:right-10 md:left-auto"
+    >
+      <div class="font-gbold text-3xl text-white text-center mb-6 md:hidden">
+        Login
+      </div>
+      <LoginButton @click="signIn()" />
     </div>
-  </div> -->
-  <loginSVG name="pipoPenguin" class="pipo-penguin" />
-  <loginButton @click="signIn()" class="login-btn" />
-  <loginSVG name="pipoLogo" class="pipoLogo" />
-  <madeWithLove class="made" />
+
+    <div
+      class="absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight"
+    >
+      <div class="font-gbold text-5xl mb-5 tracking-wide">PiPo✨</div>
+      <div class="leading-8 tracking-wide">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos,
+        dolorum cum asperiores assumenda ad officiis quibusdam quidem, dolore
+        fuga deleniti cupiditate molestiae non! Modi pariatur atque, temporibus
+        eius delectus sint dignissimos maiores qui voluptatum fugiat quasi quo
+        dolorem. Error, beatae.
+      </div>
+    </div>
+
+    <LoginSVG name="pipoPenguin" class="pipo-penguin" />
+
+    <!-- footer -->
+    <div class="fixed bottom-5 left-1/2 transform -translate-x-1/2">
+      <MadeWithLove />
+    </div>
+  </div>
 </template>
 <script>
 import firebase from "firebase/app";
@@ -25,142 +44,105 @@ import api from "@/api.js";
 
 import { mapActions } from "vuex";
 
-import loginSVG from "../components/login/loginSVG";
-import loginButton from "../components/login/login-btn";
-import madeWithLove from "../components/login/made-with-love";
+import LoginSVG from "../components/login/loginSVG";
+import Background from "../components/backgrounds/bgSVG";
+import LoginButton from "../components/login/login-btn";
+import MadeWithLove from "../components/login/made-with-love";
 
 export default {
   name: "login-page",
   components: {
-    madeWithLove,
-    loginButton,
-    loginSVG,
-  },
-  created() {
-    console.log("Loading Page");
-  },
-  mounted() {
-    firebase.auth().onAuthStateChanged(async (user) => {
-      console.log("1");
-      if (user) {
-        try {
-          console.log("user", user);
-
-          const uid = user.uid;
-          const idToken = await user.getIdToken();
-          console.log("2");
-
-          const result = await api.post("/user/oAuth", { idToken: idToken });
-          console.log("3");
-
-          const authorizationToken = result.data.token;
-          this.authenticate(authorizationToken);
-          console.log("4");
-          this.$router.replace(`/${uid}`);
-        } catch (error) {
-          console.error("Error has occured while logging in", error);
-        }
-      }
-      console.log("End loading page");
-    });
+    MadeWithLove,
+    Background,
+    LoginButton,
+    LoginSVG,
   },
   methods: {
     ...mapActions({
       authenticate: "authenticateUser",
+      setUserDetails: "setUser",
     }),
     async signIn() {
       const provider = new firebase.auth.GoogleAuthProvider();
       await firebase.auth().signInWithPopup(provider);
     },
   },
+  mounted() {
+    firebase.auth().onAuthStateChanged(async (user) => {
+      console.log("1");
+      if (user) {
+        try {
+          console.log("User signed in! here are the details..", user);
+          const idToken = await firebase.auth().currentUser.getIdToken();
+          console.log("idToken of the user", idToken);
+
+          const res = await api.post("/user/oAuth", { idToken: idToken });
+          const userDetails = res.data.user;
+          console.log("User data obtained from backend", userDetails);
+
+          const authorizationToken = res.data.token;
+
+          this.authenticate(authorizationToken);
+          this.setUserDetails(userDetails);
+
+          this.$router.replace("/");
+        } catch (error) {
+          console.error("Error has occured while logging in", error);
+        }
+      }
+    });
+  },
 };
 </script>
 <style scoped>
-.login {
-  font-family: Gilroy-Bold;
-  color: white;
-  position: absolute;
-  top: 18%;
-  left: 50%;
-  font-size: 2rem;
-  transform: translate(-50%, 0);
-}
-.pipo-penguin {
-  width: 30%;
-  position: absolute;
-  bottom: 10vh;
-  left: 2%;
-}
-.login-bg {
-  width: 1250px;
-  transform: translate(-20%, 0);
-}
-.pipoLogo {
-  position: absolute;
-  width: 30%;
-  left: 30px;
-  top: 10px;
-}
-.login-btn {
-  position: absolute;
-  top: 27%;
-  left: 50%;
-  transform: translate(-50%, 0);
-}
-.login-btn:hover {
-  cursor: pointer;
-  opacity: 0.9;
-}
-.made {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  margin-left: -125px;
-}
+/* The never ending saga of adjusting penguin and the background */
 @media screen and (min-width: 490px) {
   .pipo-penguin {
-    width: 100px;
+    position: absolute;
+    width: 120px;
+    bottom: 7%;
+    left: 16%;
   }
-  .pipoLogo {
-    width: 100px;
+  .login-bg {
+    width: 1400px;
+    transform: translate(-16%, -2%);
   }
 }
+
+@media screen and (min-width: 683px) {
+  .pipo-penguin {
+    position: absolute;
+    width: 120px;
+    bottom: 2%;
+    left: 16%;
+  }
+  .login-bg {
+    width: 1400px;
+    transform: translate(-16%, -2%);
+  }
+}
+
 @media screen and (min-width: 940px) {
   .pipo-penguin {
-    width: 150px;
-    bottom: 10%;
-    left: 20%;
+    width: 120px;
+    bottom: 2%;
+    left: 22%;
   }
-  .pipoLogo {
-    width: 130px;
+  .login-bg {
+    width: 1400px;
+    transform: translate(-6%, 0);
   }
-  .login {
-    display: none;
-  }
-  .login-btn {
-    top: 25px;
-    transform: translate(0, 0);
-    left: 75%;
+}
+
+@media screen and (min-width: 1230px) {
+  .pipo-penguin {
+    width: 120px;
+    bottom: 2%;
+    left: 24%;
   }
   .login-bg {
     width: 100%;
-    transform: translate(0, 0);
-  }
-}
-@media screen and (min-width: 1230px) {
-  .pipo-penguin {
-    width: 130px;
-  }
-  .login-btn {
-    left: 80%;
-  }
-  .login-bg {
-    transform: translate(0, -13%);
-  }
-}
-@media screen and (min-width: 1490px) {
-  .login-bg {
-    transform: translate(0, -18%);
+    transform: translate(0, -4%);
   }
 }
 </style>

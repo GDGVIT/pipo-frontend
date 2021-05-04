@@ -3,15 +3,14 @@ import login from '@/views/loginPage'
 import User from '@/views/User'
 import notFound from '@/views/notFound'
 import { generalPosts, badges, myPosts } from './basic'
-
-// import {
-//   UserProfile,
-//   CompletedBadges,
-//   InProgressBadges,
-//   Friends,
-//   Tags,
-//   TodoList,
-// } from "./userProfile";
+import Profile from '@/views/user/Profile'
+import {
+  Badges,
+  InProgressBadges,
+  Interests,
+  TodoList,
+  UserProfile
+} from './userProfile'
 
 const routes = [
   {
@@ -20,7 +19,7 @@ const routes = [
     component: login
   },
   {
-    path: '/:userId',
+    path: '/',
     component: User,
     children: [
       {
@@ -34,6 +33,32 @@ const routes = [
       {
         path: 'badges',
         component: badges
+      },
+      {
+        path: 'user',
+        component: Profile,
+        children: [
+          {
+            path: 'profile',
+            component: UserProfile
+          },
+          {
+            path: 'todolist',
+            component: TodoList
+          },
+          {
+            path: 'interests',
+            component: Interests
+          },
+          {
+            path: 'badges',
+            component: Badges
+          },
+          {
+            path: 'in-progress',
+            component: InProgressBadges
+          }
+        ]
       }
     ]
   },

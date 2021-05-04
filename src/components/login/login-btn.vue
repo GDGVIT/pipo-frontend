@@ -1,9 +1,14 @@
 <template>
   <!-- done -->
-  <button type="submit">
-    Login PiPo using
-    <loginSVG name="googleLogo" class="google-logo" />
-  </button>
+  <div>
+    <button
+      type="submit"
+      class="flex items-center px-4 py-2 font-glight text-lg bg-white tracking-wider text-gray-800 focus:outline-none"
+    >
+      Login PiPo using
+      <loginSVG name="googleLogo" class="w-7 pl-3" />
+    </button>
+  </div>
 </template>
 <script>
 import loginSVG from "./loginSVG";
@@ -14,25 +19,4 @@ export default {
   },
 };
 </script>
-<style scoped>
-.google-logo {
-  width: 30px;
-  padding-left: 10px;
-}
-
-button {
-  font-family: Gilroy-Bold;
-  font-size: 20px;
-  background: white;
-  border: none;
-  padding: 10px 15px;
-  outline: none;
-  display: flex;
-  align-items: center;
-  border-radius: 5px;
-}
-
-button:hover {
-  background: #e6e6e6;
-}
-</style>
+<style scoped></style>

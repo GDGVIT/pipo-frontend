@@ -1,6 +1,11 @@
 const state = {
   isAuthenticated: false,
-  idToken: null
+  idToken: null,
+  config: {
+    headers: {
+      Authorization: null
+    }
+  }
 }
 
 const mutations = {
@@ -8,6 +13,7 @@ const mutations = {
     // console.log("mutation", payload);
     state.isAuthenticated = true
     state.idToken = payload
+    state.config.headers.Authorization = payload
   },
   SIGN_OUT_USER (state) {
     state.isAuthenticated = false

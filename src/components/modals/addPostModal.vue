@@ -1,11 +1,16 @@
 <template>
   <div
-    @click="closeModal"
+    @click="$emit('closeModal')"
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
   />
   <div
     class="fixed bg-white p-14 h-4/5 z-20 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight hide-scroll"
   >
+    <span
+      @click="$emit('closeModal')"
+      class="absolute top-16 right-16 cursor-pointer"
+      >x</span
+    >
     <div>
       <div class="text-3xl font-gbold text-myBlue">Add a Post</div>
       <div class="my-6">
@@ -108,15 +113,7 @@ export default {
   components: {
     ModalSVG,
   },
-  emits: {
-    closeModal: (post) => {
-      if (post) {
-        return post;
-      } else {
-        return false;
-      }
-    },
-  },
+  emits: ["closeModal", "onPost"],
   computed: {
     ...mapState({
       authToken: (state) => state.auth.idToken,
@@ -157,9 +154,6 @@ export default {
       let result = await api.get("/badge", config);
       this.challenges = result.data.map((badge) => badge.badgeName);
     },
-    closeModal() {
-      this.$emit("closeModal", false);
-    },
     onSelectImage(event) {
       const imageFile = event.target.files[0];
       console.log("image", imageFile);
@@ -184,7 +178,8 @@ export default {
         const postCreated = result.data.response.postCreated;
         console.log("postCreated", postCreated);
 
-        this.$emit("closeModal", postCreated);
+        this.$emit("closeModal");
+        this.$emit("onPost", postCreated);
       } catch (error) {
         console.log("Error occured while submitting the form " + error);
       }

@@ -15,7 +15,7 @@
 @tailwind utilities;
 
 .enlarge {
-  @apply transition duration-500 ease-in-out transform hover:scale-125;
+  @apply transition duration-500 ease-in-out transform hover:scale-110;
 }
 
 .streak-btn {
@@ -36,4 +36,12 @@
 
 .input-border {
   @apply border-2 border-myBlue w-full block focus:outline-none;
+}
+
+.absolute-center {
+  @apply transform -translate-x-1/2 -translate-y-1/2;
+}
+
+.add-post-btn {
+  @apply flex items-center bg-myRed px-5 py-2 rounded-sm enlarge;
 }

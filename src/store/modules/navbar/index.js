@@ -1,22 +1,38 @@
 const state = {
-  navbarShow: false
+  generalPostsFilter: 'All',
+  myPostsFilter: 'All',
+  generalPosts: [],
+  myPosts: []
 }
 
 const mutations = {
-  SHOW_NAVBAR (state) {
-    state.navbarShow = true
+  SET_GENERAL_POSTS_FILTER (state, payload) {
+    console.log('Setting general Posts', payload)
+    state.generalPostsFilter = payload
   },
-  HIDE_NAVBAR (state) {
-    state.navbarShow = false
+  SET_MY_POSTS_FILTER (state, payload) {
+    state.myPostsFilter = payload
+  },
+  SET_GENERAL_POSTS (state, payload) {
+    state.generalPosts = payload
   }
 }
 
+// const getters = {
+//   generalPosts(state){
+
+//   }
+// }
+
 const actions = {
-  showNavbar (context) {
-    context.commit('SHOW_NAVBAR')
+  setGeneralPostsFilter (context, payload) {
+    context.commit('SET_GENERAL_POSTS_FILTER', payload)
   },
-  hideNavbar (context) {
-    context.commit('HIDE_NAVBAR')
+  setMyPostsFilter (context, payload) {
+    context.commit('SET_MY_POSTS_FILTER', payload)
+  },
+  setGeneralPosts (context, payload) {
+    context.commit('SET_GENERAL_POSTS', payload)
   }
 }
 

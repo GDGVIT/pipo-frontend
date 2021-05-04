@@ -10,6 +10,9 @@ module.exports = {
       colors: {
         myRed: '#FF6666',
         myBlue: '#4B69AA'
+      },
+      zIndex: {
+        '-10': '-10'
       }
     }
   },

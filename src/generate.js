@@ -1,21 +1,8 @@
 import Identicon from 'identicon.js'
-
-// To generate a 32 bit hash for Identicon
-const convertHash = (str) => {
-  let hash = 0
-  let i
-  let chr
-  if (str.length === 0) return hash
-  for (i = 0; i < str.length; i++) {
-    chr = str.charCodeAt(i)
-    hash = (hash << 5) - hash + chr
-    hash |= 0
-  }
-  return hash
-}
+import { sha256 } from 'js-sha256'
 
 const generateIdenticon = (str) => {
-  const hash = convertHash(str)
+  const hash = sha256(str)
   console.log('hash', hash)
   const data = new Identicon(hash, 420).toString()
   const src = 'data:image/png;base64,' + data
@@ -35,4 +22,28 @@ const stringToColor = (str) => {
   return colour
 }
 
-export { stringToColor, generateIdenticon }
+const timeAgo = (current, previous) => {
+  const msPerMinute = 60 * 1000
+  const msPerHour = msPerMinute * 60
+  const msPerDay = msPerHour * 24
+  const msPerMonth = msPerDay * 30
+  const msPerYear = msPerDay * 365
+
+  const elapsed = current - previous
+
+  if (elapsed < msPerMinute) {
+    return Math.round(elapsed / 1000) + ' seconds ago'
+  } else if (elapsed < msPerHour) {
+    return Math.round(elapsed / msPerMinute) + ' minutes ago'
+  } else if (elapsed < msPerDay) {
+    return Math.round(elapsed / msPerHour) + ' hours ago'
+  } else if (elapsed < msPerMonth) {
+    return Math.round(elapsed / msPerDay) + ' days ago'
+  } else if (elapsed < msPerYear) {
+    return Math.round(elapsed / msPerMonth) + ' months ago'
+  } else {
+    return Math.round(elapsed / msPerYear) + ' years ago'
+  }
+}
+
+export { stringToColor, generateIdenticon, timeAgo }
