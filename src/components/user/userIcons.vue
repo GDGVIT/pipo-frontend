@@ -1,7 +1,7 @@
 <template>
   <div class="p-2 w-8 mr-10 cursor-pointer">
     <svg
-      v-if="name === 'rightArrow'"
+      v-if="name === 'rightArrow' || name === 'leftArrow'"
       xmlns="http://www.w3.org/2000/svg"
       class="h-4 w-4"
       fill="none"
@@ -12,22 +12,7 @@
         stroke-linecap="round"
         stroke-linejoin="round"
         stroke-width="2"
-        d="M9 5l7 7-7 7"
-      />
-    </svg>
-    <svg
-      v-else-if="name === 'leftArrow'"
-      xmlns="http://www.w3.org/2000/svg"
-      class="h-4 w-4"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M15 19l-7-7 7-7"
+        :d="[name === 'rightArrow' ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7']"
       />
     </svg>
     <svg

@@ -1,11 +1,11 @@
 <template>
-  <div class="relative w-60">
+  <div class="relative">
     <div class="flex items-center">
       <input
         type="text"
         v-model="badgeTyped"
         @keyup="filterAndDisplay"
-        class="pl-4 border-b-2 border-gray-400 focus:outline-none"
+        class="pl-4 border-b-2 w-40 md:w-60 border-gray-400 focus:outline-none"
       />
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +24,7 @@
     </div>
 
     <ul
-      class="absolute top-6 w-52 overflow-y-auto max-h-32 bg-gray-50 rounded-sm border border-gray-200 transition-transform"
+      class="absolute w-40 top-6 md:w-60 overflow-y-auto max-h-32 bg-gray-50 rounded-sm border border-gray-200 transition-transform"
     >
       <li
         class="pl-4 py-2 font-glight text-sm cursor-pointer hover:bg-gray-200"

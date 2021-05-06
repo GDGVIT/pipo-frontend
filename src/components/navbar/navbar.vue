@@ -11,7 +11,7 @@
         <router-link class="mx-8" to="/badges">Badges</router-link>
         <div>
           <button
-            class="bg-myRed text-white ml-7 px-4 py-2 cursor-pointer hover:opacity-90 rounded-sm"
+            class="text-white ml-7 px-4 py-2 cursor-pointer hover:opacity-90 rounded-sm"
             @click="signOutUser"
           >
             Sign Out
@@ -25,20 +25,20 @@
       <Dropdown />
 
       <!-- Icons -->
-      <div class="flex items-center xl:ml-16">
+      <div class="md:w-24 flex items-center justify-between md:ml-16 md:mr-3">
         <Icon name="challengesIcon" />
         <Icon name="notificationsIcon" />
-
-        <!-- Profile pic -->
-        <router-link to="/user/profile">
-          <Icon v-if="!hasPhotoURL" name="profileIcon" />
-          <img
-            v-if="hasPhotoURL"
-            class="w-12 h-12 rounded-full mx-4"
-            :src="photoURL"
-          />
-        </router-link>
       </div>
+
+      <!-- Profile pic -->
+      <router-link to="/user/profile">
+        <Icon v-if="!hasPhotoURL" name="profileIcon" />
+        <img
+          v-if="hasPhotoURL"
+          class="w-12 h-12 rounded-full mx-4"
+          :src="photoURL"
+        />
+      </router-link>
 
       <!-- Hamburger -->
       <Icon
@@ -56,9 +56,9 @@
       ]"
     >
       <div class="flex flex-col mt-32 text-center">
-        <div class="flex items-center transform translate-x-1/3 md:invisible">
-          <Icon name="challengeIconSidebar" />
-          <Icon name="notifyIconSidebar" />
+        <div class="flex items-center justify-between w-24 m-auto">
+          <DIcon name="challengesIcon" />
+          <DIcon name="notificationsIcon" />
         </div>
         <router-link class="my-14 text-xl font-glight" to="/">Home</router-link>
         <router-link class="my-14 text-xl font-glight" to="/posts"
@@ -80,7 +80,8 @@
   </div>
 </template>
 <script>
-import Icon from "./navbarSVG";
+import Icon from "./navIcons";
+import DIcon from "./dropdownIcons";
 import Dropdown from "./dropdown";
 
 import firebase from "firebase/app";
@@ -90,7 +91,7 @@ import { mapActions } from "vuex";
 
 export default {
   name: "navbar",
-  components: { Icon, Dropdown },
+  components: { Icon, Dropdown, DIcon },
   data() {
     return {
       hasPhotoURL: false,
