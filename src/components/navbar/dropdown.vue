@@ -50,9 +50,11 @@ export default {
       this.updatedBadges = [];
     });
   },
+
   computed: mapState({
     config: (state) => state.auth.config,
   }),
+
   data() {
     return {
       badgeTyped: "",
@@ -62,11 +64,13 @@ export default {
       badgeSelected: "",
     };
   },
+
   methods: {
     ...mapActions({
       generalFilter: "setGeneralPostsFilter",
       myFilter: "setMyPostsFilter",
     }),
+
     async getBadges() {
       const res = await api.get("/badge", this.config);
       const badges = res.data.map((badge) => {
@@ -77,6 +81,7 @@ export default {
       this.badges = badges;
       this.badges.unshift("All");
     },
+
     filterAndDisplay() {
       this.showDropdown = true;
       this.updatedBadges = this.badges.filter((badge) => {
@@ -87,6 +92,7 @@ export default {
         }
       });
     },
+
     selectBadge(badge) {
       this.badgeTyped = "";
       this.updatedBadges = [];

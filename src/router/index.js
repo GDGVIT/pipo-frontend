@@ -1,76 +1,103 @@
-import { createWebHistory, createRouter } from 'vue-router'
-import login from '@/views/loginPage'
-import User from '@/views/User'
-import notFound from '@/views/notFound'
-import { generalPosts, badges, myPosts } from './basic'
-import Profile from '@/views/user/Profile'
-import {
-  Badges,
-  InProgressBadges,
-  Interests,
-  TodoList,
-  UserProfile
-} from './userProfile'
+import { createWebHistory, createRouter } from "vue-router";
+import login from "@/views/loginPage";
+import User from "@/views/User";
+import generalPosts from "@/views/user/generalPosts";
 
 const routes = [
   {
-    path: '/login',
-    name: 'login',
-    component: login
+    path: "/login",
+    name: "login",
+    component: login,
   },
   {
-    path: '/',
+    path: "/",
     component: User,
     children: [
       {
-        path: '',
-        component: generalPosts
+        name: "generalPosts",
+        path: "",
+        component: generalPosts,
       },
       {
-        path: 'posts',
-        component: myPosts
+        name: "myPosts",
+        path: "posts",
+        component: () =>
+          import(/*webpackChunkName: "myposts"*/ "../views/user/myPosts.vue"),
       },
       {
-        path: 'badges',
-        component: badges
+        name: "badges",
+        path: "badges",
+        component: () =>
+          import(/*webpackChunkName: "badges"*/ "../views/user/badgesPage.vue"),
       },
       {
-        path: 'user',
-        component: Profile,
+        name: "user",
+        path: "user",
+        component: () =>
+          import(/*webpackChunkName: "user"*/ "../views/user/Profile.vue"),
         children: [
           {
-            path: 'profile',
-            component: UserProfile
+            name: "userProfile",
+            path: "profile",
+            component: () =>
+              import(
+                /*webpackChunkName: "userProfile"*/ "../views/user/profile/userProfile.vue"
+              ),
           },
           {
-            path: 'todolist',
-            component: TodoList
+            name: "todolist",
+            path: "todolist",
+            component: () =>
+              import(
+                /*webpackChunkName: "todolist"*/ "../views/user/profile/todolist.vue"
+              ),
           },
           {
-            path: 'interests',
-            component: Interests
+            name: "interests",
+            path: "interests",
+            component: () =>
+              import(
+                /*webpackChunkName: "interests"*/ "../views/user/profile/interests.vue"
+              ),
           },
           {
-            path: 'badges',
-            component: Badges
+            name: "completedBadges",
+            path: "badges",
+            component: () =>
+              import(
+                /*webpackChunkName: "completedBadges"*/ "../views/user/profile/badges.vue"
+              ),
           },
           {
-            path: 'in-progress',
-            component: InProgressBadges
-          }
-        ]
-      }
-    ]
+            name: "calendar",
+            path: "in-progress/:challengeName",
+            component: () =>
+              import(
+                /*webpackChunkName: "inProgressBadges"*/ "../views/user/profile/Calendar.vue"
+              ),
+          },
+          {
+            name: "inProgressBadges",
+            path: "in-progress",
+            component: () =>
+              import(
+                /*webpackChunkName: "inProgressBadges"*/ "../views/user/profile/inProgressBadges.vue"
+              ),
+          },
+        ],
+      },
+    ],
   },
   {
-    path: '/:catchAll(.*)',
-    component: notFound
-  }
-]
+    path: "/:catchAll(.*)",
+    component: () =>
+      import(/*webpackChunkName: "notFound"*/ "../views/notFound.vue"),
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

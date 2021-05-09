@@ -11,7 +11,7 @@
   <div class="posts-container">
     <!-- posts display -->
     <div v-for="post in posts" :key="post.postId">
-      <Post class="cursor-pointer" :post="post" @open="openPost" />
+      <Post :post="post" @open="openPost" />
     </div>
 
     <PostViewModal
@@ -32,12 +32,20 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
+import { defineAsyncComponent } from "vue";
+
 import api from "@/api";
 
 import PostSVG from "@/components/post/postSVG";
-import Post from "@/components/post/post";
+import LoadingCard from "@/components/loadComponents/LoadingCard";
 import AddPostModal from "@/components/modals/addPostModal";
 import PostViewModal from "@/components/modals/postViewModal";
+
+const Post = defineAsyncComponent({
+  loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
+  loadingComponent: LoadingCard,
+  delay: 200,
+});
 
 export default {
   name: "general-posts",

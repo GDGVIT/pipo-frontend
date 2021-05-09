@@ -1,7 +1,6 @@
 <template>
   <div
-    :style="{ border: '4px solid ' + border }"
-    class="bg-gray-50 font-glight p-9 transition duration-200 ease-in-out transform hover:scale-105"
+    class="post bg-gray-50 font-glight p-9 cursor-pointer relative"
     @click="this.$emit('open', post?.index)"
   >
     <div class="flex justify-between">
@@ -53,8 +52,10 @@ export default {
   },
   mounted() {
     //setting borders
+
     const border = stringToColor(this.post?.badgeName);
     this.border = border;
   },
 };
 </script>
+<style scoped></style>
