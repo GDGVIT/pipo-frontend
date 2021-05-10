@@ -1,9 +1,16 @@
 import { ref } from "vue";
 
-const setUser = () => {
-  const user = ref(null);
+const user = ref(null);
+const token = ref(null);
+const config = ref({
+  headers: {
+    Authorization: null,
+  },
+});
+const isLoggedIn = ref(null);
 
-  return { user };
+const setUser = () => {
+  return { user, isLoggedIn, token, config };
 };
 
-return { setUser };
+export { setUser };

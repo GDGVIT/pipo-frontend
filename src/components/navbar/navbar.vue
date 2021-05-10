@@ -11,8 +11,8 @@
         <router-link class="mx-8" to="/badges">Badges</router-link>
         <div>
           <button
-            class="text-white ml-7 px-4 py-2 cursor-pointer hover:opacity-90 rounded-sm"
-            @click="signOutUser"
+            class="bg-myRed text-white ml-7 px-4 py-2 cursor-pointer hover:opacity-90 rounded-sm"
+            @click="signOutUser()"
           >
             Sign Out
           </button>
@@ -32,11 +32,11 @@
 
       <!-- Profile pic -->
       <router-link to="/user/profile">
-        <Icon v-if="!hasPhotoURL" name="profileIcon" />
+        <Icon v-if="!isLoggedIn" name="profileIcon" />
         <img
-          v-if="hasPhotoURL"
+          v-if="isLoggedIn"
           class="w-12 h-12 rounded-full mx-4"
-          :src="photoURL"
+          :src="photo"
         />
       </router-link>
 
@@ -70,7 +70,7 @@
         <div>
           <button
             class="bg-myRed text-white my-14 px-4 py-2 cursor-pointer hover:opacity-90 rounded-md"
-            @click="signOutUser"
+            @click="signOutUser()"
           >
             Sign Out
           </button>
@@ -87,41 +87,45 @@ import Dropdown from "./dropdown";
 import firebase from "firebase/app";
 import "firebase/auth";
 
-import { mapActions } from "vuex";
+import { setUser } from "../../composables/auth";
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   name: "navbar",
   components: { Icon, Dropdown, DIcon },
-  data() {
-    return {
-      hasPhotoURL: false,
-      photoURL: "",
-      isToggle: false,
-      showSideBar: false,
-    };
-  },
-  mounted() {
-    const photoURL = firebase.auth().currentUser.photoURL;
-    if (photoURL) {
-      this.hasPhotoURL = true;
-      this.photoURL = photoURL;
-    }
-  },
-  methods: {
-    ...mapActions({
-      signOut: "signOutUser",
-      clearUser: "clearUser",
-    }),
-    async signOutUser() {
-      await firebase.auth().signOut();
-      this.signOut();
-      this.clearUser();
+  setup() {
+    const router = useRouter();
+    const photo = ref(null);
+    const showSideBar = ref(false);
+    const isToggle = ref(false);
 
-      this.$router.replace("/login");
-    },
-    showUserProfile() {
-      this.$router.replace("/user");
-    },
+    const { isLoggedIn } = setUser();
+    const stopWatch = watch(isLoggedIn, () => {
+      if (isLoggedIn) {
+        console.log("The user is logged in from navbar");
+        photo.value = firebase.auth()?.currentUser.photoURL;
+        stopWatch();
+      }
+    });
+
+    const signOutUser = async () => {
+      await firebase.auth().signOut();
+      await router.push("/login");
+    };
+
+    const goToProfile = async () => {
+      await router.push("/user");
+    };
+
+    return {
+      isLoggedIn,
+      photo,
+      signOutUser,
+      goToProfile,
+      isToggle,
+      showSideBar,
+    };
   },
 };
 </script>

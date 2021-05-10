@@ -32,9 +32,11 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, ref, watch } from "vue";
 
 import api from "@/api";
+import { setUser } from "../../composables/auth";
+import { getPosts } from "../../composables/posts";
 
 import PostSVG from "@/components/post/postSVG";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
@@ -54,6 +56,19 @@ export default {
     PostSVG,
     AddPostModal,
     PostViewModal,
+  },
+  setup() {
+    const posts = ref(null);
+    console.log(posts);
+
+    const { isLoggedIn } = setUser();
+
+    watch(isLoggedIn, () => {
+      if (isLoggedIn.value) {
+        const { config } = getPosts();
+        console.log("Logged in!", config);
+      }
+    });
   },
   computed: {
     ...mapState({

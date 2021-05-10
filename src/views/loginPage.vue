@@ -40,57 +40,41 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/auth";
-import api from "@/api.js";
-
-import { mapActions } from "vuex";
 
 import LoginSVG from "../components/login/loginSVG";
 import Background from "../components/backgrounds/bgSVG";
 import LoginButton from "../components/login/login-btn";
 import MadeWithLove from "../components/login/made-with-love";
 
+import { setUser } from "../composables/auth";
+import { watch } from "vue";
+import { useRouter } from "vue-router";
+
 export default {
   name: "login-page",
+  setup() {
+    const router = useRouter();
+    const { isLoggedIn } = setUser();
+
+    const stopWatch = watch(isLoggedIn, async () => {
+      if (isLoggedIn) {
+        await router.push("/");
+        stopWatch();
+      }
+    });
+
+    const signIn = async () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      await firebase.auth().signInWithPopup(provider);
+    };
+
+    return { signIn };
+  },
   components: {
     MadeWithLove,
     Background,
     LoginButton,
     LoginSVG,
-  },
-  methods: {
-    ...mapActions({
-      authenticate: "authenticateUser",
-      setUserDetails: "setUser",
-    }),
-    async signIn() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      await firebase.auth().signInWithPopup(provider);
-    },
-  },
-  mounted() {
-    firebase.auth().onAuthStateChanged(async (user) => {
-      console.log("1");
-      if (user) {
-        try {
-          console.log("User signed in! here are the details..", user);
-          const idToken = await firebase.auth().currentUser.getIdToken();
-          console.log("idToken of the user", idToken);
-
-          const res = await api.post("/user/oAuth", { idToken: idToken });
-          const userDetails = res.data.user;
-          console.log("User data obtained from backend", userDetails);
-
-          const authorizationToken = res.data.token;
-
-          this.authenticate(authorizationToken);
-          this.setUserDetails(userDetails);
-
-          this.$router.replace("/");
-        } catch (error) {
-          console.error("Error has occured while logging in", error);
-        }
-      }
-    });
   },
 };
 </script>
