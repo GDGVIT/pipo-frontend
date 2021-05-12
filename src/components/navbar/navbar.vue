@@ -36,7 +36,7 @@
         <img
           v-if="isLoggedIn"
           class="w-12 h-12 rounded-full mx-4"
-          :src="photo"
+          :src="photo && photo"
         />
       </router-link>
 
@@ -88,7 +88,7 @@ import firebase from "firebase/app";
 import "firebase/auth";
 
 import { setUser } from "../../composables/auth";
-import { ref, watch } from "vue";
+import { ref, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
@@ -101,11 +101,10 @@ export default {
     const isToggle = ref(false);
 
     const { isLoggedIn } = setUser();
-    const stopWatch = watch(isLoggedIn, () => {
-      if (isLoggedIn) {
-        console.log("The user is logged in from navbar");
+    const stopWatching = watchEffect(() => {
+      if (isLoggedIn.value && !photo.value) {
         photo.value = firebase.auth()?.currentUser.photoURL;
-        stopWatch();
+        stopWatching();
       }
     });
 

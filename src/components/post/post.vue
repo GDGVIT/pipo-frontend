@@ -1,18 +1,19 @@
 <template>
   <div
+    :style="[`border: 4px solid ${border}`]"
     class="post bg-gray-50 font-glight p-9 cursor-pointer relative"
-    @click="this.$emit('open', post?.index)"
+    @click="openPostModal()"
   >
     <div class="flex justify-between">
       <div class="flex items-center">
         <span class="text-xl font-gbold">@ {{ post?.username }}</span>
         <span class="streak-btn font-semibold ml-2 text-xs">{{
-          post.points
+          post?.points
         }}</span>
       </div>
       <div class="flex items-center">
         <postSVG name="likeLight" />
-        <span style="font-size:12px">{{ post.upvoted?.length }}</span>
+        <span style="font-size:12px">{{ post?.upvotes?.length }}</span>
       </div>
     </div>
     <div class="">
@@ -37,24 +38,28 @@
 </template>
 <script>
 import postSVG from "./postSVG";
-import { stringToColor } from "@/generate.js";
+import { stringToColor } from "../../generate";
+import { computed } from "vue";
+import { postModalFn } from "../../composables/posts";
 
 export default {
-  name: "post",
-  props: ["post"],
-  components: {
-    postSVG,
-  },
-  data() {
-    return {
-      border: "",
-    };
-  },
-  mounted() {
-    //setting borders
+  components: { postSVG },
+  props: ["post", "index"],
+  setup(props, { emit }) {
+    console.log(props.post);
 
-    const border = stringToColor(this.post?.badgeName);
-    this.border = border;
+    const { currIndex } = postModalFn();
+
+    const border = computed(() => {
+      return props.post ? stringToColor(props.post.badgeName) : "#fff";
+    });
+
+    const openPostModal = () => {
+      emit("open", null);
+      currIndex.value = props.index;
+    };
+
+    return { border, openPostModal };
   },
 };
 </script>
