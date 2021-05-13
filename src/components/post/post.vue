@@ -46,9 +46,7 @@ export default {
   components: { postSVG },
   props: ["post", "index"],
   setup(props, { emit }) {
-    console.log(props.post);
-
-    const { currIndex } = postModalFn();
+    const { assignIndex } = postModalFn();
 
     const border = computed(() => {
       return props.post ? stringToColor(props.post.badgeName) : "#fff";
@@ -56,7 +54,7 @@ export default {
 
     const openPostModal = () => {
       emit("open", null);
-      currIndex.value = props.index;
+      assignIndex(props.index);
     };
 
     return { border, openPostModal };

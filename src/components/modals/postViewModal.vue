@@ -84,32 +84,51 @@
         />
       </div>
     </div>
-    <div v-if="isCommentActive">
+
+    <!-- Comments -->
+    <div v-if="isCommentActive" class="p-10">
       <PostSVG
-        class="cursor-pointer w-3"
+        class="cursor-pointer absolute top-10 left-10"
         name="leftArrow"
         @click="isCommentActive = false"
       />
-      <div>
-        <PostSVG name="comment" />
-        <div>Comments</div>
-      </div>
-      <div class="h-96 overflow-y-scroll">
-        <div v-for="comment in comments" :key="comment?.commentId">
-          <div>
-            <div>
-              <img :src="comment.photoURL" alt="profile-pic" />
-              <div>@ {{ comment.username }}</div>
-            </div>
-            <div>{{ comment.createdAt }}</div>
-          </div>
-          <div>{{ comment.comment }}</div>
+      <div class="grid place-items-center">
+        <div class="text-2xl font-gbold flex">
+          Comments
+          <PostSVG name="comment" />
         </div>
       </div>
-      <div>
+      <div class="h-96 overflow-y-scroll">
+        <div
+          v-for="comment in orderedComments"
+          :key="comment?.commentId"
+          class="grid grid-cols-12 px-5 bg-gray-50 py-3 rounded-md mt-6"
+        >
+          <!-- Profile -->
+          <div class="col-span-2">
+            <img
+              v-if="comment.photoURL"
+              :src="comment.photoURL"
+              alt="profile-pic"
+            />
+            <Icon v-if="!comment.photoURL" name="profileIcon" />
+          </div>
+          <!-- Comment -->
+          <div class="col-span-10 pl-3">
+            <div class="flex justify-between items-baseline">
+              <div class="text-sm font-gbold">@ {{ comment.userName }}</div>
+              <div class="text-xs">{{ comment.createdAt }}</div>
+            </div>
+            <div class="my-2">{{ comment.comment }}</div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="absolute bottom-10 left-0 right-0 grid grid-cols-12 place-items-center px-10"
+      >
         <input
           v-model="userComment"
-          class="border-b border-gray-400"
+          class="border-b border-gray-400 col-span-11 w-full px-5 py-2"
           type="text"
           placeholder="write a comment here..."
         />
@@ -125,27 +144,32 @@
 </template>
 
 <script>
-// import { timeAgo } from "@/generate.js";
 import PostSVG from "../post/postSVG";
-import { postModalFn } from "../../composables/posts";
-import { onMounted, ref } from "vue";
+import Icon from "@/components/navbar/navIcons";
+import { getComments, postModalFn } from "../../composables/posts";
+import { onMounted, ref, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
 
 export default {
   components: {
     PostSVG,
+    Icon,
   },
   emits: ["close"],
   setup() {
     const postModal = ref(null);
     const upvoted = ref(false);
+    const isCommentActive = ref(false);
     const { user } = setUser();
+    const userComment = ref(null);
 
     const { getCurrentPost, getNextPost, getPrevPost, vote } = postModalFn();
+    const { loadComments, orderedComments, postComment } = getComments();
 
     postModal.value = getCurrentPost();
     onMounted(() => checkUpvoted());
 
+    //Shift
     const next = () => {
       upvoted.value = false;
       postModal.value = getNextPost();
@@ -158,6 +182,7 @@ export default {
       checkUpvoted();
     };
 
+    //Upvotes section
     const checkUpvoted = () => {
       postModal.value.upvotes.forEach((u) => {
         if (u === user.userId) {
@@ -171,119 +196,30 @@ export default {
       upvoted.value = !upvoted.value;
     };
 
-    console.log("Post Modal value", postModal.value);
+    // Comments section
+    watchEffect(async () => {
+      if (postModal.value) {
+        await loadComments();
+      }
+    });
 
-    return { postModal, next, prev, upvoted, upvotePost };
+    const sendComment = () => {
+      postComment(userComment.value);
+      userComment.value = null;
+    };
+
+    return {
+      postModal,
+      next,
+      prev,
+      upvoted,
+      upvotePost,
+      orderedComments,
+      isCommentActive,
+      userComment,
+      sendComment,
+    };
   },
-  // data() {
-  //   return {
-  //     liked: false, //TODO: doesn't change the UI
-  //     isCommentActive: false,
-  //     userComment: "",
-  //     comments: [],
-  //     config: {
-  //       headers: {
-  //         Authorization: "",
-  //       },
-  //     },
-  //   };
-  // },
-  // mounted() {
-  //   this.getComments();
-  // },
-  // methods: {
-  //   async sendComment() {
-  //     try {
-  //       const commentBody = {
-  //         comment: this.userComment,
-  //         postId: this.post.postId,
-  //       };
-
-  //       console.log("mydetails", commentBody, this.config);
-
-  //       const res = await api.post("/posts/comments", commentBody, this.config);
-  //       console.log("Response to comment sent", res);
-
-  //       const comment = res.data.response;
-
-  //       let commentObj = {
-  //         username: "SaiTeja T",
-  //         photoURL:
-  //           "https://lh3.googleusercontent.com/a-/AOh14GgW8OnoGpycEgKFsN1Fvnl6nONwKhXSi2VboLv_Iw=s96-c",
-  //         comment: comment.comment,
-  //         createdAt: timeAgo(new Date(), new Date(comment.createdAt)),
-  //       };
-
-  //       console.log("New comment object created", commentObj);
-  //       this.comments.unshift(commentObj);
-
-  //       this.userComment = "";
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   },
-  //   async getComments() {
-  //     //TODO: Sort comments based on dates
-
-  //     for (let i = 0; i < 10; i++) {
-  //       let commentObj = {
-  //         username: "SaiTeja T",
-  //         photoURL:
-  //           "https://lh3.googleusercontent.com/a-/AOh14GgW8OnoGpycEgKFsN1Fvnl6nONwKhXSi2VboLv_Iw=s96-c",
-  //         comment: "Keep up the good work",
-  //       };
-
-  //       commentObj.id = i;
-
-  //       let date = new Date();
-  //       date.setDate(date.getDate() - i);
-  //       commentObj.createdAt = timeAgo(new Date(), date); //current date vs previous date
-
-  //       this.comments.push(commentObj);
-  //     }
-  // try {
-  //   const config = {
-  //     headers: {
-  //       Authorization: this.authToken,
-  //     },
-  //   };
-  //   const data = {
-  //     postId: this.post.postId,
-  //   };
-  //   console.log("data", data);
-  //   const result = await api.get("/posts/getPost", config, data);
-  //   console.log("comments", result);
-  // } catch (error) {
-  //   console.log("Error while getting comments", error);
-  // }
-  // },
-  // async toggleLike() {
-  //   try {
-  //     const data = {
-  //       postId: this.post.postId,
-  //     };
-  //     console.log(this.post.postId);
-  //     if (!this.liked) {
-  //       const result = await api.post("/posts/upvote", data, this.config);
-  //       console.log(result);
-  //       if (result.data.message) window.alert(result.data.message);
-  //       this.$emit("upvote", this.post?.index);
-  //       this.liked = !this.liked;
-  //     } else {
-  //       const result = await api.post(
-  //         "/posts/removeUpvote",
-  //         data,
-  //         this.config
-  //       );
-  //       if (result.data.message) window.alert(result.data.message);
-  //       this.$emit("downvote", this.post?.index);
-  //       this.liked = !this.liked;
-  //     }
-  //   } catch (error) {
-  //     console.log("Unable to upvote ", error);
-  //   }
-  // },
-  // },
 };
 </script>
 

@@ -1,6 +1,7 @@
 import api from "@/api.js";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { setUser } from "./auth";
+import { timeAgo } from "@/generate.js";
 
 const generalPosts = ref(null);
 const currIndex = ref(0);
@@ -56,6 +57,8 @@ const addPostFn = () => {
 
 const postModalFn = () => {
   const { user, config } = setUser();
+
+  const assignIndex = (index) => (currIndex.value = index);
 
   const getCurrentPost = () => generalPosts.value[currIndex.value];
 
@@ -122,6 +125,7 @@ const postModalFn = () => {
     getPrevPost,
     openPost,
     vote,
+    assignIndex,
   };
 };
 
@@ -142,4 +146,55 @@ const filterMyLatestPost = (post) => {
   return post;
 };
 
-export { getPosts, postModalFn, addPostFn };
+const getComments = () => {
+  const { config } = setUser();
+  const comments = ref([]);
+
+  const loadComments = async () => {
+    const id = generalPosts.value[currIndex.value].postId;
+
+    try {
+      const res = await api.post(`/posts/getPost/${id}`, {}, config.value);
+      comments.value = res.data.comments;
+    } catch (error) {
+      console.log(
+        "Error while obtaining comments of the post from backend",
+        error
+      );
+    }
+  };
+
+  const orderedComments = computed(() => {
+    return comments.value.sort(sortByDate).map((comment) => {
+      // If username is null make it anonymous
+      if (comment.userName === null) comment.userName = "anonymous";
+
+      if (!comment.createdAt.includes("ago")) {
+        comment.createdAt = timeAgo(new Date(), new Date(comment.createdAt));
+        comment.updatedAt = timeAgo(new Date(), new Date(comment.updatedAt));
+      }
+
+      return comment;
+    });
+  });
+
+  const postComment = async (comment) => {
+    const data = {
+      comment,
+      postId: generalPosts.value[currIndex.value].postId,
+    };
+
+    try {
+      const res = await api.post("/posts/comments", data, config.value);
+      comments.value.push(res.data.response);
+    } catch (error) {
+      console.log("Error while posting a comment to the post", error);
+    }
+  };
+
+  return { loadComments, orderedComments, postComment };
+};
+
+const sortByDate = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
+
+export { getPosts, postModalFn, addPostFn, getComments };
