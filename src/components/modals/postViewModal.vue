@@ -298,10 +298,6 @@ export default {
   height: 350px;
 }
 
-.post-body::-webkit-scrollbar {
-  display: none;
-}
-
 @keyframes arrow-bounce {
   0%,
   100% {

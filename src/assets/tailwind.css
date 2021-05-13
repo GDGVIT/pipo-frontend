@@ -45,3 +45,7 @@
 .add-post-btn {
   @apply flex items-center bg-myRed px-5 py-2 rounded-sm enlarge;
 }
+
+.container {
+  @apply absolute top-28 bg-white h-3/4 transform left-1/2 -translate-x-1/2 w-full md:w-4/5 xl:w-2/3;
+}

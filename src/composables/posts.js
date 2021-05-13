@@ -125,9 +125,7 @@ const postModalFn = () => {
   };
 };
 
-const sortByPoints = (a, b) => {
-  return b.points - a.points;
-};
+const sortByPoints = (a, b) => b.points - a.points;
 
 const filterMyLatestPost = (post) => {
   if (post.upvotes === null) post.upvotes = [];

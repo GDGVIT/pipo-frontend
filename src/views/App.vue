@@ -68,6 +68,16 @@ export default {
   overflow: hidden;
 }
 
+::-webkit-scrollbar {
+  background-color: white;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ff6666;
+  border-radius: 20px;
+}
+
 a {
   text-decoration: none;
   color: inherit;
