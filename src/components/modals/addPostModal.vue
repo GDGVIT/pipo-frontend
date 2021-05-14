@@ -4,7 +4,7 @@
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
   />
   <div
-    class="fixed bg-white p-14 h-4/5 z-20 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight hide-scroll"
+    class="fixed bg-white p-14 h-4/5 z-20 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
   >
     <span
       @click="$emit('closeModal')"
@@ -12,7 +12,7 @@
       >x</span
     >
     <div>
-      <div class="text-3xl font-gbold text-myBlue">Add a Post</div>
+      <div class="text-3xl font-gbold text-center">Add a Post</div>
       <div class="my-6">
         Record your experience with people around the world!. Select the
         challenge you wish to conquer!. Along with that enter the title,
@@ -20,67 +20,82 @@
         words. As most upvoted posts get to be in the main page!
       </div>
     </div>
-    <form @submit.prevent="onSubmit" class="m-auto">
-      <div class="my-2">
+    <div>
+      <div class="grid sm:grid-cols-4 gap-4 md:px-10 items-center">
         <label for="challenge">Challenge</label>
-        <select
-          v-model="selectedChallenge"
-          name="challenge"
-          id="challenge"
-          class="input-border"
-        >
-          <option
-            v-for="challenge in challenges"
-            :key="challenge"
-            :value="challenge"
-            >{{ challenge }}
-          </option>
-        </select>
-      </div>
-      <div class="my-2">
+        <div class="col-span-3 relative">
+          <input
+            type="text"
+            v-model="challengeTyped"
+            class="input-border pl-4 py-1 focus:outline-none font-gregular"
+            placeholder="Search"
+          />
+          <ul
+            class="absolute w-full top-10 overflow-y-auto max-h-32 bg-gray-50 rounded-sm border border-gray-200 transition-transform"
+          >
+            <li
+              class="pl-4 py-2 font-gregular text-sm cursor-pointer hover:bg-gray-200"
+              v-for="(challenge, index) in updatedChallenges"
+              :key="index"
+              @click="submitChallenge(challenge)"
+            >
+              {{ challenge }}
+            </li>
+          </ul>
+        </div>
         <label for="title">Title</label>
         <input
-          class="input-border"
+          class="input-border col-span-3"
           type="text"
           name="title"
           id="title"
           v-model="title"
         />
-      </div>
-      <div class="my-2">
         <label for="description">Description</label>
         <textarea
           type="text"
           name="description"
           id="description"
-          class="input-border resize-none"
+          class="input-border resize-none col-span-3"
           style="height:10em"
           v-model="description"
         />
-      </div>
-      <div>
         <label for="tags">Tags</label>
         <input
           type="text"
-          class="input-border"
+          class="input-border col-span-3"
           name="tags"
           v-model="tag"
           @keydown="addTag"
         />
-        <div v-for="(t, index) in tags" :key="index">
-          <div>
-            {{ t }}
-            <span @click="removeTag(index)">x</span>
-          </div>
+      </div>
+
+      <!-- Tags display -->
+      <div class="mt-10 md:px-10">
+        <div
+          v-for="(t, index) in tags"
+          :key="index"
+          class="font-gregular bg-myBlue text-white inline-block rounded-md px-2 mr-3"
+        >
+          {{ t }}
+          <span
+            class="cursor-pointer ml-2 font-gregular"
+            @click="tags.splice(index, 1)"
+            >x</span
+          >
         </div>
       </div>
-      <div class="my-4">
-        <div class="font-gbold">Add Images</div>
+
+      <div class="mt-10 my-4 md:px-10 flex">
+        <div class="font-gbold mr-3">Add Images</div>
         <div class="relative flex">
           <label for="img">
             <ModalSVG name="imageIcon" />
           </label>
-          <div class="bg-myBlue text-white px-2 py-1 text-xs ml-4 rounded-md">
+          <div
+            v-if="imageFile"
+            class="bg-myBlue text-white px-2 py-1 text-xs ml-4 rounded-md"
+          >
             {{ imageFile.name }}
           </div>
           <input
@@ -92,98 +107,98 @@
           />
         </div>
       </div>
-      <div class="absolute right-14">
+      <div class="text-center">
         <button
+          @click="onSubmit()"
           class="tracking-widest text-sm font-gbold bg-myRed px-3 py-2 text-white"
           type="submit"
         >
           POST
         </button>
       </div>
-    </form>
+    </div>
   </div>
 </template>
 
 <script>
 import ModalSVG from "./modalSVG";
-import api from "@/api.js";
-import { mapState } from "vuex";
+import { getBadges } from "../../composables/badges";
+import { onMounted, ref, watch } from "vue";
+import { addPostFn } from "../../composables/posts";
 
 export default {
-  components: {
-    ModalSVG,
-  },
-  emits: ["closeModal", "onPost"],
-  computed: {
-    ...mapState({
-      authToken: (state) => state.auth.idToken,
-    }),
-  },
-  data() {
-    return {
-      challenges: [],
-      imageFile: "",
-      title: "",
-      description: "",
-      selectedChallenge: "",
-      tag: "",
-      tags: [],
-    };
-  },
-  mounted() {
-    console.log("Add Post Button was clicked!");
-    this.getBadges();
-  },
-  methods: {
-    addTag(event) {
+  components: { ModalSVG },
+  emits: ["closeModal"],
+  setup(props, { emit }) {
+    const { getAllBadges } = getBadges();
+    const challenges = ref([]);
+    const updatedChallenges = ref([]);
+    const challengeTyped = ref(null);
+
+    const title = ref(null);
+    const description = ref(null);
+    const tag = ref("");
+    const selectedChallenge = ref(null);
+    const imageFile = ref(null);
+
+    const tags = ref([]);
+
+    onMounted(() => {
+      challenges.value = getAllBadges();
+    });
+
+    watch(challengeTyped, () => {
+      updatedChallenges.value = challenges.value.filter((badge) =>
+        badge.toLowerCase().includes(challengeTyped.value?.toLowerCase())
+      );
+    });
+
+    document.addEventListener("click", () => {
+      updatedChallenges.value = [];
+    });
+
+    const addTag = (event) => {
       if (event.which === 13) {
-        this.tags.push(this.tag);
-        this.tag = "";
+        tags.value.push(tag.value);
+        tag.value = "";
       }
-    },
-    removeTag(index) {
-      this.tags.splice(index, 1);
-    },
-    async getBadges() {
-      const config = {
-        headers: {
-          Authorization: this.authToken,
-        },
-      };
+    };
 
-      let result = await api.get("/badge", config);
-      this.challenges = result.data.map((badge) => badge.badgeName);
-    },
-    onSelectImage(event) {
-      const imageFile = event.target.files[0];
-      console.log("image", imageFile);
-      this.imageFile = imageFile;
-    },
-    async onSubmit() {
-      try {
-        const formData = new FormData();
-        formData.append("post", this.imageFile);
-        formData.append("title", this.title);
-        formData.append("description", this.description);
-        formData.append("badgeName", this.selectedChallenge);
+    const onSelectImage = (event) => {
+      imageFile.value = event.target.files[0];
+      console.log("image", imageFile.value);
+    };
 
-        const config = {
-          headers: {
-            Authorization: this.authToken,
-            "Content-Type": "multipart/form-data",
-          },
-        };
+    const submitChallenge = (challenge) => {
+      selectedChallenge.value = challenge;
+      challengeTyped.value = challenge;
+      updatedChallenges.value = [];
+    };
 
-        const result = await api.post("/posts", formData, config);
-        const postCreated = result.data.response.postCreated;
-        console.log("postCreated", postCreated);
+    const onSubmit = () => {
+      addPostFn({
+        title: title.value,
+        badgeName: selectedChallenge.value,
+        description: description.value,
+        post: imageFile.value,
+        tags: tags.value,
+      });
+      emit("closeModal", null);
+    };
 
-        this.$emit("closeModal");
-        this.$emit("onPost", postCreated);
-      } catch (error) {
-        console.log("Error occured while submitting the form " + error);
-      }
-    },
+    return {
+      title,
+      tags,
+      tag,
+      addTag,
+      description,
+      challengeTyped,
+      updatedChallenges,
+      imageFile,
+      submitChallenge,
+      onSelectImage,
+      onSubmit,
+    };
   },
 };
 </script>
@@ -196,8 +211,15 @@ export default {
   display: none;
 }
 
+input,
+select,
+textarea {
+  border-radius: 3px;
+  padding: 5px 10px;
+}
+
 label {
-  font-family: Gilroy-Bold;
+  font-family: Gilroy-ExtraBold;
 }
 
 input[type="file"] {

@@ -3,24 +3,36 @@
   <div>
     <div
       @click="addPostModal = true"
-      class="cursor-pointer mt-20 mb-2 m-auto w-40"
+      class="cursor-pointer mt-24 mb-2 m-auto w-40"
     >
       <div class="add-post-btn">
-        <PostSVG style="fill:white" name="plus" />
-        <span class="text-white font-gbold">Add Post</span>
+        <span class="hidden md:block ">Add Post</span>
+        <span class="md:ml-2 text-2xl">+</span>
       </div>
     </div>
   </div>
 
   <!-- posts display -->
-  <div class="sm:w-5/6 mx-auto mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-    <Post
-      v-for="(post, index) in posts"
-      :key="post.id"
-      :post="post"
-      :index="index"
-      @open="postModal = true"
-    />
+  <div>
+    <div class="text-white text-4xl text-center font-gbold">PiPo Daily 📰</div>
+    <div
+      class="sm:w-11/12 mx-auto mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-10"
+    >
+      <MyLatestPost />
+      <Post
+        v-for="(post, index) in posts"
+        :key="post.id"
+        :post="post"
+        :index="index"
+        @open="postModal = true"
+      />
+    </div>
+    <div
+      @click="incrementCount()"
+      class="font-gbold text-white text-center pb-2 cursor-pointer py-2 border-white border-b-2 mb-9 w-28 m-auto"
+    >
+      Load More +
+    </div>
   </div>
 
   <PostViewModal v-if="postModal" @close="postModal = false" />
@@ -29,11 +41,10 @@
 </template>
 
 <script>
-import { defineAsyncComponent, ref, watchEffect } from "vue";
+import { defineAsyncComponent, ref, watch, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
 import { getPosts } from "../../composables/posts";
 
-import PostSVG from "@/components/post/postSVG";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
 import AddPostModal from "@/components/modals/addPostModal";
 import PostViewModal from "@/components/modals/postViewModal";
@@ -45,13 +56,22 @@ const Post = defineAsyncComponent({
   delay: 200,
 });
 
+const MyLatestPost = defineAsyncComponent({
+  loader: () =>
+    import(
+      "@/components/post/myLatestPost" /*webpackChunkName: "MyLatestPost"*/
+    ),
+  loadingComponent: LoadingCard,
+  delay: 200,
+});
+
 export default {
   name: "general-posts",
   components: {
     Post,
-    PostSVG,
     AddPostModal,
     PostViewModal,
+    MyLatestPost,
   },
   setup() {
     const addPostModal = ref(false);
@@ -59,16 +79,26 @@ export default {
     const posts = ref(null);
 
     const { isLoggedIn } = setUser();
+    const { loadPosts, filtered, count } = getPosts();
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
-        const { loadPosts, fetchPosts } = getPosts();
+        console.log("Logged in or count value changed");
         await loadPosts();
-        posts.value = fetchPosts();
+        posts.value = filtered.value;
       }
     });
 
-    return { addPostModal, postModal, posts };
+    watch(filtered, () => (posts.value = filtered.value));
+
+    //TODO: Check upvotes once
+    const incrementCount = async () => {
+      count.value -= 5;
+      await loadPosts();
+      posts.value = filtered.value;
+    };
+
+    return { addPostModal, postModal, posts, incrementCount };
   },
 };
 </script>

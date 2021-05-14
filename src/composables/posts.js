@@ -1,12 +1,32 @@
+// This is for general posts similar functions are used in posts.js
+
 import api from "@/api.js";
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { setUser } from "./auth";
-import { timeAgo } from "@/generate.js";
+import { generateIdenticon, timeAgo } from "@/generate.js";
+import { filter } from "./filter";
 
 const generalPosts = ref(null);
+const latestPost = ref(null);
 const currIndex = ref(0);
+const count = ref(8);
+
+//TODO: Add this in add post so it updates latest post
+const getLatestPost = () => {
+  const { config } = setUser();
+
+  const updateLatestPost = async () => {
+    const res1 = await api.get("/posts/myLatestPost", config.value);
+    const myLatestPost = filterMyLatestPost(res1.data);
+    latestPost.value = myLatestPost;
+  };
+  return { updateLatestPost, latestPost };
+};
 
 const getPosts = () => {
+  const { generalFilter } = filter();
+  const filtered = ref([]);
+
   const loadPosts = async () => {
     if (!generalPosts.value) {
       const { config } = setUser();
@@ -14,16 +34,18 @@ const getPosts = () => {
       console.log("Getting config from user", config.value);
 
       try {
-        const res1 = await api.get("/posts/myLatestPost", config.value);
-        const res2 = await api.get("/posts/allLatestPosts/8", config.value);
-
-        const myLatestPost = filterMyLatestPost(res1.data);
+        const res2 = await api.get(
+          `/posts/allLatestPosts/${count.value}`,
+          config.value
+        );
 
         const latestPosts = res2.data.posts
           .filter((post) => post !== null)
           .map((post) => {
             if (post.upvotes === null) post.upvotes = [];
             if (post.username === null) post.username = "anonymous";
+
+            post.identicon = generateIdenticon(post.badgeName);
             // TODO: Remove this later once tags are added
             post.tags = ["Tag 1", "Tag 2", "Tag 3"];
 
@@ -37,22 +59,49 @@ const getPosts = () => {
           .sort(sortByPoints);
 
         console.log("Latest Posts", latestPosts);
-        const p = [myLatestPost, ...latestPosts];
 
-        generalPosts.value = p;
+        generalPosts.value = latestPosts;
       } catch (error) {
         console.log("Error while receiving latest posts from backend", error);
       }
     }
   };
 
-  const fetchPosts = () => generalPosts.value;
+  watchEffect(() => {
+    console.log("General Filter value changed noticed", generalFilter.value);
+    if (generalFilter.value === "All Badges") {
+      filtered.value = generalPosts.value;
+    } else {
+      filtered.value = generalPosts.value.filter(
+        (post) => post.badgeName === generalFilter.value
+      );
+    }
+    console.log(filtered.value);
+  });
 
-  return { fetchPosts, loadPosts };
+  return { filtered, loadPosts, count };
 };
 
-const addPostFn = () => {
-  // generalPosts[0] = newPost;
+const addPostFn = async (data) => {
+  const { config } = setUser();
+
+  // console.log(data);
+  try {
+    const formData = new FormData();
+    formData.append("post", data.post);
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("badgeName", data.badgeName);
+
+    const result = await api.post("/posts", formData, config.value);
+    const postCreated = result.data.response.postCreated;
+
+    console.log("postCreated", postCreated);
+    generalPosts.value.push(postCreated);
+    latestPost.value = filterMyLatestPost(postCreated);
+  } catch (error) {
+    console.log("Error while sending post to the backend", error);
+  }
 };
 
 const postModalFn = () => {
@@ -197,4 +246,4 @@ const getComments = () => {
 
 const sortByDate = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
 
-export { getPosts, postModalFn, addPostFn, getComments };
+export { getPosts, postModalFn, addPostFn, getComments, getLatestPost };

@@ -1,5 +1,5 @@
 <template>
-  <div class="font-glight mt-32">
+  <div class="font-glight mt-16">
     <!-- Top -->
     <div class="flex justify-between items-start py-10 md:px-20">
       <!-- Para -->
@@ -15,10 +15,8 @@
       <!-- Add Post button -->
       <div>
         <button class="add-post-btn" type="submit">
-          <span class="text-white pl-4">Add Post</span>
-          <span>
-            <Icon style="fill:white" name="plus" />
-          </span>
+          <span class="text-white pl-2">Add Post</span>
+          <span class="md:ml-2 text-2xl">+</span>
         </button>
       </div>
     </div>

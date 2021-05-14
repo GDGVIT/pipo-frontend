@@ -9,21 +9,13 @@
         <router-link class="mx-8 ml-16" to="/">Home</router-link>
         <router-link class="mx-8" to="/posts">My Posts</router-link>
         <router-link class="mx-8" to="/badges">Badges</router-link>
-        <div>
-          <button
-            class="bg-myRed text-white ml-7 px-4 py-2 cursor-pointer hover:opacity-90 rounded-sm"
-            @click="signOutUser()"
-          >
-            Sign Out
-          </button>
-        </div>
       </div>
     </div>
 
-    <div class="flex items-center">
-      <!-- Filter -->
-      <Dropdown />
+    <!-- Filter -->
+    <Dropdown />
 
+    <div class="flex items-center">
       <!-- Icons -->
       <div class="md:w-24 flex items-center justify-between md:ml-16 md:mr-3">
         <Icon name="challengesIcon" />
@@ -35,10 +27,20 @@
         <Icon v-if="!isLoggedIn" name="profileIcon" />
         <img
           v-if="isLoggedIn"
-          class="w-12 h-12 rounded-full mx-4"
+          class="w-12 h-12 rounded-full ml-4"
           :src="photo && photo"
         />
       </router-link>
+
+      <!-- Sign out -->
+      <div class="hidden xl:block">
+        <button
+          class="text-myRed text-sm ml-7 pr-4 py-2 cursor-pointer hover:opacity-90 rounded-sm"
+          @click="signOutUser()"
+        >
+          Sign Out
+        </button>
+      </div>
 
       <!-- Hamburger -->
       <Icon

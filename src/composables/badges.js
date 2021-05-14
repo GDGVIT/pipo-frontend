@@ -33,6 +33,8 @@ const getBadges = () => {
     badges.value.filter((badge) => !badge.hasStreak)
   );
 
+  const getAllBadges = () => badges.value.map((badge) => badge.badgeName);
+
   const postBadge = async (badgeData) => {
     try {
       const res = await api.post("/badge", badgeData, config.value);
@@ -44,7 +46,13 @@ const getBadges = () => {
     }
   };
 
-  return { loadBadges, getStreakBadges, getNoStreakBadges, postBadge };
+  return {
+    loadBadges,
+    getStreakBadges,
+    getNoStreakBadges,
+    postBadge,
+    getAllBadges,
+  };
 };
 
 const getUserBadges = () => {

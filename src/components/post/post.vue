@@ -1,9 +1,9 @@
 <template>
   <div
-    :style="[`border: 4px solid ${border}`]"
-    class="post bg-gray-50 font-glight p-9 cursor-pointer relative"
+    class="post bg-gray-50 text-gray-800 font-glight p-9 cursor-pointer relative rounded-md"
     @click="openPostModal()"
   >
+    <div></div>
     <div class="flex justify-between">
       <div class="flex items-center">
         <span class="text-xl font-gbold">@ {{ post?.username }}</span>
@@ -17,7 +17,7 @@
       </div>
     </div>
     <div class="">
-      <div class="text-2xl font-gbold tracking-widest my-8">
+      <div class="text-2xl font-gbold tracking-wide my-8">
         {{ post?.title }}
       </div>
       <div class="tracking-wider">

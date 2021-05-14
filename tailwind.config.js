@@ -4,12 +4,17 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        glight: ["Gilroy"],
-        gbold: ["Gilroy-Bold"],
+        glight: ["Gilroy-Light"],
+        gregular: ["Gilroy-Regular"],
+        gbold: ["Gilroy-ExtraBold"],
+        gmedium: ["Gilroy-Medium"],
+        gheavy: ["Gilroy-Heavy"],
       },
       colors: {
         myRed: "#FF6666",
         myBlue: "#4B69AA",
+        myDarkBlue: "#091C32",
+        myGrey: "#293045",
       },
       zIndex: {
         "-10": "-10",

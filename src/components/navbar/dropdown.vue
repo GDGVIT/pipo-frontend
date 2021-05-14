@@ -1,11 +1,11 @@
 <template>
-  <div class="relative">
+  <div class="relative w-60 sm:w-96">
     <div class="flex items-center">
       <input
         type="text"
         v-model="badgeTyped"
-        @keyup="filterAndDisplay"
-        class="pl-4 border-b-2 w-40 md:w-60 border-gray-400 focus:outline-none"
+        class="pl-4 border-b-2 w-full py-1 focus:outline-none font-gregular"
+        placeholder="Search"
       />
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -24,10 +24,10 @@
     </div>
 
     <ul
-      class="absolute w-40 top-6 md:w-60 overflow-y-auto max-h-32 bg-gray-50 rounded-sm border border-gray-200 transition-transform"
+      class="absolute w-full top-8 overflow-y-auto max-h-32 bg-gray-50 rounded-sm border border-gray-200 transition-transform"
     >
       <li
-        class="pl-4 py-2 font-glight text-sm cursor-pointer hover:bg-gray-200"
+        class="pl-4 py-2 font-gregular text-sm cursor-pointer hover:bg-gray-200"
         v-for="(badge, index) in updatedBadges"
         :key="index"
         @click="selectBadge(badge)"
@@ -39,73 +39,63 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
-import api from "@/api";
+import { getBadges } from "../../composables/badges";
+import { setUser } from "../../composables/auth";
+import { filter } from "../../composables/filter";
+
+import { ref, watch, watchEffect } from "vue";
+import { useRoute } from "vue-router";
 
 export default {
-  mounted() {
-    this.getBadges();
+  setup() {
+    const badges = ref([]);
+    const badgeTyped = ref(null);
+    const updatedBadges = ref([]);
+
+    const { loadBadges, getAllBadges } = getBadges();
+    const { isLoggedIn } = setUser();
+
+    const route = useRoute();
 
     document.addEventListener("click", () => {
-      this.updatedBadges = [];
+      updatedBadges.value = [];
     });
-  },
 
-  computed: mapState({
-    config: (state) => state.auth.config,
-  }),
-
-  data() {
-    return {
-      badgeTyped: "",
-      showDropdown: "",
-      updatedBadges: [],
-      badges: [],
-      badgeSelected: "",
-    };
-  },
-
-  methods: {
-    ...mapActions({
-      generalFilter: "setGeneralPostsFilter",
-      myFilter: "setMyPostsFilter",
-    }),
-
-    async getBadges() {
-      const res = await api.get("/badge", this.config);
-      const badges = res.data.map((badge) => {
-        return badge.badgeName;
-      });
-
-      console.log("Badges obtained from backend are..", badges);
-      this.badges = badges;
-      this.badges.unshift("All");
-    },
-
-    filterAndDisplay() {
-      this.showDropdown = true;
-      this.updatedBadges = this.badges.filter((badge) => {
-        if (badge.indexOf(this.badgeTyped) > -1) {
-          return true;
-        } else {
-          return false;
-        }
-      });
-    },
-
-    selectBadge(badge) {
-      this.badgeTyped = "";
-      this.updatedBadges = [];
-
-      // TODO: Verify this once in the future
-      const path = this.$route.path;
-      console.log(path);
-      if (path === "/") {
-        this.generalFilter(badge);
-      } else if (path === "/posts") {
-        this.myFilter(badge);
+    watchEffect(() => {
+      if (isLoggedIn.value) {
+        loadBadges();
+        const b = getAllBadges();
+        badges.value = ["All Badges", ...b];
+        console.log("Badges after updating from getAlBadges", badges.value);
       }
-    },
+    });
+
+    watch(badgeTyped, () => {
+      updatedBadges.value = badges.value.filter((badge) =>
+        badge.toLowerCase().includes(badgeTyped.value?.toLowerCase())
+      );
+    });
+
+    const selectBadge = (badge) => {
+      const path = route.path;
+      console.log(route);
+      console.log("Badge selected and the current route is :: ", route.path);
+      if (path === "/") {
+        filter().generalFilter.value = badge;
+        console.log("General filter changed to ", filter().generalFilter.value);
+      }
+      if (path === "/posts") {
+        filter().myPostsFilter.value = badge;
+        console.log(
+          "My Posts filter changed to ",
+          filter().myPostsFilter.value
+        );
+      }
+      badgeTyped.value = null;
+      updatedBadges.value = [];
+    };
+
+    return { badgeTyped, selectBadge, updatedBadges };
   },
 };
 </script>

@@ -2,14 +2,38 @@
 @tailwind components;
 
 @font-face {
-  font-family: "Gilroy";
-  src: local("Gilroy"), url("../../fonts/Gilroy-Light.otf") format("opentype");
+  font-family: "Gilroy-Light";
+  src: local("Gilroy-Light"),
+    url("../../fonts/Gilroy-Light.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Gilroy-Regular";
+  src: local("Gilroy-Regular"),
+    url("../../fonts/Gilroy-Regular.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Gilroy-Medium";
+  src: local("Gilroy-Medium"),
+    url("../../fonts/Gilroy-Medium.woff") format("woff");
 }
 
 @font-face {
   font-family: "Gilroy-Bold";
-  src: local("Gilroy-Bold"),
+  src: local("Gilroy-Bold"), url("../../fonts/Gilroy-Bold.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Gilroy-ExtraBold";
+  src: local("Gilroy-ExtraBold"),
     url("../../fonts/Gilroy-ExtraBold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Gilroy-Heavy";
+  src: local("Gilroy-Heavy"),
+    url("../../fonts/Gilroy-Heavy.woff") format("woff");
 }
 
 @tailwind utilities;
@@ -19,7 +43,7 @@
 }
 
 .streak-btn {
-  @apply px-2 py-1 bg-myRed rounded-full text-white font-glight;
+  @apply px-2 bg-myRed rounded-full text-white font-glight;
 }
 
 .nav-icon {
@@ -43,7 +67,7 @@
 }
 
 .add-post-btn {
-  @apply flex items-center bg-myRed px-5 py-2 rounded-sm enlarge;
+  @apply bg-myRed flex items-center rounded-full md:rounded-md md:py-2 px-2 md:px-4 absolute top-24 right-5 md:right-8 text-white font-gbold enlarge;
 }
 
 .container {
