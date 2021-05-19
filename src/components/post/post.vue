@@ -1,6 +1,6 @@
 <template>
   <div
-    class="post bg-gray-50 text-gray-800 font-glight p-9 cursor-pointer relative rounded-md"
+    class="bg-gray-50 text-gray-800 font-glight p-9 cursor-pointer relative rounded-md"
     @click="openPostModal()"
   >
     <div></div>

@@ -1,10 +1,10 @@
-import { ref } from "vue";
+import { ref } from 'vue'
 
-const generalFilter = ref("All Badges");
-const myPostsFilter = ref("All Badges");
+const generalFilter = ref('All Badges')
+const myPostsFilter = ref('All Badges')
 
 const filter = () => {
-  return { generalFilter, myPostsFilter };
-};
+  return { generalFilter, myPostsFilter }
+}
 
-export { filter };
+export { filter }

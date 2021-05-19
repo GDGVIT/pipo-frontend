@@ -1,92 +1,92 @@
-import api from "@/api.js";
-import { generateIdenticon } from "../generate";
-import { computed, ref } from "vue";
-import { setUser } from "./auth";
+import api from '@/api.js'
+import { generateIdenticon } from '../generate'
+import { computed, ref } from 'vue'
+import { setUser } from './auth'
 
-const badges = ref([]);
+const badges = ref([])
 
 const getBadges = () => {
-  const { config } = setUser();
+  const { config } = setUser()
 
   const loadBadges = async () => {
     if (badges.value.length === 0) {
       try {
-        const res = await api.get("/badge", config.value);
-        const b = res.data;
+        const res = await api.get('/badge', config.value)
+        const b = res.data
         badges.value = b
           .map((badge) => {
-            badge.identicon = generateIdenticon(badge.badgeName);
-            return badge;
+            badge.identicon = generateIdenticon(badge.badgeName)
+            return badge
           })
-          .sort(sortByUpvotes);
+          .sort(sortByUpvotes)
       } catch (error) {
-        console.log("Error while obtaining badges from backend!");
+        console.log('Error while obtaining badges from backend!')
       }
     }
-  };
+  }
 
   const getStreakBadges = computed(() =>
     badges.value.filter((badge) => badge.hasStreak)
-  );
+  )
 
   const getNoStreakBadges = computed(() =>
     badges.value.filter((badge) => !badge.hasStreak)
-  );
+  )
 
-  const getAllBadges = () => badges.value.map((badge) => badge.badgeName);
+  const getAllBadges = () => badges.value.map((badge) => badge.badgeName)
 
   const postBadge = async (badgeData) => {
     try {
-      const res = await api.post("/badge", badgeData, config.value);
-      const { message, createdBadge } = res.data;
-      badges.value.push(createdBadge);
-      return message;
+      const res = await api.post('/badge', badgeData, config.value)
+      const { message, createdBadge } = res.data
+      badges.value.push(createdBadge)
+      return message
     } catch (error) {
-      console.log("Error while posting badges from frontend to backend", error);
+      console.log('Error while posting badges from frontend to backend', error)
     }
-  };
+  }
 
   return {
     loadBadges,
     getStreakBadges,
     getNoStreakBadges,
     postBadge,
-    getAllBadges,
-  };
-};
+    getAllBadges
+  }
+}
 
 const getUserBadges = () => {
-  const { config } = setUser();
+  const { config } = setUser()
 
   const getInProgress = async (cnt) => {
     try {
-      const res = await api.get("/badge/inProgress", config.value);
-      const inProgressBadges = res.data.arr;
+      const res = await api.get('/badge/inProgress', config.value)
+      const inProgressBadges = res.data.arr
       if (cnt) {
-        return inProgressBadges.splice(0, cnt);
+        return inProgressBadges.splice(0, cnt)
       }
-      return inProgressBadges;
+      return inProgressBadges
     } catch (error) {
-      console.log("Error while retrieving in progress badges", error);
+      console.log('Error while retrieving in progress badges', error)
     }
-  };
+  }
 
   const getCompleted = async (cnt) => {
     try {
-      const res = await api.get("/badge/completed", config.value);
-      const completedBadges = res.data.arr;
+      const res = await api.get('/badge/completed', config.value)
+      const completedBadges = res.data.arr
       if (cnt) {
-        return completedBadges.splice(0, cnt);
+        return completedBadges.splice(0, cnt)
       }
-      return completedBadges;
+      return completedBadges
     } catch (error) {
-      console.log("Error while retrieving completed badges", error);
+      console.log('Error while retrieving completed badges', error)
     }
-  };
+  }
 
-  return { getInProgress, getCompleted };
-};
+  return { getInProgress, getCompleted }
+}
 
-const sortByUpvotes = (a, b) => b.upvotes - a.upvotes;
+const sortByUpvotes = (a, b) => b.upvotes - a.upvotes
 
-export { getBadges, getUserBadges };
+export { getBadges, getUserBadges }

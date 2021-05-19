@@ -15,9 +15,7 @@
   <!-- posts display -->
   <div>
     <div class="text-white text-4xl text-center font-gbold">PiPo Daily 📰</div>
-    <div
-      class="sm:w-11/12 mx-auto mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-10"
-    >
+    <div class="posts-container">
       <MyLatestPost />
       <Post
         v-for="(post, index) in posts"
@@ -27,12 +25,8 @@
         @open="postModal = true"
       />
     </div>
-    <div
-      @click="incrementCount()"
-      class="font-gbold text-white text-center pb-2 cursor-pointer py-2 border-white border-b-2 mb-9 w-28 m-auto"
-    >
-      Load More +
-    </div>
+
+    <LoadMore @click="incrementCount()" />
   </div>
 
   <PostViewModal v-if="postModal" @close="postModal = false" />
@@ -45,6 +39,7 @@ import { defineAsyncComponent, ref, watch, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
 import { getPosts } from "../../composables/posts";
 
+import LoadMore from "@/components/loadComponents/loadMore";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
 import AddPostModal from "@/components/modals/addPostModal";
 import PostViewModal from "@/components/modals/postViewModal";
@@ -72,6 +67,7 @@ export default {
     AddPostModal,
     PostViewModal,
     MyLatestPost,
+    LoadMore,
   },
   setup() {
     const addPostModal = ref(false);
@@ -79,11 +75,11 @@ export default {
     const posts = ref(null);
 
     const { isLoggedIn } = setUser();
-    const { loadPosts, filtered, count } = getPosts();
+    const { loadPosts, filtered, loadMore } = getPosts();
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
-        console.log("Logged in or count value changed");
+        // console.log("Logged in or count value changed");
         await loadPosts();
         posts.value = filtered.value;
       }
@@ -92,25 +88,20 @@ export default {
     watch(filtered, () => (posts.value = filtered.value));
 
     //TODO: Check upvotes once
+
     const incrementCount = async () => {
-      count.value -= 5;
-      await loadPosts();
-      posts.value = filtered.value;
+      console.log("I'm clicking general posts increment count");
+      loadMore();
     };
 
-    return { addPostModal, postModal, posts, incrementCount };
+    return {
+      addPostModal,
+      postModal,
+      posts,
+      incrementCount,
+    };
   },
 };
 </script>
 
-<style scoped>
-.posts-container {
-  display: grid;
-  margin: 0 auto;
-  padding: 10px;
-  width: 90%;
-  justify-content: center;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  grid-gap: 15px;
-}
-</style>
+<style scoped></style>
