@@ -20,7 +20,16 @@ module.exports = {
         '-10': '-10'
       },
       height: {
-        l1: '500px'
+        l1: '400px',
+        l2: '460px',
+        l3: '500px'
+      },
+      gridAutoRows: {
+        10: '10px',
+        1: '1px'
+      },
+      inset: {
+        26: '105px'
       }
     }
   },

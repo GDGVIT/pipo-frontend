@@ -167,7 +167,7 @@
     width="208.053"
     height="77.765"
     viewBox="0 0 208.053 77.765"
-    class="w-28 mx-4"
+    class="w-20 md:w-28 mx-4"
   >
     <g transform="translate(-48.48 -56.611)">
       <path

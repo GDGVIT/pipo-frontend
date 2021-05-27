@@ -26,15 +26,18 @@
         <div class="col-span-3 relative">
           <input
             type="text"
+            ref="dropdown"
             v-model="challengeTyped"
             class="input-border pl-4 py-1 focus:outline-none font-gregular"
             placeholder="Search"
+            @click="loadAll()"
           />
           <ul
-            class="absolute w-full top-10 overflow-y-auto max-h-32 bg-gray-50 rounded-sm border border-gray-200 transition-transform"
+            v-if="updatedChallenges.length"
+            class="absolute w-full top-9 overflow-y-auto max-h-40 bg-white rounded-sm border border-gray-200 transition-transform p-2"
           >
             <li
-              class="pl-4 py-2 font-gregular text-sm cursor-pointer hover:bg-gray-200"
+              class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-gray-200 rounded-md"
               v-for="(challenge, index) in updatedChallenges"
               :key="index"
               @click="submitChallenge(challenge)"
@@ -53,7 +56,6 @@
         />
         <label for="description">Description</label>
         <textarea
-          type="text"
           name="description"
           id="description"
           class="input-border resize-none col-span-3"
@@ -66,7 +68,7 @@
           class="input-border col-span-3"
           name="tags"
           v-model="tag"
-          @keydown="addTag"
+          @keydown.enter="addTag()"
         />
       </div>
 
@@ -134,6 +136,7 @@ export default {
     const challenges = ref([]);
     const updatedChallenges = ref([]);
     const challengeTyped = ref(null);
+    const dropdown = ref(null);
 
     const title = ref(null);
     const description = ref(null);
@@ -143,9 +146,7 @@ export default {
 
     const tags = ref([]);
 
-    onMounted(() => {
-      challenges.value = getAllBadges();
-    });
+    onMounted(() => (challenges.value = getAllBadges()));
 
     watch(challengeTyped, () => {
       updatedChallenges.value = challenges.value.filter((badge) =>
@@ -153,20 +154,23 @@ export default {
       );
     });
 
-    document.addEventListener("click", () => {
-      updatedChallenges.value = [];
+    document.addEventListener("click", (e) => {
+      if (dropdown.value && dropdown.value !== e.target) {
+        updatedChallenges.value = [];
+      }
     });
 
-    const addTag = (event) => {
-      if (event.which === 13) {
-        tags.value.push(tag.value);
-        tag.value = "";
-      }
+    //TODO: Due to above event listener
+    const loadAll = () => (updatedChallenges.value = getAllBadges());
+
+    const addTag = () => {
+      tags.value.push(tag.value);
+      tag.value = "";
     };
 
     const onSelectImage = (event) => {
       imageFile.value = event.target.files[0];
-      console.log("image", imageFile.value);
+      // console.log("image", imageFile.value);
     };
 
     const submitChallenge = (challenge) => {
@@ -191,6 +195,8 @@ export default {
       tags,
       tag,
       addTag,
+      loadAll,
+      dropdown,
       description,
       challengeTyped,
       updatedChallenges,

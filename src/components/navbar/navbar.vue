@@ -66,7 +66,7 @@
         <router-link class="my-14 text-xl font-glight" to="/posts"
           >My Posts</router-link
         >
-        <router-link class="my-14 text-xl font-glight" to="/badge"
+        <router-link class="my-14 text-xl font-glight" to="/badges"
           >Badges</router-link
         >
         <div>
@@ -103,10 +103,9 @@ export default {
     const isToggle = ref(false);
 
     const { isLoggedIn } = setUser();
-    const stopWatching = watchEffect(() => {
+    watchEffect(() => {
       if (isLoggedIn.value && !photo.value) {
         photo.value = firebase.auth()?.currentUser.photoURL;
-        stopWatching();
       }
     });
 

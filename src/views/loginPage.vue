@@ -19,13 +19,11 @@
     <div
       class="absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight"
     >
-      <div class="font-gbold text-5xl mb-5 tracking-wide">PiPo✨</div>
-      <div class="leading-8 tracking-wide">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos,
-        dolorum cum asperiores assumenda ad officiis quibusdam quidem, dolore
-        fuga deleniti cupiditate molestiae non! Modi pariatur atque, temporibus
-        eius delectus sint dignissimos maiores qui voluptatum fugiat quasi quo
-        dolorem. Error, beatae.
+      <div class="font-gbold text-5xl mb-8 tracking-wide">PiPo✨</div>
+      <div class="leading-8 text-xl tracking-wide">
+        Your all in one personal scrapbook. Challenge your friends, maintain
+        streaks to gain badges and gain upvotes to your posts to earn points.
+        More are the points the merrier.
       </div>
     </div>
 

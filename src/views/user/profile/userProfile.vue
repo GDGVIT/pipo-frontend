@@ -1,199 +1,291 @@
 <template>
   <div
-    class="h-full grid grid-rows-3 md:grid-rows-1 md:grid-cols-3 lg:grid-cols-4 font-gbold"
+    class="grid grid-rows-5 sm:grid-rows-1 sm:grid-cols-3 lg:grid-cols-4 font-gbold overflow-y-auto h-full "
   >
     <!-- Profile -->
-    <div class="grid grid-cols-3 md:col-span-1 md:grid-rows-3 md:grid-cols-1">
+    <div
+      class="row-span-4 sm:row-span-1 sm:col-span-1 grid grid-rows-3 bg-myRed text-white py-10"
+    >
       <!-- Profile pic -->
-      <div class="col-span-1 md:row-span-1 grid place-items-center">
-        <img
-          class="w-32 h-32 rounded-full"
-          :src="user?.picture"
-          alt="profile-pic"
-        />
+      <div class="grid place-items-center">
+        <div v-if="profile?.picture">
+          <img
+            class="w-32 h-32 rounded-full"
+            :src="profile?.picture"
+            alt="profile-pic"
+          />
+        </div>
+        <div v-if="!profile?.picture">
+          <Icon name="profileIcon" />
+        </div>
       </div>
       <!-- Profile details -->
-      <div
-        class="col-span-2 md:col-span-1 md:row-span-2 flex flex-col items-center p-2"
-      >
-        <div class="text-xl md:text-3xl font-gbold text-center">
-          @ {{ user.name ? user.name : "anonymous" }}
-        </div>
-        <div class="text-sm font-glight py-3">{{ user?.email }}</div>
+      <div class="flex flex-col items-center p-2">
         <div
-          class="font-glight grid grid-cols-2 place-items-center w-2/3 m-auto"
+          class="text-2xl md:text-3xl font-gbold text-center my-2 mx-auto flex break-all"
+        >
+          <span class="mr-2">@</span>
+          <span
+            @keydown="updatingUsername = true"
+            @keydown.enter="updateUsername"
+            v-click-outside="updateUsernameByClick"
+            role="textbox"
+            type="text"
+            spellcheck="false"
+            class="bg-myRed text-center break-words focus:outline-none"
+            ref="usernameRef"
+            contenteditable="true"
+            >{{ profile?.userName }}
+          </span>
+          <label for="username">
+            <Icon name="editPencil" />
+          </label>
+        </div>
+        <div class="font-glight py-3 px-2 w-full break-all text-center">
+          {{ profile?.email }}
+        </div>
+        <div
+          class="font-gbold grid grid-cols-2 place-items-center gap-y-3 m-auto"
         >
           <div>Followers</div>
-          <div class="streak-btn ml-5 my-1 md:my-3 text-xs">
-            {{ user.followers ? user.followers : 0 }}
+          <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
+            {{ followersCount }}
           </div>
 
           <div>Following</div>
-          <div class="streak-btn ml-5 my-1 md:my-3 text-xs">
-            {{ user.following ? user.following : 0 }}
+          <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
+            {{ followingCount }}
           </div>
 
           <div>Friends</div>
-          <div class="streak-btn ml-5 my-1 md:my-3 text-xs">
-            {{ user.friends ? user.friends : 0 }}
+          <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
+            {{ friendsCount }}
           </div>
         </div>
       </div>
     </div>
     <!-- Collection Display -->
     <div
-      class="row-span-2 md:row-span-1 md:col-span-2 lg:col-span-3 overflow-y-auto font-glight pr-10"
+      class="row-span-1 sm:row-span-1 sm:col-span-2 lg:col-span-3 sm:overflow-y-auto font-glight px-5 md:px-10 pt-10"
     >
       <!-- Badges -->
-      <div class="ml-5 my-3">
+      <div class="ml-5">
         <div class="flex justify-between items-center">
-          <div class="my-3 font-gbold">Badges</div>
-          <router-link to="/user/badges"
-            ><RightArrow name="rightArrow"
-          /></router-link>
+          <div class="py-3 font-gbold text-lg">
+            Completed Badges
+          </div>
+          <router-link to="/user/badges"><Icon name="rightArrow"/></router-link>
         </div>
-        <div class="inline-block">
+        <div
+          class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-start mt-5 mb-10"
+        >
           <div
-            v-for="(badge, index) in badgesInfo"
+            v-for="(badge, index) in completed"
             :key="index"
             class="w-20 inline-block"
           >
-            <img
-              :src="badge.badgePic"
-              alt="badge-pic"
-              :style="`border: 4px solid ${badge.badgeBorder}`"
-              class="w-16 h-16 rounded-full"
-            />
+            <div v-if="badge">
+              <img :src="badge?.identicon" alt="badge-pic" class="w-16 h-16" />
+              <span class="text-xs">{{ badge?.badgeName }}</span>
+            </div>
+            <div
+              v-else
+              class="w-16 h-16 border-2 border-dashed border-gray-300 rounded-full"
+            ></div>
           </div>
         </div>
       </div>
       <hr />
       <!-- In Progress Badges -->
-      <div class="ml-5 my-3">
+      <div class="ml-5 pt-6">
         <div class="flex justify-between items-center">
-          <div class="my-3 font-gbold">In Progress Badges</div>
+          <div class="py-3 font-gbold text-lg">In Progress Badges</div>
           <router-link to="/user/in-progress"
-            ><RightArrow name="rightArrow"
+            ><Icon name="rightArrow"
           /></router-link>
         </div>
-        <div>
+        <div
+          class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-start mt-5 mb-10"
+        >
           <div
-            v-for="(badge, index) in badgesInfo"
+            v-for="(badge, index) in inProgress"
             :key="index"
-            class="inline-block mr-4"
+            class="w-16 text-center"
           >
-            <img
-              :src="badge.badgePic"
-              alt="badge-pic"
-              :style="`border: 4px solid ${badge.badgeBorder}`"
-              class="w-16 h-16 rounded-full"
-            />
+            <div v-if="badge">
+              <img :src="badge?.identicon" alt="badge-pic" class="w-16 h-16" />
+              <span class="text-xs font-gregular">{{ badge?.badgeName }}</span>
+            </div>
+            <div
+              v-else
+              class="w-16 h-16 border-2 border-dashed border-gray-300 rounded-full"
+            ></div>
           </div>
         </div>
       </div>
       <hr />
       <!-- Interests -->
-      <div class="ml-5 my-3">
+      <div class="ml-5 py-6 overflow-x-hidden">
         <div class="flex justify-between items-center">
-          <div class="my-3 font-gbold">Interests</div>
+          <div class="my-3 font-gbold text-lg">Interests</div>
           <router-link to="/user/interests"
-            ><RightArrow name="rightArrow"
+            ><Icon name="rightArrow"
           /></router-link>
         </div>
-        <div v-if="interests.length === 0">Currently no interests lmao</div>
         <div
-          v-for="(interest, index) in interests"
-          :key="index"
-          class="bg-myBlue text-white text-sm rounded-md inline-block px-2 py-1 mr-2 my-1"
+          v-if="interestList5.length === 0"
+          class="text-myRed text-sm font-gbold"
         >
-          {{ interest }}
+          No Interests as of now. 😢
+        </div>
+        <div v-else>
+          <div
+            v-for="(interest, index) in interestList5"
+            :key="index"
+            class="text-myRed border-2 border-myRed font-gbold text-sm rounded-md inline-block px-2 py-1 mr-2 my-1"
+          >
+            {{ interest }}
+          </div>
         </div>
       </div>
       <hr />
       <!-- Todolist -->
-      <div class="ml-5 my-3">
+      <div class="ml-5 py-6">
         <div class="flex justify-between items-center">
-          <div class="my-3 font-gbold">TodoList</div>
+          <div class="my-3 font-gbold text-lg">TodoList</div>
           <router-link to="/user/todolist"
-            ><RightArrow name="rightArrow"
+            ><Icon name="rightArrow"
           /></router-link>
         </div>
-        <ul>
-          <li
-            class="my-2 text-sm"
-            v-for="(todo, index) in todoList"
+
+        <div v-if="todos5.length === 0" class="text-myRed font-gbold text-sm">
+          No Todos as of now. 😢
+        </div>
+        <div v-else class="w-4/5">
+          <div
+            class="my-2 px-3 py-2 bg-red-50 text-myRed rounded-md grid grid-cols-12 items-baseline"
+            v-for="(todo, index) in todos5"
             :key="index"
           >
-            ✔ {{ todo }}
-          </li>
-        </ul>
+            <Icon name="tick" />
+            <span class="col-span-11 font-gbold">{{ todo }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { generateIdenticon, stringToColor } from "../../../generate";
-import RightArrow from "@/components/user/userIcons";
-import { mapState } from "vuex";
-import api from "@/api";
+import Icon from "@/components/user/userIcons";
+import { getProfile, socialCircle } from "../../../composables/profile";
+import { onMounted, ref, watchEffect } from "vue";
+import { setUser } from "../../../composables/auth";
+import { getUserBadges } from "../../../composables/badges";
+import { getTodos, getInterests } from "../../../composables/activities";
 
 export default {
-  components: { RightArrow },
-  computed: mapState({
-    user: (state) => state.user.user,
-    config: (state) => state.auth.config,
-  }),
-  data() {
-    return {
-      badges: [
-        "React",
-        "Vue",
-        "Angular",
-        "Node.js",
-        "Django",
-        "C++",
-        "Python",
-        "Java",
-      ],
-      badgesInfo: [],
-      interests: [],
-      todoList: [],
-    };
-  },
-  mounted() {
-    this.badgesInfo = this.badges.map((badge) => {
-      const badgeObj = {
-        badgePic: generateIdenticon(badge),
-        badgeBorder: stringToColor(badge),
-      };
-      return badgeObj;
+  components: { Icon },
+  setup() {
+    const inProgress = ref([]);
+    const completed = ref([]);
+    const usernameRef = ref(null);
+    const updatingUsername = ref(false);
+
+    const { isLoggedIn } = setUser();
+    const { profile, loadProfile, changeUserDetails } = getProfile();
+    const {
+      loadFollowers,
+      loadFollowing,
+      followersCount,
+      followingCount,
+      friendsCount,
+    } = socialCircle();
+    const {
+      loadInProgress,
+      loadCompleted,
+      getInProgress,
+      getCompleted,
+    } = getUserBadges();
+    const { loadTodos, todos5 } = getTodos();
+    const { loadInterests, interestList5 } = getInterests();
+
+    onMounted(() => {
+      for (let i = 0; i < 6; i++) {
+        inProgress.value.push(null);
+        completed.value.push(null);
+      }
     });
-    console.log(this.badgesInfo);
 
-    this.getInterests();
-    this.getTodos();
-  },
-  methods: {
-    async getInterests() {
-      const res = await api.get("/tags", this.config);
-      console.log(
-        "Interests of the user obtained from the backend...",
-        res.data
-      );
+    const showInProgress = () => {
+      const inp = getInProgress.value;
+      if (inp) {
+        for (let i = 0; i < 6; i++) inProgress.value[i] = inp[i];
+      }
+    };
 
-      //show some 5 interests
-      this.interests = res.data.splice(0, 5);
-    },
-    async getTodos() {
-      const res = await api.get("/todo", this.config);
-      console.log("Todos of the user obtained from backend...", res.data);
+    const showCompleted = () => {
+      const cp = getCompleted.value;
+      if (cp) {
+        for (let i = 0; i < 6; i++) completed.value[i] = cp[i];
+      }
+    };
 
-      //show 5 todos
-      this.todoList = res.data.splice(0, 5);
-    },
+    watchEffect(async () => {
+      if (isLoggedIn.value) {
+        // Load Profile
+        await loadProfile();
+
+        //Load Badges
+        await loadInProgress();
+        await loadCompleted();
+        showInProgress();
+        showCompleted();
+
+        //loading social circle
+        await loadFollowing();
+        await loadFollowers();
+
+        //loading activities
+        await loadTodos();
+        await loadInterests();
+      }
+    });
+
+    const updateUsername = () => {
+      changeUserDetails({ userName: usernameRef.value.textContent });
+      updatingUsername.value = false;
+    };
+
+    const updateUsernameByClick = () => {
+      if (updatingUsername.value) {
+        console.log(usernameRef.value);
+        changeUserDetails({ userName: usernameRef.value.textContent });
+        updatingUsername.value = false;
+      }
+    };
+
+    return {
+      profile,
+      updateUsername,
+      usernameRef,
+      updatingUsername,
+      updateUsernameByClick,
+      followersCount,
+      followingCount,
+      friendsCount,
+      inProgress,
+      completed,
+      todos5,
+      interestList5,
+    };
   },
 };
 </script>
 
-<style></style>
+<style scoped>
+::-webkit-scrollbar-thumb {
+  background-color: #ff6666;
+  border-radius: 0px;
+}
+</style>

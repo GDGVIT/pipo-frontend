@@ -1,32 +1,29 @@
 <template>
-  <!-- add post button -->
-  <div>
-    <div
-      @click="addPostModal = true"
-      class="cursor-pointer mt-24 mb-2 m-auto w-40"
-    >
-      <div class="add-post-btn">
-        <span class="hidden md:block ">Add Post</span>
-        <span class="md:ml-2 text-2xl">+</span>
-      </div>
-    </div>
+  <div @click="addPostModal = true">
+    <AddPostBtn />
   </div>
-
   <!-- posts display -->
-  <div>
-    <div class="text-white text-4xl text-center font-gbold">PiPo Daily 📰</div>
-    <div class="posts-container">
-      <MyLatestPost />
+  <div class="mt-24">
+    <!-- Title -->
+    <div
+      class="text-white text-4xl md:text-5xl text-center font-gheavy tracking-wide"
+    >
+      PiPo Daily
+    </div>
+    <div ref="masonry" class="posts-container">
+      <MyLatestPost :masonry="masonry" class="post" />
       <Post
         v-for="(post, index) in posts"
-        :key="post.id"
+        :masonry="masonry"
+        :key="index"
+        class="post"
         :post="post"
         :index="index"
         @open="postModal = true"
       />
     </div>
 
-    <LoadMore @click="incrementCount()" />
+    <LoadMore @click="loadMore()" />
   </div>
 
   <PostViewModal v-if="postModal" @close="postModal = false" />
@@ -35,15 +32,15 @@
 </template>
 
 <script>
-import { defineAsyncComponent, ref, watch, watchEffect } from "vue";
-import { setUser } from "../../composables/auth";
-import { getPosts } from "../../composables/posts";
-
+import { defineAsyncComponent, onMounted, ref, watch, watchEffect } from "vue";
 import LoadMore from "@/components/loadComponents/loadMore";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
+import LoadingMyLatestPost from "@/components/loadComponents/LoadingMyLatestPost";
 import AddPostModal from "@/components/modals/addPostModal";
 import PostViewModal from "@/components/modals/postViewModal";
-// import Post from "@/components/post/post";
+import AddPostBtn from "@/components/post/addPostBtn";
+import { setUser } from "../../composables/auth";
+import { getPosts, resizing } from "../../composables/posts";
 
 const Post = defineAsyncComponent({
   loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
@@ -56,7 +53,7 @@ const MyLatestPost = defineAsyncComponent({
     import(
       "@/components/post/myLatestPost" /*webpackChunkName: "MyLatestPost"*/
     ),
-  loadingComponent: LoadingCard,
+  loadingComponent: LoadingMyLatestPost,
   delay: 200,
 });
 
@@ -68,18 +65,24 @@ export default {
     PostViewModal,
     MyLatestPost,
     LoadMore,
+    AddPostBtn,
   },
   setup() {
     const addPostModal = ref(false);
     const postModal = ref(false);
-    const posts = ref(null);
-
+    const posts = ref([]);
+    const masonry = ref(null);
     const { isLoggedIn } = setUser();
     const { loadPosts, filtered, loadMore } = getPosts();
+    const { resizeGridItem } = resizing();
+
+    //for the purpose of loading cards
+    onMounted(() => {
+      for (let i = 0; i < 8; i++) posts.value.push(null);
+    });
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
-        // console.log("Logged in or count value changed");
         await loadPosts();
         posts.value = filtered.value;
       }
@@ -87,18 +90,15 @@ export default {
 
     watch(filtered, () => (posts.value = filtered.value));
 
-    //TODO: Check upvotes once
-
-    const incrementCount = async () => {
-      console.log("I'm clicking general posts increment count");
-      loadMore();
-    };
+    // For resizing the masonry
+    window.addEventListener("resize", () => resizeGridItem(masonry.value));
 
     return {
+      masonry,
       addPostModal,
       postModal,
       posts,
-      incrementCount,
+      loadMore,
     };
   },
 };

@@ -1,9 +1,13 @@
 <template>
+  <!-- Display Loading Card -->
+  <div v-if="!post">
+    <LoadingCard :masonry="masonry" />
+  </div>
   <div
-    class="bg-gray-50 text-gray-800 font-glight p-9 cursor-pointer relative rounded-md"
+    v-else
+    class="bg-gray-50 text-gray-800 font-glight p-9 cursor-pointer relative sm:rounded-md"
     @click="openPostModal()"
   >
-    <div></div>
     <div class="flex justify-between">
       <div class="flex items-center">
         <span class="text-xl font-gbold">@ {{ post?.username }}</span>
@@ -25,11 +29,15 @@
       </div>
       <div class="flex flex-col justify-items-center mt-5">
         <div v-for="(img, index) in post?.image" :key="index">
-          <img :src="img" alt="post-image" />
+          <img :src="img" alt="post-image" @load="resizeGridItem(masonry)" />
         </div>
       </div>
       <div class="flex mt-4">
-        <div class="tag" v-for="(tag, index) in post?.tags" :key="index">
+        <div
+          class="text-white bg-myBlue border-2 text-sm border-myBlue mr-2 px-3 font-gbold rounded-md"
+          v-for="(tag, index) in post?.tags"
+          :key="index"
+        >
           {{ tag }}
         </div>
       </div>
@@ -40,13 +48,15 @@
 import postSVG from "./postSVG";
 import { stringToColor } from "../../generate";
 import { computed } from "vue";
-import { postModalFn } from "../../composables/posts";
+import { postModalFn, resizing } from "../../composables/posts";
+import LoadingCard from "@/components/loadComponents/LoadingCard";
 
 export default {
-  components: { postSVG },
-  props: ["post", "index"],
+  components: { postSVG, LoadingCard },
+  props: ["post", "index", "masonry"],
   setup(props, { emit }) {
     const { assignIndex } = postModalFn();
+    const { resizeGridItem } = resizing();
 
     const border = computed(() => {
       return props.post ? stringToColor(props.post.badgeName) : "#fff";
@@ -57,7 +67,7 @@ export default {
       assignIndex(props.index);
     };
 
-    return { border, openPostModal };
+    return { border, openPostModal, resizeGridItem };
   },
 };
 </script>

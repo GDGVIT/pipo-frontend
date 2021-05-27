@@ -3,7 +3,13 @@ import { sha256 } from 'js-sha256'
 
 const generateIdenticon = (str) => {
   const hash = sha256(str)
-  const data = new Identicon(hash, 420).toString()
+  const options = {
+    background: [255, 255, 255, 255],
+    foreground: [255, 102, 102, 255],
+    size: 420,
+    margin: 0.2
+  }
+  const data = new Identicon(hash, options).toString()
   const src = 'data:image/png;base64,' + data
   return src
 }

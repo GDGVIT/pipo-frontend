@@ -1,54 +1,66 @@
 <template>
-  <!-- Go back -->
-  <router-link to="/user/profile">
-    <Icon name="leftArrow" class="absolute top-6 left-10" />
-  </router-link>
-  <div class="font-glight">
-    <!-- Introduction -->
-    <div class="w-4/5 m-auto text-center">
-      <div class="text-3xl font-gbold my-5">Interests</div>
-      <div class="text-lg">
-        Identify your interests and list them down here.
+  <div class="px-10 py-5 h-full relative">
+    <!-- Go back -->
+    <router-link to="/user/profile">
+      <Icon name="leftArrow" class="absolute top-10 left-20" />
+    </router-link>
+    <div class="font-glight">
+      <!-- Introduction -->
+      <div class="w-4/5 m-auto text-center">
+        <div class="text-3xl font-gbold my-5">Interests</div>
+        <div class="text-lg">
+          Identify your interests and list them down here.
+        </div>
       </div>
-    </div>
-    <!-- Add your interest -->
-    <div class="w-96 my-7 relative m-auto">
-      <textarea
-        class="shadow-md rounded-lg focus:outline-none resize-none p-5"
-        cols="40"
-        rows="3"
-        placeholder="Enter your interest here.."
-        v-model="newInterest"
-      ></textarea>
-      <Icon
-        name="plus"
-        class="absolute -bottom-2 right-0 streak-btn flex justify-items-center cursor-pointer"
-        @click="addInterest()"
-      />
-    </div>
-    <!-- Display interests -->
-    <div class="px-10 relative">
-      <!-- Delete all -->
-      <Icon
-        name="bin"
-        class="absolute top-0 right-0"
-        @click="deleteAllInterests()"
-      />
-
-      <!-- If no interests -->
-      <div v-if="interests.hasOwnProperty('message')">
-        {{ interests.message }}
-      </div>
-      <!-- If interests present -->
-      <div
-        class="inline-block bg-myRed text-white mr-3 rounded-md px-2 py-1 my-1"
-        v-for="(interest, index) in interests"
-        :key="index"
-      >
-        {{ interest }}
-        <span @click="deleteInterest(interest)" class="ml-2 cursor-pointer"
-          >x</span
+      <!-- Add your interest -->
+      <div class="w-96 my-7 relative m-auto">
+        <textarea
+          class="shadow-md rounded-lg focus:outline-none resize-none p-5"
+          cols="40"
+          rows="3"
+          placeholder="Enter your interest here.."
+          v-model="newInterest"
+          @keydown.enter="add()"
+        ></textarea>
+        <div
+          @click="add()"
+          class="absolute -bottom-3 right-6 w-10 h-10 bg-myRed grid place-items-center rounded-full text-white cursor-pointer"
         >
+          <Icon name="plus" />
+        </div>
+      </div>
+      <!-- Display interests -->
+      <div class="px-10 relative break-words">
+        <!-- Delete all -->
+        <div class="absolute top-0 right-0" @click="deleteAllInterests()">
+          <Icon name="bin" />
+        </div>
+
+        <!-- If no interests -->
+        <div
+          v-if="interestList.length === 0"
+          class="md:w-2/3 m-auto mt-10 text-center"
+        >
+          No interests as of now.😭 Why not type some, it helps you connect with
+          people 🧑 who share the same passion 🔥 as you. Keep it minimal and
+          concise
+        </div>
+        <!-- If interests present -->
+        <div
+          v-else
+          class="inline-block bg-myRed text-white mr-3 rounded-md px-3 py-1 my-1"
+          v-for="(interest, index) in interestList"
+          :key="index"
+        >
+          <div class="flex items-center justify-between">
+            <span class="font-gbold">{{ interest }}</span>
+            <span
+              @click="deleteInterest(index)"
+              class="ml-3 cursor-pointer text-xs"
+              >x</span
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -56,62 +68,45 @@
 
 <script>
 import Icon from "@/components/user/userIcons";
-import { mapState } from "vuex";
-import api from "@/api";
+import { getInterests } from "../../../composables/activities";
+import { ref, watchEffect } from "vue";
+import { setUser } from "../../../composables/auth";
 
 export default {
   components: { Icon },
-  computed: mapState({
-    config: (state) => state.auth.config,
-  }),
-  data() {
-    return {
-      interests: [],
-      newInterest: "",
+  emits: ["click"],
+  setup() {
+    const newInterest = ref("");
+    const { isLoggedIn } = setUser();
+    const {
+      loadInterests,
+      addInterests,
+      deleteInterest,
+      deleteAllInterests,
+      interestList,
+    } = getInterests();
+
+    const add = async () => {
+      console.log("Add function called");
+      await addInterests(newInterest.value);
+      newInterest.value = "";
     };
-  },
-  mounted() {
-    this.getInterests();
-  },
-  methods: {
-    async getInterests() {
-      const res = await api.get("/tags", this.config);
-      console.log(
-        "Interests of the user obtained from the backend...",
-        res.data
-      );
 
-      this.interests = res.data;
-    },
-    async addInterest() {
-      try {
-        await api.post("/tags", { tag: this.newInterest }, this.config);
-        this.interests.push(this.newInterest);
-        this.newInterest = "";
-      } catch (error) {
-        console.log("Error occured while adding new interest", error);
+    const stopLoading = watchEffect(async () => {
+      if (isLoggedIn.value && interestList.value.length === 0) {
+        console.log("Loading interests");
+        await loadInterests();
+        stopLoading();
       }
-    },
-    async deleteInterest(interest) {
-      try {
-        const index = this.interests.indexOf(interest);
-        const res = await api.delete("/tags", this.config, { arrIndex: index });
-        console.log("Response for deleting the tag", res);
-        this.interests.splice(index, 1);
-      } catch (error) {
-        console.log("Error occured while deleting the post", error);
-      }
-    },
-    async deleteAllInterests() {
-      try {
-        const res = await api.delete("/tags/all", this.config);
-        console.log("Response for deleting all tags from backend", res);
+    });
 
-        this.interests = [];
-      } catch (error) {
-        console.log("Error occured while deleting all tags", error);
-      }
-    },
+    return {
+      newInterest,
+      add,
+      deleteInterest,
+      deleteAllInterests,
+      interestList,
+    };
   },
 };
 </script>

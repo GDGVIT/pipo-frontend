@@ -3,7 +3,7 @@
   <div>
     <button
       type="submit"
-      class="flex items-center px-4 py-2 font-glight text-lg bg-white tracking-wider text-gray-800 focus:outline-none"
+      class="flex items-center px-4 py-2 font-glight text-lg bg-white tracking-wider text-gray-800 focus:outline-none rounded-sm"
     >
       Login PiPo using
       <loginSVG name="googleLogo" class="w-7 pl-3" />

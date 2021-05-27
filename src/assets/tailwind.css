@@ -54,10 +54,6 @@
   @apply fixed top-0 left-0 right-0 flex items-center justify-between h-16 font-gbold bg-white z-50;
 }
 
-.tag {
-  @apply mr-3 border-2 border-myBlue text-myBlue px-3 py-1 text-xs rounded-lg;
-}
-
 .input-border {
   @apply border-2 border-myBlue w-full block focus:outline-none;
 }
@@ -67,13 +63,13 @@
 }
 
 .add-post-btn {
-  @apply bg-myRed flex items-center rounded-full md:rounded-md md:py-2 px-2 md:px-4 absolute top-24 right-5 md:right-8 text-white font-gbold enlarge;
+  @apply bg-myRed flex items-center rounded-full md:rounded-md md:py-2 px-2 md:px-4 absolute top-28 right-5 md:right-10 text-white font-gbold enlarge;
 }
 
 .container {
-  @apply absolute top-28 bg-white h-3/4 transform left-1/2 -translate-x-1/2 w-full md:w-4/5 xl:w-2/3;
+  @apply absolute top-28 bg-white h-3/4 transform left-1/2 -translate-x-1/2 w-full lg:w-4/5 xl:w-4/5;
 }
 
 .posts-container {
-  @apply sm:w-11/12 mx-auto mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-10;
+  @apply sm:w-11/12 mx-auto mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-10 auto-rows-10;
 }

@@ -3,7 +3,9 @@
     <div class="flex items-center">
       <input
         type="text"
+        ref="dropdown"
         v-model="badgeTyped"
+        @click="loadAll()"
         class="pl-4 border-b-2 w-full py-1 focus:outline-none font-gregular"
         placeholder="Search"
       />
@@ -24,10 +26,11 @@
     </div>
 
     <ul
-      class="absolute w-full top-8 overflow-y-auto max-h-32 bg-gray-50 rounded-sm border border-gray-200 transition-transform"
+      v-if="updatedBadges.length"
+      class="absolute w-full top-8 overflow-y-auto max-h-48 bg-white rounded-sm border border-gray-200 transition-transform p-2"
     >
       <li
-        class="pl-4 py-2 font-gregular text-sm cursor-pointer hover:bg-gray-200"
+        class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-gray-200 rounded-md"
         v-for="(badge, index) in updatedBadges"
         :key="index"
         @click="selectBadge(badge)"
@@ -51,14 +54,17 @@ export default {
     const badges = ref([]);
     const badgeTyped = ref(null);
     const updatedBadges = ref([]);
+    const dropdown = ref(null);
 
     const { loadBadges, getAllBadges } = getBadges();
     const { isLoggedIn } = setUser();
 
     const route = useRoute();
 
-    document.addEventListener("click", () => {
-      updatedBadges.value = [];
+    document.addEventListener("click", (e) => {
+      if (dropdown.value && dropdown.value !== e.target) {
+        updatedBadges.value = [];
+      }
     });
 
     watchEffect(() => {
@@ -75,6 +81,10 @@ export default {
         badge.toLowerCase().includes(badgeTyped.value?.toLowerCase())
       );
     });
+
+    const loadAll = () => {
+      updatedBadges.value = badges.value;
+    };
 
     const selectBadge = (badge) => {
       const path = route.path;
@@ -95,7 +105,7 @@ export default {
       updatedBadges.value = [];
     };
 
-    return { badgeTyped, selectBadge, updatedBadges };
+    return { loadAll, dropdown, badgeTyped, selectBadge, updatedBadges };
   },
 };
 </script>

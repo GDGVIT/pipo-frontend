@@ -1,14 +1,13 @@
 <template>
   <div
-    class="absolute top-20 bg-white transform left-1/2 -translate-x-1/2 w-full md:w-4/5 xl:w-2/3 p-10 font-glight"
+    class="absolute top-24 bg-white transform left-1/2 -translate-x-1/2 w-full md:w-4/5 xl:w-2/3 p-10 font-glight h-4/5"
   >
     <!-- Intro -->
     <div>
-      <div class="font-gbold text-3xl mb-10">Badges</div>
+      <div class="font-gbold text-3xl mb-5">Badges</div>
       <div>
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Saepe
-        asperiores repellendus provident est reiciendis ab deleniti, a corrupti.
-        Nesciunt, enim.
+        These are all the badges PiPo can offer you🐧. More badges coming soon.
+        Gotta catch em all!
       </div>
     </div>
     <!-- Post a badge btn -->
@@ -22,21 +21,35 @@
     <div>
       <div class="text-2xl font-gbold my-2">Streaks</div>
       <div
-        class="grid grid-cols-6 gap-5 place-items-center h-40 overflow-auto pt-6"
+        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 place-items-center h-36 overflow-auto pt-6"
       >
-        <div v-for="badge in streakBadges" :key="badge.badgeId" class="">
+        <div
+          v-for="badge in streakBadges"
+          :key="badge.badgeId"
+          class="grid place-items-center"
+        >
           <img :src="badge.identicon" alt="badge-img" class="w-20 h-20" />
-          <div class="text-center text-sm">{{ badge.badgeName }}</div>
+          <div class="text-center text-sm font-gbold">
+            {{ badge.badgeName }}
+          </div>
         </div>
       </div>
     </div>
     <!-- No Streak Badges -->
     <div>
       <div class="font-gbold text-2xl mt-3">No Streaks</div>
-      <div class="grid grid-cols-6 gap-5 place-items-center h-40 overflow-auto">
-        <div v-for="badge in noStreakBadges" :key="badge.badgeId">
+      <div
+        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 place-items-center h-36 overflow-auto"
+      >
+        <div
+          v-for="badge in noStreakBadges"
+          :key="badge.badgeId"
+          class="grid place-items-center"
+        >
           <img :src="badge.identicon" alt="badge-img" class="w-20 h-20" />
-          <div class="text-center text-sm">{{ badge.badgeName }}</div>
+          <div class="text-center text-sm font-gbold">
+            {{ badge.badgeName }}
+          </div>
         </div>
       </div>
     </div>

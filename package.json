@@ -14,6 +14,7 @@
     "core-js": "^3.6.5",
     "firebase": "^8.3.0",
     "identicon.js": "^2.3.3",
+    "imagesloaded": "^4.1.4",
     "js-sha256": "^0.9.0",
     "postcss": "^7",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.2",
@@ -30,8 +31,7 @@
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
     "stylelint-config-recommended": "^4.0.0",
-    "vue-cli-plugin-tailwind": "~2.0.6",
-    "vue-masonry-css": "^1.0.3"
+    "vue-cli-plugin-tailwind": "~2.0.6"
   },
   "eslintConfig": {
     "root": true,

@@ -4,101 +4,96 @@
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
   />
   <div
-    class="fixed bg-white z-20 h-4/5 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-3/4 md:m-auto lg:w-2/3 font-glight"
+    class="fixed bg-white z-20 h-5/6 top-24 left-0 right-0 sm:left-10 sm:right-10 md:w-3/4 md:m-auto lg:w-2/3 font-glight"
   >
     <div v-if="!isCommentActive" class="relative">
-      <div class="absolute top-64">
-        <PostSVG
-          class="cursor-pointer arrow-bounce"
-          @click="prev()"
-          name="leftArrow"
-        />
+      <div class="absolute top-64 left-5 arrow-bounce" @click="prev()">
+        <PostSVG name="leftArrow" />
       </div>
-      <div class="px-14 py-5">
+      <div class="px-5 md:px-20 py-5">
         <!-- middle -->
-        <div class="flex justify-between mt-4 items-center scroll hide-scroll">
+        <div class="flex justify-between mt-4 items-center">
           <!-- header -->
           <div class="flex justify-start items-center">
-            <div class="text-2xl font-gbold">@ {{ postModal?.username }}</div>
-            <div class="ml-3 streak-btn">{{ postModal?.points }}</div>
-          </div>
-          <div class="flex items-center">
-            <PostSVG
-              class="cursor-pointer"
-              @click="upvotePost()"
-              :name="upvoted ? 'likeDark' : 'likeLight'"
-            />
-            <span>{{ postModal?.upvotes.length }}</span>
-            <div class="ml-5">
-              <PostSVG
-                name="comment"
-                class="cursor-pointer"
-                @click="isCommentActive = true"
-              />
+            <div class="text-xl font-gbold">@{{ postModal?.username }}</div>
+            <div
+              class="ml-3 text-xs bg-myRed text-white font-gbold px-2 rounded-full py-1"
+            >
+              {{ postModal?.points }}
             </div>
           </div>
-          <div class="flex items-center">
-            <div class="text-xs text-gray-400 mr-5">
-              {{ postModal?.createDate }}
+          <div class="flex">
+            <!-- Upvote and Comment -->
+            <div class="flex items-center">
+              <div @click="upvotePost()">
+                <PostSVG :name="upvoted ? 'likeDark' : 'likeLight'" />
+              </div>
+
+              <span>{{ postModal?.upvotes.length }}</span>
+              <div class="ml-2" @click="isCommentActive = true">
+                <PostSVG name="comment" />
+              </div>
             </div>
-            <PostSVG
-              style="width:12px"
-              class="cursor-pointer enlarge"
-              name="close"
-              @click="$emit('close', null)"
-            />
-          </div>
-        </div>
-        <div>
-          <div class="text-2xl my-7 font-gbold tracking-widest text-center">
-            {{ postModal?.title }}
-          </div>
-          <div class="post-body">
-            <div class="tracking-wide">
-              {{ postModal?.description }}
-            </div>
-            <div class="flex flex-col justify-items-center">
-              <div v-for="(img, index) in postModal?.image" :key="index">
-                <img class="w-full mt-10" :src="img" alt="post-image" />
+            <!-- Date and close -->
+            <div class="flex items-center ml-5">
+              <div class="text-xs text-gray-400">
+                {{ postModal?.createDate }}
+              </div>
+              <div @click="$emit('close', null)">
+                <PostSVG name="close" />
               </div>
             </div>
           </div>
-
-          <div class="flex px-10 mt-3">
-            <div
-              class="tag"
-              v-for="(tag, index) in postModal?.tags"
-              :key="index"
-            >
-              {{ tag }}
+        </div>
+        <!-- Post Content -->
+        <div class="text-center h-l2 px-2 mx-12 mt-4 overflow-y-auto">
+          <!-- title -->
+          <div class="text-2xl break-words my-7 font-gbold text-center">
+            {{ postModal?.title }}
+          </div>
+          <!-- Images -->
+          <div class="grid place-items-center">
+            <div v-for="(img, index) in postModal?.image" :key="index">
+              <img class="post-image" :src="img" alt="post-image" />
             </div>
+          </div>
+          <!-- content -->
+          <div class="p-4">
+            {{ postModal?.description }}
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12">
+          <div
+            class="text-xs bg-myBlue text-white font-gbold px-3 py-1 rounded-md mr-2"
+            v-for="(tag, index) in postModal?.tags"
+            :key="index"
+          >
+            {{ tag }}
           </div>
         </div>
       </div>
-
-      <div class="absolute top-64 right-0">
-        <PostSVG
-          class="cursor-pointer w-3 arrow-bounce"
-          @click="next()"
-          name="rightArrow"
-        />
+      <div class="absolute top-64 right-5 arrow-bounce" @click="next()">
+        <PostSVG name="rightArrow" />
       </div>
     </div>
 
     <!-- Comments -->
     <div v-if="isCommentActive" class="p-10">
-      <PostSVG
-        class="cursor-pointer absolute top-10 left-10"
-        name="leftArrow"
+      <div
+        class="absolute top-10 left-10 arrow-bounce"
         @click="isCommentActive = false"
-      />
+      >
+        <PostSVG name="leftArrow" />
+      </div>
       <div class="grid place-items-center">
         <div class="text-2xl font-gbold flex">
           Comments
           <PostSVG name="comment" />
         </div>
       </div>
-      <div class="h-96 overflow-y-scroll">
+      <div class="h-96 px-2 overflow-y-scroll">
         <div
           v-for="comment in orderedComments"
           :key="comment?.commentId"
@@ -160,13 +155,19 @@ export default {
     const postModal = ref(null);
     const upvoted = ref(false);
     const isCommentActive = ref(false);
-    const { user } = setUser();
+    const { isLoggedIn, user } = setUser();
     const userComment = ref(null);
 
     const { getCurrentPost, getNextPost, getPrevPost, vote } = postModalFn();
     const { loadComments, orderedComments, postComment } = getComments();
 
-    postModal.value = getCurrentPost();
+    watchEffect(() => {
+      if (isLoggedIn.value) {
+        console.log("Obtaining current post to show");
+        postModal.value = getCurrentPost.value;
+      }
+    });
+
     onMounted(() => checkUpvoted());
 
     //Shift
@@ -184,11 +185,13 @@ export default {
 
     //Upvotes section
     const checkUpvoted = () => {
-      postModal.value.upvotes.forEach((u) => {
-        if (u === user.userId) {
-          upvoted.value = true;
-        }
-      });
+      if (postModal.value) {
+        postModal.value.upvotes.forEach((u) => {
+          if (u === user.userId) {
+            upvoted.value = true;
+          }
+        });
+      }
     };
 
     const upvotePost = () => {
@@ -228,10 +231,14 @@ export default {
   animation: arrow-bounce 1.5s infinite;
 }
 
-.post-body {
-  padding: 0 40px;
-  overflow: scroll;
-  height: 350px;
+::-webkit-scrollbar {
+  background-color: white;
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(235, 235, 235);
+  border-radius: 20px;
 }
 
 @keyframes arrow-bounce {

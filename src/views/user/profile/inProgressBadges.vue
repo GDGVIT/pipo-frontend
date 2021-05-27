@@ -1,74 +1,78 @@
 <template>
-  <!-- Go back -->
-  <router-link to="/user/profile">
-    <LeftArrow name="leftArrow" class="absolute top-4 left-10" />
-  </router-link>
+  <div class="px-10 py-5 h-full relative">
+    <!-- Go back -->
+    <router-link to="/user/profile">
+      <LeftArrow name="leftArrow" class="absolute top-10 left-24" />
+    </router-link>
 
-  <!-- Intro -->
-  <div class="text-center font-glight">
-    <div class="text-3xl font-gbold my-4">In Progress Badges</div>
-    <div class="my-2">
-      These are the badges you are currently striving for!
+    <!-- Intro -->
+    <div class="text-center font-glight">
+      <div class="text-2xl md:text-3xl font-gbold my-4">In Progress Badges</div>
+      <div class="my-8">
+        These are the badges you are currently striving for!
+      </div>
     </div>
-  </div>
-  <!-- Badges -->
-  <div
-    class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 place-items-center overflow-y-auto h-3/4"
-  >
+    <!-- Badges -->
     <div
-      class=" w-20 h-20 grid place-items-center m-2 shadow-md relative"
-      v-for="(badge, index) in inProgressBadges"
-      :key="index"
+      class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center overflow-y-auto h-2/3 gap-4"
     >
-      <img
-        @click="this.$router.push(`/user/in-progress/${badge.badgeName}`)"
-        class="w-16 h-16"
-        :src="badge.identicon"
-        alt="earned-badge-pic"
-      />
+      <div
+        class="grid place-items-center"
+        v-for="(badge, index) in inProgress"
+        :key="index"
+      >
+        <div v-if="badge?.badgeId" class="grid place-items-center">
+          <img
+            @click="this.$router.push(`/user/calendar/${badge.badgeName}`)"
+            class="w-16 h-16"
+            :src="badge?.identicon"
+            alt="in-progress-badge-pic"
+          />
+          <span class="font-gbold text-sm">{{ badge?.badgeName }}</span>
+        </div>
+        <div
+          v-else
+          class="w-16 h-16 border-2 border-dashed border-gray-300 rounded-full"
+        ></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { stringToColor, generateIdenticon } from "@/generate.js";
 import LeftArrow from "@/components/user/userIcons";
-import api from "@/api";
-import { mapState } from "vuex";
+import { getUserBadges } from "../../../composables/badges";
+import { onMounted, ref, watchEffect } from "vue";
 
 export default {
-  components: {
-    LeftArrow,
-  },
-  computed: mapState({
-    config: (state) => state.auth.config,
-  }),
-  data() {
-    return {
-      inProgressBadges: [],
-    };
-  },
-  mounted() {
-    this.getInProgressBadges();
-  },
-  methods: {
-    async getInProgressBadges() {
-      try {
-        const res = await api.get("/badge/inProgress", this.config);
-        this.inProgressBadges = res.data.arr.map((e) => {
-          return {
-            ...e,
-            identicon: generateIdenticon(e.badgeName),
-            border: stringToColor(e.badgeName),
-          };
-        });
-      } catch (error) {
-        console.log(
-          "Error occured while retrieving inprogress badges from backend",
-          error
-        );
+  components: { LeftArrow },
+  setup() {
+    const { loadInProgress, getInProgress } = getUserBadges();
+
+    const inProgress = ref([]);
+
+    onMounted(() => {
+      if (inProgress.value.length === 0)
+        for (let i = 0; i < 15; i++) inProgress.value.push({});
+    });
+
+    const showInProgress = (inp) => {
+      if (inp) {
+        const len = inp.length > 15 ? inp.length : 15;
+        console.log("inProgress", inProgress.value);
+        for (let i = 0; i < len; i++)
+          inProgress.value[i] = inp[i] ? inp[i] : {};
       }
-    },
+    };
+
+    watchEffect(async () => {
+      if (getInProgress.value.length === 0) {
+        await loadInProgress();
+      }
+      showInProgress(getInProgress.value);
+    });
+
+    return { inProgress };
   },
 };
 </script>

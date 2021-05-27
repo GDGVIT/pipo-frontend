@@ -4,6 +4,8 @@ import { computed, ref } from 'vue'
 import { setUser } from './auth'
 
 const badges = ref([])
+const completed = ref([])
+const inProgress = ref([])
 
 const getBadges = () => {
   const { config } = setUser()
@@ -58,33 +60,36 @@ const getBadges = () => {
 const getUserBadges = () => {
   const { config } = setUser()
 
-  const getInProgress = async (cnt) => {
+  const loadInProgress = async () => {
     try {
       const res = await api.get('/badge/inProgress', config.value)
-      const inProgressBadges = res.data.arr
-      if (cnt) {
-        return inProgressBadges.splice(0, cnt)
-      }
-      return inProgressBadges
+      const inProgressBadges = res.data.arr.map((badge) => {
+        badge.identicon = generateIdenticon(badge.badgeName)
+        return badge
+      })
+      inProgress.value = inProgressBadges
     } catch (error) {
       console.log('Error while retrieving in progress badges', error)
     }
   }
 
-  const getCompleted = async (cnt) => {
+  const loadCompleted = async () => {
     try {
       const res = await api.get('/badge/completed', config.value)
-      const completedBadges = res.data.arr
-      if (cnt) {
-        return completedBadges.splice(0, cnt)
-      }
-      return completedBadges
+      const completedBadges = res.data.arr.map((badge) => {
+        badge.identicon = generateIdenticon(badge.badgeName)
+        return badge
+      })
+      completed.value = completedBadges
     } catch (error) {
       console.log('Error while retrieving completed badges', error)
     }
   }
 
-  return { getInProgress, getCompleted }
+  const getInProgress = computed(() => inProgress.value)
+  const getCompleted = computed(() => completed.value)
+
+  return { loadInProgress, loadCompleted, getInProgress, getCompleted }
 }
 
 const sortByUpvotes = (a, b) => b.upvotes - a.upvotes

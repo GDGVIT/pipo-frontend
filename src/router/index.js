@@ -28,7 +28,9 @@ const routes = [
         name: 'badges',
         path: 'badges',
         component: () =>
-          import(/* webpackChunkName: "badges" */ '../views/user/badgesPage.vue')
+          import(
+            /* webpackChunkName: "badges" */ '../views/user/badgesPage.vue'
+          )
       },
       {
         name: 'user',
@@ -70,7 +72,7 @@ const routes = [
           },
           {
             name: 'calendar',
-            path: 'in-progress/:challengeName',
+            path: 'calendar/:challengeName',
             component: () =>
               import(
                 /* webpackChunkName: "inProgressBadges" */ '../views/user/profile/Calendar.vue'

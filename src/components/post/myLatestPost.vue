@@ -1,11 +1,17 @@
 <template>
-  <div class="post bg-myRed text-white font-glight p-9 relative rounded-md">
+  <div v-if="!latestPost">
+    <LoadingMyLatestPost :masonry="masonry" />
+  </div>
+  <div
+    v-else
+    class="post bg-myRed text-white font-glight p-9 relative sm:rounded-md"
+  >
     <div class="flex justify-between">
       <div class="flex items-center">
-        <span class="text-xl font-gbold">@ {{ latestPost?.username }}</span>
+        <span class="text-xl font-gbold">@ {{ profile?.userName }}</span>
         <span
           class="bg-white text-myRed font-semibold ml-2 text-xs rounded-full px-2"
-          >{{ latestPost?.points }}</span
+          >{{ profile?.points }}</span
         >
       </div>
     </div>
@@ -18,7 +24,7 @@
       </div>
       <div class="flex flex-col justify-items-center mt-5">
         <div v-for="(img, index) in latestPost?.image" :key="index">
-          <img :src="img" alt="post-image" />
+          <img :src="img" alt="post-image" @load="resizeGridItem(masonry)" />
         </div>
       </div>
       <div class="flex mt-4">
@@ -40,20 +46,27 @@
 
 <script>
 import { watchEffect } from "vue";
-import { getLatestPost } from "../../composables/posts";
+import { getLatestPost, resizing } from "../../composables/posts";
 import { setUser } from "../../composables/auth";
+import { getProfile } from "../../composables/profile";
+import LoadingMyLatestPost from "@/components/loadComponents/LoadingMyLatestPost";
+
 export default {
+  components: { LoadingMyLatestPost },
+  props: ["masonry"],
   setup() {
+    const { loadProfile, profile } = getProfile();
     const { updateLatestPost, latestPost } = getLatestPost();
     const { isLoggedIn } = setUser();
+    const { resizeGridItem } = resizing();
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
+        await loadProfile();
         await updateLatestPost();
       }
     });
-
-    return { latestPost };
+    return { latestPost, profile, resizeGridItem };
   },
 };
 </script>
