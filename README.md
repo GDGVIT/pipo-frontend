@@ -42,9 +42,9 @@
 
 - Vue-router
 
-- Vuex 🔄
+- Identicon.js
 
-- Axios
+- Firebase
 
 - Tailwind CSS
 
