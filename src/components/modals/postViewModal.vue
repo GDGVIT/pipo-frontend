@@ -4,7 +4,7 @@
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
   />
   <div
-    class="fixed bg-white z-20 h-5/6 top-24 left-0 right-0 sm:left-10 sm:right-10 md:w-3/4 md:m-auto lg:w-2/3 font-glight"
+    class="fixed bg-white text-black z-20 h-5/6 top-24 left-0 right-0 sm:left-10 sm:right-10 md:w-3/4 md:m-auto lg:w-2/3 font-glight"
   >
     <div v-if="!isCommentActive" class="relative">
       <div class="absolute top-64 left-5 arrow-bounce" @click="prev()">
@@ -15,8 +15,20 @@
         <div class="flex justify-between mt-4 items-center">
           <!-- header -->
           <div class="flex justify-start items-center">
-            <div class="text-xl font-gbold">@{{ postModal?.username }}</div>
+            <div class="text-xl font-gbold">
+              <router-link
+                :to="{
+                  name: 'randomUserPosts',
+                  params: {
+                    userId: `${postModal?.userId}`,
+                    username: `${postModal?.username}`,
+                  },
+                }"
+                >@{{ postModal?.username }}</router-link
+              >
+            </div>
             <div
+              v-if="postModal?.points"
               class="ml-3 text-xs bg-myRed text-white font-gbold px-2 rounded-full py-1"
             >
               {{ postModal?.points }}
@@ -163,8 +175,8 @@ export default {
 
     watchEffect(() => {
       if (isLoggedIn.value) {
-        console.log("Obtaining current post to show");
         postModal.value = getCurrentPost.value;
+        console.log("Post modal value", postModal.value);
       }
     });
 

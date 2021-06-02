@@ -13,6 +13,7 @@
             class="w-32 h-32 rounded-full"
             :src="profile?.picture"
             alt="profile-pic"
+            referrerpolicy="no-referrer"
           />
         </div>
         <div v-if="!profile?.picture">
@@ -86,7 +87,7 @@
           >
             <div v-if="badge">
               <img :src="badge?.identicon" alt="badge-pic" class="w-16 h-16" />
-              <span class="text-xs">{{ badge?.badgeName }}</span>
+              <span class="text-xs font-gbold">{{ badge?.badgeName }}</span>
             </div>
             <div
               v-else
@@ -114,7 +115,7 @@
           >
             <div v-if="badge">
               <img :src="badge?.identicon" alt="badge-pic" class="w-16 h-16" />
-              <span class="text-xs font-gregular">{{ badge?.badgeName }}</span>
+              <span class="text-xs font-gbold">{{ badge?.badgeName }}</span>
             </div>
             <div
               v-else
@@ -125,20 +126,20 @@
       </div>
       <hr />
       <!-- Interests -->
-      <div class="ml-5 py-6 overflow-x-hidden">
+      <div class="ml-5 pt-6 overflow-x-hidden">
         <div class="flex justify-between items-center">
-          <div class="my-3 font-gbold text-lg">Interests</div>
+          <div class="py-3 font-gbold text-lg">Interests</div>
           <router-link to="/user/interests"
             ><Icon name="rightArrow"
           /></router-link>
         </div>
         <div
           v-if="interestList5.length === 0"
-          class="text-myRed text-sm font-gbold"
+          class="text-myRed text-sm font-gbold pt-5 pb-10"
         >
           No Interests as of now. 😢
         </div>
-        <div v-else>
+        <div v-else class="pt-5 pb-10">
           <div
             v-for="(interest, index) in interestList5"
             :key="index"
@@ -150,18 +151,21 @@
       </div>
       <hr />
       <!-- Todolist -->
-      <div class="ml-5 py-6">
+      <div class="ml-5 pt-6">
         <div class="flex justify-between items-center">
-          <div class="my-3 font-gbold text-lg">TodoList</div>
+          <div class="py-3 font-gbold text-lg">TodoList</div>
           <router-link to="/user/todolist"
             ><Icon name="rightArrow"
           /></router-link>
         </div>
 
-        <div v-if="todos5.length === 0" class="text-myRed font-gbold text-sm">
+        <div
+          v-if="todos5.length === 0"
+          class="text-myRed font-gbold text-sm pt-5 pb-10"
+        >
           No Todos as of now. 😢
         </div>
-        <div v-else class="w-4/5">
+        <div v-else class="w-4/5 pt-5 pb-10">
           <div
             class="my-2 px-3 py-2 bg-red-50 text-myRed rounded-md grid grid-cols-12 items-baseline"
             v-for="(todo, index) in todos5"
@@ -259,7 +263,6 @@ export default {
 
     const updateUsernameByClick = () => {
       if (updatingUsername.value) {
-        console.log(usernameRef.value);
         changeUserDetails({ userName: usernameRef.value.textContent });
         updatingUsername.value = false;
       }

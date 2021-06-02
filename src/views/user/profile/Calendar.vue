@@ -3,16 +3,25 @@
     <!-- intro -->
     <div>
       <div>Calendar</div>
-      <div>{{ challengeName }}</div>
       <div>
-        This is the calendar view for the
+        This is the calendar view for the the badge
       </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {};
+import { onMounted } from "vue";
+import { useRoute } from "vue-router";
+export default {
+  setup() {
+    const route = useRoute();
+
+    onMounted(() => {
+      window.alert(route.params.challengeName);
+    });
+  },
+};
 </script>
 
 <style></style>

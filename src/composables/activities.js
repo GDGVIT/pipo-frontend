@@ -10,7 +10,7 @@ const getTodos = () => {
   const loadTodos = async () => {
     try {
       const res = await api.get('/todo', config.value)
-      todos.value = res.data
+      todos.value = res.data.message ? [] : res.data
     } catch (error) {
       console.log('Error while loading todos from backend', error)
     }
@@ -57,7 +57,7 @@ const getInterests = () => {
     if (interests.value.length === 0) {
       try {
         const res = await api.get('/tags', config.value)
-        interests.value = res.data
+        interests.value = res.data.message ? [] : res.data
       } catch (error) {
         console.log('Error while loading interests from backend', error)
       }

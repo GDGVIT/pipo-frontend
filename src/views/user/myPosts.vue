@@ -10,7 +10,7 @@
         <div class="mt-6">
           Welcome back!,
           <span class="text-myRed text-lg font-gbold"
-            >{{ user?.userName }}.
+            >{{ user.userName ? user.userName : "Anonymous" }}.
           </span>
           Here are all the posts you have posted so far. Post more or challenge
           your buddies to earn points. Remember to maintain your streaks to earn
@@ -74,6 +74,7 @@ export default {
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
+        console.log("Loading my posts");
         await loadMyPosts();
         myPosts.value = filtered.value;
       }

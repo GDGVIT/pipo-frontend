@@ -14,7 +14,6 @@ export default {
     const { setLoggedInUser } = setUser();
 
     firebase.auth().onAuthStateChanged(async (u) => {
-      console.log(u);
       if (u) {
         try {
           // token from firebase
@@ -34,7 +33,7 @@ export default {
           console.error("Error has occured while logging in", error);
         }
       } else {
-        console.log("User not logged in");
+        // console.log("User not logged in");
         setLoggedInUser(null, null, false);
       }
     });

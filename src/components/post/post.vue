@@ -5,7 +5,7 @@
   </div>
   <div
     v-else
-    class="bg-gray-50 text-gray-800 font-glight p-9 cursor-pointer relative sm:rounded-md"
+    class="bg-gray-50 text-gray-800 font-glight p-9 pb-6 cursor-pointer relative sm:rounded-md"
     @click="openPostModal()"
   >
     <div class="flex justify-between">

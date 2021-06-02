@@ -11,7 +11,7 @@ const isLoggedIn = ref(null)
 const setUser = () => {
   const setLoggedInUser = (userDetails, token, logged) => {
     try {
-      console.log('Setting userdetails', userDetails, token, logged)
+      // console.log('Setting userdetails', userDetails, token, logged)
       user.value = userDetails
       isLoggedIn.value = logged
       config.value.headers.Authorization = token

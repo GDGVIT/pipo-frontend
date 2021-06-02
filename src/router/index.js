@@ -19,6 +19,14 @@ const routes = [
         component: generalPosts
       },
       {
+        name: 'randomUserPosts',
+        path: 'posts/:userId',
+        component: () =>
+          import(
+            /* webpackChunkName: "randomUserPosts" */ '../views/user/postsOfUser.vue'
+          )
+      },
+      {
         name: 'myPosts',
         path: 'posts',
         component: () =>

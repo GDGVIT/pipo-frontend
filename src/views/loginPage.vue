@@ -54,16 +54,17 @@ export default {
     const router = useRouter();
     const { isLoggedIn } = setUser();
 
-    const stopWatch = watch(isLoggedIn, async () => {
-      if (isLoggedIn) {
-        await router.push("/");
-        stopWatch();
-      }
+    watch(isLoggedIn, async () => {
+      if (isLoggedIn) await router.push("/");
     });
 
     const signIn = async () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      await firebase.auth().signInWithPopup(provider);
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await firebase.auth().signInWithRedirect(provider);
+      } catch (error) {
+        console.log("Error while signing in with popup in firebase", error);
+      }
     };
 
     return { signIn };

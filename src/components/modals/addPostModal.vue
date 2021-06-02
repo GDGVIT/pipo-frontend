@@ -9,8 +9,9 @@
     <span
       @click="$emit('closeModal')"
       class="absolute top-16 right-16 cursor-pointer"
-      >x</span
     >
+      <CloseIcon name="close" />
+    </span>
     <div>
       <div class="text-3xl font-gbold text-center">Add a Post</div>
       <div class="my-6">
@@ -27,6 +28,7 @@
           <input
             type="text"
             ref="dropdown"
+            autocomplete="off"
             v-model="challengeTyped"
             class="input-border pl-4 py-1 focus:outline-none font-gregular"
             placeholder="Search"
@@ -52,6 +54,7 @@
           type="text"
           name="title"
           id="title"
+          autocomplete="off"
           v-model="title"
         />
         <label for="description">Description</label>
@@ -60,6 +63,7 @@
           id="description"
           class="input-border resize-none col-span-3"
           style="height:10em"
+          autocomplete="off"
           v-model="description"
         />
         <label for="tags">Tags</label>
@@ -67,6 +71,7 @@
           type="text"
           class="input-border col-span-3"
           name="tags"
+          autocomplete="off"
           v-model="tag"
           @keydown.enter="addTag()"
         />
@@ -77,14 +82,17 @@
         <div
           v-for="(t, index) in tags"
           :key="index"
-          class="font-gregular bg-myBlue text-white inline-block rounded-md px-2 mr-3"
+          class="bg-myBlue text-white font-gbold inline-block rounded-md pl-3 py-1 mr-3"
         >
-          {{ t }}
-          <span
-            class="cursor-pointer ml-2 font-gregular"
-            @click="tags.splice(index, 1)"
-            >x</span
-          >
+          <div class="flex items-center">
+            <span>{{ t }}</span>
+            <span
+              class="cursor-pointer font-glight"
+              @click="tags.splice(index, 1)"
+            >
+              <CloseIcon name="close" />
+            </span>
+          </div>
         </div>
       </div>
 
@@ -124,12 +132,13 @@
 
 <script>
 import ModalSVG from "./modalSVG";
+import CloseIcon from "../post/postSVG";
 import { getBadges } from "../../composables/badges";
 import { onMounted, ref, watch } from "vue";
 import { addPostFn } from "../../composables/posts";
 
 export default {
-  components: { ModalSVG },
+  components: { ModalSVG, CloseIcon },
   emits: ["closeModal"],
   setup(props, { emit }) {
     const { getAllBadges } = getBadges();
@@ -160,7 +169,6 @@ export default {
       }
     });
 
-    //TODO: Due to above event listener
     const loadAll = () => (updatedChallenges.value = getAllBadges());
 
     const addTag = () => {
@@ -179,15 +187,16 @@ export default {
       updatedChallenges.value = [];
     };
 
-    const onSubmit = () => {
-      addPostFn({
+    const onSubmit = async () => {
+      const res = await addPostFn({
         title: title.value,
         badgeName: selectedChallenge.value,
         description: description.value,
         post: imageFile.value,
         tags: tags.value,
       });
-      emit("closeModal", null);
+
+      if (res === 0) emit("closeModal", null);
     };
 
     return {

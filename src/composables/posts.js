@@ -1,5 +1,5 @@
 import api from '@/api.js'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { setUser } from './auth'
 import { generateIdenticon, timeAgo } from '@/generate.js'
 import { filter } from './filter'
@@ -7,6 +7,7 @@ import { useRoute } from 'vue-router'
 
 const generalPosts = ref(null)
 const myPosts = ref(null)
+const postsOfAUser = ref([])
 const latestPost = ref(null)
 const currIndex = ref(0)
 const count = ref(8)
@@ -49,12 +50,23 @@ const resizing = () => {
 
 // LATEST POST
 const getLatestPost = () => {
-  const { config } = setUser()
+  const { config, user } = setUser()
 
   const updateLatestPost = async () => {
-    const res1 = await api.get('/posts/myLatestPost', config.value)
-    const myLatestPost = filterMyLatestPost(res1.data)
-    latestPost.value = myLatestPost
+    try {
+      console.log('Setting latest post initially')
+      // initially
+      latestPost.value = {
+        description:
+          'No Latest Post yet! Well, this is the beginning of your journey why not add some posts ✏ and see what other think about it 🤔. Pick out any challenge you like and work on it🔥',
+        image: []
+      }
+      const res1 = await api.get('/posts/myLatestPost', config.value)
+      const myLatestPost = filterMyLatestPost(res1.data, user)
+      latestPost.value = myLatestPost
+    } catch (error) {
+      console.log('Error while obtaining latest post from backend')
+    }
   }
   return { updateLatestPost, latestPost }
 }
@@ -80,21 +92,16 @@ const getPosts = () => {
       const latestPosts = res2.data.posts
         .filter((post) => post !== null)
         .map((post) => {
-          if (post.upvotes === null) post.upvotes = []
-          if (post.username === null) post.username = 'anonymous'
-
+          post.upvotes = post.upvotes ? post.upvotes : []
+          post.username = post.username ? post.username : 'anonymous'
           post.identicon = generateIdenticon(post.badgeName)
-          // TODO: Remove this later once tags are added
-          post.tags = ['Tag 1', 'Tag 2', 'Tag 3']
-
           post.createDate = timeAgo(new Date(), new Date(post.createDate))
           post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
-
           return post
         })
         .sort(sortByPoints)
 
-      console.log('Latest Posts', latestPosts)
+      console.log('General Posts', latestPosts)
 
       generalPosts.value = latestPosts
     } catch (error) {
@@ -129,12 +136,15 @@ const myPostsFn = () => {
     if (!myPosts.value) {
       const { config, user } = setUser()
 
-      // console.log("Getting config from user", config.value);
+      console.log('Getting config from user', config.value)
 
       try {
-        const res = await api.get('/posts/', config.value)
+        const res = await api.get(
+          `/posts/of/${user.value.userId}`,
+          config.value
+        )
 
-        const myposts = res.data
+        const myposts = res.data.posts
           .filter((post) => post !== null)
           .sort(sortByPostDate)
           .map((post) => {
@@ -143,9 +153,6 @@ const myPostsFn = () => {
             post.username = username || 'anonymous'
 
             post.identicon = generateIdenticon(post.badgeName)
-
-            // TODO: Remove this later once tags are added
-            post.tags = ['Tag 1', 'Tag 2', 'Tag 3']
 
             post.createDate = timeAgo(new Date(), new Date(post.createDate))
             post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
@@ -184,25 +191,50 @@ const myPostsFn = () => {
 
 // ADD POST
 const addPostFn = async (data) => {
-  const { config } = setUser()
+  const { config, user } = setUser()
+  const error = ref(null)
 
-  // console.log(data);
+  console.log('Data from add post', data)
+
+  watch(error, () => window.alert(error.value))
+
   try {
     const formData = new FormData()
-    formData.append('post', data.post)
+    // TODO: Add tags later
+    // if (data.tags) formData.append("tags", data.tags);
+
+    if (!data.title) {
+      throw new Error('User has not given title to the post')
+    }
+    if (!data.description) {
+      throw new Error('User has not given any description')
+    }
+    if (!data.badgeName) {
+      throw new Error('User did not select any challenge')
+    }
+    if (!data.post) {
+      throw new Error('User did not select any picture')
+    }
+
     formData.append('title', data.title)
     formData.append('description', data.description)
     formData.append('badgeName', data.badgeName)
 
     const result = await api.post('/posts', formData, config.value)
+    console.log('result', result)
+
     const postCreated = result.data.response.postCreated
 
     console.log('postCreated', postCreated)
     generalPosts.value.push(postCreated)
     myPosts.value.unshift(postCreated)
-    latestPost.value = filterMyLatestPost(postCreated)
-  } catch (error) {
-    console.log('Error while sending post to the backend', error)
+    latestPost.value = filterMyLatestPost(postCreated, user)
+
+    return 0
+  } catch (err) {
+    console.log('Error while sending post to the backend', err)
+    error.value = err
+    return 1
   }
 }
 
@@ -218,9 +250,13 @@ const postModalFn = () => {
       ? generalPosts.value
           ? generalPosts.value[currIndex?.value]
           : null
-      : myPosts.value
-        ? myPosts.value[currIndex?.value]
-        : null
+      : route.path === '/posts'
+        ? myPosts.value
+            ? myPosts.value[currIndex?.value]
+            : null
+        : postsOfAUser.value
+          ? postsOfAUser.value[currIndex?.value]
+          : null
   })
 
   const getNextPost = () => {
@@ -229,6 +265,11 @@ const postModalFn = () => {
     } else if (
       route.path === '/posts' &&
       currIndex.value < myPosts.value.length - 1
+    ) {
+      currIndex.value++
+    } else if (
+      route.path === `/posts/${route.params.userId}` &&
+      currIndex.value < postsOfAUser.value.length - 1
     ) {
       currIndex.value++
     }
@@ -307,7 +348,9 @@ const getComments = () => {
     const id =
       route.path === '/'
         ? generalPosts?.value[currIndex?.value]?.postId
-        : myPosts?.value[currIndex?.value]?.postId
+        : route.path === '/posts'
+          ? myPosts?.value[currIndex?.value]?.postId
+          : postsOfAUser?.value[currIndex?.value].postId
 
     try {
       const res = await api.post(`/posts/getPost/${id}`, {}, config.value)
@@ -354,7 +397,40 @@ const getComments = () => {
   return { loadComments, orderedComments, postComment }
 }
 
-//
+// POSTS OF A USER
+const getPostsOfUser = () => {
+  const { config } = setUser()
+  const count = ref(6)
+  const err = ref(null)
+
+  watch(err, () => window.alert(err))
+
+  const loadMore = () => (count.value += 6)
+
+  const loadUserPosts = async (userId, username) => {
+    try {
+      const res = await api.get(`/posts/of/${userId}`, config.value)
+      console.log('Response of posts of that user from backend', res)
+      postsOfAUser.value = res.data.posts.map((post) => {
+        post.username = username || 'Anonymous'
+        post.upvotes = post.upvotes ? post.upvotes : []
+        post.identicon = generateIdenticon(post.badgeName)
+        post.createDate = timeAgo(new Date(), new Date(post.createDate))
+        post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
+        return post
+      })
+    } catch (error) {
+      console.log('Error while obtaining random user posts from backend', err)
+      err.value = error
+    }
+  }
+
+  const randomUserPosts = computed(() =>
+    postsOfAUser.value.slice(0, count.value)
+  )
+
+  return { randomUserPosts, loadUserPosts, loadMore }
+}
 
 // UTILS
 const sortByPoints = (a, b) => b.points - a.points
@@ -362,15 +438,16 @@ const sortByDate = (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
 const sortByPostDate = (a, b) =>
   new Date(b.updatedDate) - new Date(a.updatedDate)
 
-const filterMyLatestPost = (post) => {
-  if (post.upvotes === null) post.upvotes = []
-  post.points = post.points ? post.points : 20
-  post.userName = post.userName ? post.userName : 'anonymous'
-
-  // TODO: Remove this later once tags are added
-  post.tags = ['Tag 1', 'Tag 2', 'Tag 3']
-  post.createDate = timeAgo(new Date(), new Date(post.createDate))
-  return post
+const filterMyLatestPost = (post, user) => {
+  try {
+    if (post.upvotes === null) post.upvotes = []
+    post.points = post.points ? post.points : 20
+    post.userName = user.value.userName
+    post.createDate = timeAgo(new Date(), new Date(post.createDate))
+    return post
+  } catch (error) {
+    console.log('Error while filtering the latest post', error)
+  }
 }
 
 export {
@@ -380,5 +457,6 @@ export {
   addPostFn,
   getComments,
   getLatestPost,
-  myPostsFn
+  myPostsFn,
+  getPostsOfUser
 }

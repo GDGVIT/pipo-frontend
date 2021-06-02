@@ -15,7 +15,7 @@
         >
       </div>
     </div>
-    <div class="">
+    <div>
       <div class="text-2xl font-gbold tracking-wide my-8">
         {{ latestPost?.title }}
       </div>
@@ -66,6 +66,7 @@ export default {
         await updateLatestPost();
       }
     });
+
     return { latestPost, profile, resizeGridItem };
   },
 };
