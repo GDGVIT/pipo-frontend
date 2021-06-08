@@ -5,6 +5,7 @@
   </div>
   <div
     v-else
+    :id="post.postId"
     class="bg-gray-50 text-gray-800 font-glight p-9 pb-6 cursor-pointer relative sm:rounded-md"
     @click="openPostModal()"
   >
@@ -20,14 +21,14 @@
         <span style="font-size:12px">{{ post?.upvotes?.length }}</span>
       </div>
     </div>
-    <div class="">
+    <div v-if="post">
       <div class="text-2xl font-gbold tracking-wide my-8">
         {{ post?.title }}
       </div>
       <div class="tracking-wider">
         {{ post?.description }}
       </div>
-      <div class="flex flex-col justify-items-center mt-5">
+      <div class="grid place-items-center mt-5">
         <div v-for="(img, index) in post?.image" :key="index">
           <img :src="img" alt="post-image" @load="resizeGridItem(masonry)" />
         </div>

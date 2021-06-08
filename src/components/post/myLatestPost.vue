@@ -8,10 +8,10 @@
   >
     <div class="flex justify-between">
       <div class="flex items-center">
-        <span class="text-xl font-gbold">@ {{ profile?.userName }}</span>
+        <span class="text-xl font-gbold">@ {{ profile?.user?.userName }}</span>
         <span
           class="bg-white text-myRed font-semibold ml-2 text-xs rounded-full px-2"
-          >{{ profile?.points }}</span
+          >{{ profile?.user?.points }}</span
         >
       </div>
     </div>
@@ -23,7 +23,11 @@
         {{ latestPost?.description }}
       </div>
       <div class="flex flex-col justify-items-center mt-5">
-        <div v-for="(img, index) in latestPost?.image" :key="index">
+        <div
+          v-for="(img, index) in latestPost?.image"
+          :key="index"
+          class="grid place-items-center"
+        >
           <img :src="img" alt="post-image" @load="resizeGridItem(masonry)" />
         </div>
       </div>

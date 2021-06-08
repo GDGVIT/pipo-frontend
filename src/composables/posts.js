@@ -1,46 +1,36 @@
 import api from '@/api.js'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { setUser } from './auth'
 import { generateIdenticon, timeAgo } from '@/generate.js'
 import { filter } from './filter'
 import { useRoute } from 'vue-router'
 
-const generalPosts = ref(null)
-const myPosts = ref(null)
+const POSTS_COUNT = 8
+
+const generalPosts = ref([])
+const myPosts = ref([])
 const postsOfAUser = ref([])
 const latestPost = ref(null)
 const currIndex = ref(0)
-const count = ref(8)
+const count = ref(POSTS_COUNT)
 
 // MASONRY
 const resizing = () => {
   const resizeGridItem = (grid) => {
     if (grid) {
-      // console.log("grid", grid);
-
       const rowHeight = parseInt(
         window.getComputedStyle(grid).getPropertyValue('grid-auto-rows')
       )
-
-      // console.log("Row Height", rowHeight);
-
       const rowGap = parseInt(
         window.getComputedStyle(grid).getPropertyValue('grid-row-gap')
       )
-
-      // console.log("Row Gap", rowGap);
-
       grid.style.gridAutoRows = 'auto'
       grid.style.alignItems = 'self-start'
-
-      // console.log(grid.querySelectorAll(".post"));
-
       grid.querySelectorAll('.post').forEach((item) => {
         item.style.gridRowEnd = `span ${Math.ceil(
           (item.clientHeight + rowGap) / (rowHeight + rowGap)
         )}`
       })
-
       grid.removeAttribute('style')
     }
   }
@@ -52,15 +42,17 @@ const resizing = () => {
 const getLatestPost = () => {
   const { config, user } = setUser()
 
+  const temporaryPost = () => {
+    return {
+      description:
+        'No Latest Post yet! Well, this is the beginning of your journey why not add some posts ✏ and see what other think about it 🤔. Pick out any challenge you like and work on it🔥',
+      image: ['https://i.imgur.com/HuNalGN.png']
+    }
+  }
+
   const updateLatestPost = async () => {
     try {
-      console.log('Setting latest post initially')
-      // initially
-      latestPost.value = {
-        description:
-          'No Latest Post yet! Well, this is the beginning of your journey why not add some posts ✏ and see what other think about it 🤔. Pick out any challenge you like and work on it🔥',
-        image: []
-      }
+      latestPost.value = temporaryPost()
       const res1 = await api.get('/posts/myLatestPost', config.value)
       const myLatestPost = filterMyLatestPost(res1.data, user)
       latestPost.value = myLatestPost
@@ -74,36 +66,24 @@ const getLatestPost = () => {
 // GENERAL POSTS
 const getPosts = () => {
   // To reset the count to 8
-  count.value = 8
-
+  count.value = POSTS_COUNT
   const { generalFilter } = filter()
+  const { config } = setUser()
+  const filtered = ref([])
+  const error = ref(null)
+
+  watch(error, () => window.alert(error.value))
 
   const loadPosts = async () => {
-    const { config } = setUser()
-
-    // console.log("Getting config from user", config.value);
-
     try {
       const res2 = await api.get(
         `/posts/allLatestPosts/${count.value}`,
         config.value
       )
-
-      const latestPosts = res2.data.posts
-        .filter((post) => post !== null)
-        .map((post) => {
-          post.upvotes = post.upvotes ? post.upvotes : []
-          post.username = post.username ? post.username : 'anonymous'
-          post.identicon = generateIdenticon(post.badgeName)
-          post.createDate = timeAgo(new Date(), new Date(post.createDate))
-          post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
-          return post
-        })
-        .sort(sortByPoints)
-
+      const latestPosts = filterPost(res2.data.posts)
       console.log('General Posts', latestPosts)
-
       generalPosts.value = latestPosts
+      filtered.value = latestPosts
     } catch (error) {
       console.log('Error while receiving latest posts from backend', error)
     }
@@ -112,15 +92,34 @@ const getPosts = () => {
   const loadMore = async () => {
     // console.log("Loading more posts for you :)");
     count.value += generalPosts.value.length < count.value ? 0 : 8
-    await loadPosts()
+    if (generalFilter.value.badgeName === 'All Badges') await loadPosts()
+    else await loadBadgeGeneralPosts()
   }
 
-  const filtered = computed(() => {
-    return generalPosts.value?.filter((post) =>
-      generalFilter.value === 'All Badges'
-        ? true
-        : post.badgeName === generalFilter.value
-    )
+  const loadBadgeGeneralPosts = async () => {
+    if (generalFilter.value?.badgeId) {
+      try {
+        const res = await api.get(
+          `/posts/postsByBadgeName/${generalFilter.value.badgeId}/${count.value}`,
+          config.value
+        )
+        filtered.value = filterPost(res.data.posts)
+      } catch (err) {
+        if (err.s) {
+          console.log(
+            'Error while obtaining badge specific general posts from backend',
+            err
+          )
+        }
+        error.value = 'No such posts found!'
+      }
+    }
+  }
+
+  watchEffect(async () => {
+    if (generalFilter.value.badgeName === 'All Badges') { filtered.value = generalPosts.value.splice(0, count.value) } else {
+      await loadBadgeGeneralPosts()
+    }
   })
 
   return { loadPosts, loadMore, filtered }
@@ -129,61 +128,56 @@ const getPosts = () => {
 // MY POSTS
 const myPostsFn = () => {
   count.value = 6
-
+  const { config, user } = setUser()
   const { myPostsFilter } = filter()
+  const filtered = ref([])
+  const error = ref(null)
+
+  watch(error, () => window.alert(error.value))
 
   const loadMyPosts = async () => {
-    if (!myPosts.value) {
-      const { config, user } = setUser()
+    console.log('Getting config from user', config.value)
 
-      console.log('Getting config from user', config.value)
+    try {
+      const res = await api.get(`/posts/of/${user.value.userId}`, config.value)
+      const myposts = filterMyPosts(res.data.posts, user)
+      console.log('my posts', myposts)
+      myPosts.value = myposts
+      filtered.value = myposts
+    } catch (err) {
+      console.log('Error while receiving latest posts from backend', err)
+    }
+  }
 
+  const loadBadgeMyPosts = async () => {
+    if (myPostsFilter.value?.badgeId) {
       try {
         const res = await api.get(
-          `/posts/of/${user.value.userId}`,
+          `/posts/postsByBadgeName/${myPostsFilter.value.badgeId}/${count.value}`,
           config.value
         )
-
-        const myposts = res.data.posts
-          .filter((post) => post !== null)
-          .sort(sortByPostDate)
-          .map((post) => {
-            const username = user.value.userName
-            post.upvotes = post.upvotes ? post.upvotes : []
-            post.username = username || 'anonymous'
-
-            post.identicon = generateIdenticon(post.badgeName)
-
-            post.createDate = timeAgo(new Date(), new Date(post.createDate))
-            post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
-
-            // TODO: My posts doesn't have points yet
-            post.points = 20
-
-            return post
-          })
-
-        console.log('my posts', myposts)
-
-        myPosts.value = myposts
-      } catch (error) {
-        console.log('Error while receiving latest posts from backend', error)
+        filtered.value = filterMyPosts(res.data.posts, user)
+      } catch (err) {
+        console.log(
+          'Error while obtaining badge specific general posts from backend',
+          err
+        )
+        error.value =
+          'Error while loading your posts. Try again after sometime!'
       }
     }
   }
 
-  const filtered = computed(() => {
-    return myPosts.value
-      ?.slice(0, count.value)
-      .filter((post) =>
-        myPostsFilter.value === 'All Badges'
-          ? true
-          : post.badgeName === myPostsFilter.value
-      )
+  watchEffect(async () => {
+    if (myPostsFilter.value.badgeName === 'All Badges') { filtered.value = myPosts.value.splice(0, count.value) } else {
+      await loadBadgeMyPosts()
+    }
   })
 
-  const loadMore = () => {
+  const loadMore = async () => {
     count.value += 6
+    if (myPostsFilter.value.badgeName === 'All Badges') await loadMyPosts()
+    else await loadBadgeMyPosts()
   }
 
   return { filtered, loadMore, loadMyPosts }
@@ -194,14 +188,18 @@ const addPostFn = async (data) => {
   const { config, user } = setUser()
   const error = ref(null)
 
-  console.log('Data from add post', data)
-
   watch(error, () => window.alert(error.value))
 
   try {
     const formData = new FormData()
-    // TODO: Add tags later
-    // if (data.tags) formData.append("tags", data.tags);
+    if (data.tags) {
+      let tags = ''
+      data.tags.forEach((tag) => {
+        tags += tag + ','
+      })
+      data.tags = tags.slice(0, -1)
+      formData.append('tags', data.tags)
+    }
 
     if (!data.title) {
       throw new Error('User has not given title to the post')
@@ -212,13 +210,12 @@ const addPostFn = async (data) => {
     if (!data.badgeName) {
       throw new Error('User did not select any challenge')
     }
-    if (!data.post) {
-      throw new Error('User did not select any picture')
-    }
 
     formData.append('title', data.title)
     formData.append('description', data.description)
     formData.append('badgeName', data.badgeName)
+
+    console.log('Data from add post', data)
 
     const result = await api.post('/posts', formData, config.value)
     console.log('result', result)
@@ -242,6 +239,9 @@ const addPostFn = async (data) => {
 const postModalFn = () => {
   const { user, config } = setUser()
   const route = useRoute()
+  const error = ref(null)
+
+  watch(error, () => window.alert(error.value))
 
   const assignIndex = (index) => (currIndex.value = index)
 
@@ -286,45 +286,50 @@ const postModalFn = () => {
   const vote = async () => {
     const index = currIndex.value
     const post = getCurrentPost.value
+    const postId = post.postId
 
     let toBeUpvoted = true
 
     for (let i = 0; i < post.upvotes.length; i++) {
-      if (post.upvotes[i] === user.userId) {
+      if (post.upvotes[i] === user.value.userId) {
         toBeUpvoted = false
-        break
       }
     }
 
+    // If not yet upvoted
     if (toBeUpvoted) {
-      console.log('User has not yet upvoted')
       try {
-        const postId = post?.postId
-        const res = await api.post('/posts/upvote', { postId }, config.value)
-        // TODO: Currently not upvoting check it once
-        console.log(res.data)
-      } catch (error) {
-        console.log('Error while upvoting the post', error)
-      }
-      generalPosts.value[index].upvotes.push(user.value.userId)
-    } else {
-      console.log('User has already upvoted!')
-      try {
-        const postId = post?.postId
-        const res = await api.post(
-          '/posts/remoteUpvote',
-          { postId },
-          config.value
-        )
-        // TODO: Currently not downvoting check it once
-        console.log(res.data)
-      } catch (error) {
-        console.log('Error while upvoting the post', error)
-      }
+        await api.post('/posts/upvote', { postId }, config.value)
 
-      generalPosts.value[index].upvotes = generalPosts.value[
-        index
-      ].upvotes.filter((post) => post.id !== user.value.userId)
+        if (route.path === '/') { generalPosts.value[index].upvotes.push(user.value.userId) } else if (route.path === '/posts') { myPosts.value[index].upvotes.push(user.value.userId) } else postsOfAUser.value[index].upvotes.push(user.value.userId)
+      } catch (err) {
+        console.log('Error while upvoting the post', err)
+        error.value = err
+      }
+    } else {
+      // If already upvoted then downvote
+      try {
+        await api.post('/posts/removeUpvote', { postId }, config.value)
+        // Removing the user from votes list
+
+        if (route.path === '/') {
+          const rm = generalPosts.value[index]?.upvotes?.indexOf(
+            user.value.userId
+          )
+          generalPosts.value[index]?.upvotes?.splice(rm, 1)
+        } else if (route.path === '/posts') {
+          const rm = myPosts.value[index]?.upvotes?.indexOf(user.value.userId)
+          myPosts.value[index]?.upvotes?.splice(rm, 1)
+        } else {
+          const rm = postsOfAUser.value[index]?.upvotes?.indexOf(
+            user.value.userId
+          )
+          postsOfAUser.value[index]?.upvotes?.splice(rm, 1)
+        }
+      } catch (err) {
+        console.log('Error while downvoting the post', error)
+        error.value = err
+      }
     }
   }
 
@@ -408,20 +413,26 @@ const getPostsOfUser = () => {
   const loadMore = () => (count.value += 6)
 
   const loadUserPosts = async (userId, username) => {
-    try {
-      const res = await api.get(`/posts/of/${userId}`, config.value)
-      console.log('Response of posts of that user from backend', res)
-      postsOfAUser.value = res.data.posts.map((post) => {
-        post.username = username || 'Anonymous'
-        post.upvotes = post.upvotes ? post.upvotes : []
-        post.identicon = generateIdenticon(post.badgeName)
-        post.createDate = timeAgo(new Date(), new Date(post.createDate))
-        post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
-        return post
-      })
-    } catch (error) {
-      console.log('Error while obtaining random user posts from backend', err)
-      err.value = error
+    if (userId) {
+      try {
+        console.log('username', username)
+        const res = await api.get(`/posts/of/${userId}`, config.value)
+        console.log('Response of posts of that user from backend', res)
+        postsOfAUser.value = res.data.posts.map((post) => {
+          post.username = username || 'anonymous'
+          post.upvotes = post.upvotes ? post.upvotes : []
+          post.identicon = generateIdenticon(post.badgeName)
+          post.createDate = timeAgo(new Date(), new Date(post.createDate))
+          post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
+          return post
+        })
+      } catch (error) {
+        console.log(
+          'Error while obtaining random user posts from backend',
+          err
+        )
+        err.value = error
+      }
     }
   }
 
@@ -438,10 +449,40 @@ const sortByDate = (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
 const sortByPostDate = (a, b) =>
   new Date(b.updatedDate) - new Date(a.updatedDate)
 
+const filterPost = (posts) => {
+  return posts
+    .filter((post) => post !== null)
+    .map((post) => {
+      post.upvotes = post.upvotes ? post.upvotes : []
+      post.username = post.username ? post.username : 'anonymous'
+      post.identicon = generateIdenticon(post.badgeName)
+      post.createDate = timeAgo(new Date(), new Date(post.createDate))
+      post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
+      return post
+    })
+    .sort(sortByPoints)
+}
+
+const filterMyPosts = (posts, user) => {
+  return posts
+    .filter((post) => post !== null)
+    .sort(sortByPostDate)
+    .map((post) => {
+      const username = user.value.userName
+      post.upvotes = post.upvotes ? post.upvotes : []
+      post.username = username || 'anonymous'
+      post.identicon = generateIdenticon(post.badgeName)
+      post.createDate = timeAgo(new Date(), new Date(post.createDate))
+      post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
+      post.points = user.value.points ? user.value.points : 0
+      return post
+    })
+}
+
 const filterMyLatestPost = (post, user) => {
   try {
-    if (post.upvotes === null) post.upvotes = []
-    post.points = post.points ? post.points : 20
+    post.upvotes = post.upvotes ? post.upvotes : []
+    post.points = post.points ? post.points : 0
     post.userName = user.value.userName
     post.createDate = timeAgo(new Date(), new Date(post.createDate))
     return post

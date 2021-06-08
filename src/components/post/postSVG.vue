@@ -3,7 +3,8 @@
   <!-- Like Light -->
   <svg
     v-if="name === 'likeLight'"
-    class="cursor-pointer"
+    class="cursor-pointer text-myBlue"
+    fill="currentColor"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -13,9 +14,10 @@
   </svg>
   <!-- Like Dark -->
   <svg
-    class="cursor-pointer"
+    class="cursor-pointer text-myBlue"
     v-else-if="name === 'likeDark'"
     viewBox="0 0 24 24"
+    fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
@@ -28,7 +30,8 @@
   <!-- Comment -->
   <svg
     v-else-if="name === 'comment'"
-    class="cursor-pointer"
+    class="cursor-pointer text-myBlue"
+    fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
     enable-background="new 0 0 511.072 511.072"
     viewBox="0 0 511.072 511.072"

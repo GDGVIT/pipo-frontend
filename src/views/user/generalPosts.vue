@@ -85,10 +85,13 @@ export default {
       if (isLoggedIn.value) {
         await loadPosts();
         posts.value = filtered.value;
+        resizeGridItem(masonry.value);
       }
     });
 
-    watch(filtered, () => (posts.value = filtered.value));
+    watch(filtered, () => {
+      posts.value = filtered.value;
+    });
 
     // For resizing the masonry
     window.addEventListener("resize", () => resizeGridItem(masonry.value));

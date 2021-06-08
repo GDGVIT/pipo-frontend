@@ -35,7 +35,13 @@ const getBadges = () => {
     badges.value.filter((badge) => !badge.hasStreak)
   )
 
-  const getAllBadges = () => badges.value.map((badge) => badge.badgeName)
+  const getAllBadges = () =>
+    badges.value.map((badge) => {
+      return {
+        badgeName: badge.badgeName,
+        badgeId: badge.badgeId
+      }
+    })
 
   const postBadge = async (badgeData) => {
     try {

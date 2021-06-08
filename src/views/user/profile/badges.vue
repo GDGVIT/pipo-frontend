@@ -17,18 +17,22 @@
     <div
       class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center overflow-y-auto h-2/3 gap-4"
     >
-      <div
-        class="grid place-items-center"
-        v-for="(badge, index) in completed"
-        :key="index"
-      >
-        <div v-if="badge?.badgeId">
-          <img
-            @click="this.$router.push(`/user/calendar/${badge.badgeName}`)"
-            class="w-16 h-16"
-            :src="badge?.identicon"
-            alt="earned-badge-pic"
-          />
+      <div v-for="(badge, index) in completed" :key="index">
+        <div v-if="badge?.badgeId" class="grid place-items-center">
+          <router-link
+            :to="{
+              name: 'calendar',
+              params: {
+                challengeId: `${badge.badgeId}`,
+              },
+            }"
+          >
+            <img
+              class="w-16 h-16"
+              :src="badge?.identicon"
+              alt="earned-badge-pic"
+            />
+          </router-link>
           <span class="font-gbold text-sm">{{ badge?.badgeName }}</span>
         </div>
         <div
@@ -44,11 +48,13 @@
 import LeftArrow from "@/components/user/userIcons";
 import { getUserBadges } from "../../../composables/badges";
 import { onMounted, ref, watchEffect } from "vue";
+import { setUser } from "../../../composables/auth";
 
 export default {
   components: { LeftArrow },
   setup() {
     const completed = ref([]);
+    const { isLoggedIn } = setUser();
     const { loadCompleted, getCompleted } = getUserBadges();
 
     onMounted(() => {
@@ -65,8 +71,10 @@ export default {
     };
 
     watchEffect(async () => {
-      if (getCompleted.value.length === 0) await loadCompleted();
-      showCompleted();
+      if (isLoggedIn.value) {
+        if (getCompleted.value.length === 0) await loadCompleted();
+        showCompleted(getCompleted.value);
+      }
     });
 
     return { completed };

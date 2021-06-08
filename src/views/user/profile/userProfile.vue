@@ -8,15 +8,15 @@
     >
       <!-- Profile pic -->
       <div class="grid place-items-center">
-        <div v-if="profile?.picture">
+        <div v-if="profile?.user?.picture">
           <img
             class="w-32 h-32 rounded-full"
-            :src="profile?.picture"
+            :src="profile?.user?.picture"
             alt="profile-pic"
             referrerpolicy="no-referrer"
           />
         </div>
-        <div v-if="!profile?.picture">
+        <div v-if="!profile?.user?.picture">
           <Icon name="profileIcon" />
         </div>
       </div>
@@ -36,31 +36,31 @@
             class="bg-myRed text-center break-words focus:outline-none"
             ref="usernameRef"
             contenteditable="true"
-            >{{ profile?.userName }}
+            >{{ profile?.user?.userName }}
           </span>
           <label for="username">
             <Icon name="editPencil" />
           </label>
         </div>
         <div class="font-glight py-3 px-2 w-full break-all text-center">
-          {{ profile?.email }}
+          {{ profile?.user?.email }}
         </div>
         <div
           class="font-gbold grid grid-cols-2 place-items-center gap-y-3 m-auto"
         >
           <div>Followers</div>
           <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
-            {{ followersCount }}
+            {{ profile?.followers }}
           </div>
 
           <div>Following</div>
           <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
-            {{ followingCount }}
+            {{ profile?.following }}
           </div>
 
           <div>Friends</div>
           <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
-            {{ friendsCount }}
+            {{ profile?.friends }}
           </div>
         </div>
       </div>
@@ -78,14 +78,14 @@
           <router-link to="/user/badges"><Icon name="rightArrow"/></router-link>
         </div>
         <div
-          class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-start mt-5 mb-10"
+          class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-center mt-5 mb-10"
         >
           <div
             v-for="(badge, index) in completed"
             :key="index"
-            class="w-20 inline-block"
+            class="w-20 grid place-items-center"
           >
-            <div v-if="badge">
+            <div v-if="badge" class="grid place-items-center">
               <img :src="badge?.identicon" alt="badge-pic" class="w-16 h-16" />
               <span class="text-xs font-gbold">{{ badge?.badgeName }}</span>
             </div>
@@ -106,14 +106,14 @@
           /></router-link>
         </div>
         <div
-          class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-start mt-5 mb-10"
+          class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-center mt-5 mb-10"
         >
           <div
             v-for="(badge, index) in inProgress"
             :key="index"
-            class="w-16 text-center"
+            class="w-20 grid place-items-center"
           >
-            <div v-if="badge">
+            <div v-if="badge" class="grid place-items-center">
               <img :src="badge?.identicon" alt="badge-pic" class="w-16 h-16" />
               <span class="text-xs font-gbold">{{ badge?.badgeName }}</span>
             </div>
@@ -182,7 +182,7 @@
 
 <script>
 import Icon from "@/components/user/userIcons";
-import { getProfile, socialCircle } from "../../../composables/profile";
+import { getProfile } from "../../../composables/profile";
 import { onMounted, ref, watchEffect } from "vue";
 import { setUser } from "../../../composables/auth";
 import { getUserBadges } from "../../../composables/badges";
@@ -198,13 +198,6 @@ export default {
 
     const { isLoggedIn } = setUser();
     const { profile, loadProfile, changeUserDetails } = getProfile();
-    const {
-      loadFollowers,
-      loadFollowing,
-      followersCount,
-      followingCount,
-      friendsCount,
-    } = socialCircle();
     const {
       loadInProgress,
       loadCompleted,
@@ -246,10 +239,6 @@ export default {
         showInProgress();
         showCompleted();
 
-        //loading social circle
-        await loadFollowing();
-        await loadFollowers();
-
         //loading activities
         await loadTodos();
         await loadInterests();
@@ -274,9 +263,6 @@ export default {
       usernameRef,
       updatingUsername,
       updateUsernameByClick,
-      followersCount,
-      followingCount,
-      friendsCount,
       inProgress,
       completed,
       todos5,

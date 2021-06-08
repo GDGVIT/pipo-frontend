@@ -80,7 +80,7 @@ const routes = [
           },
           {
             name: 'calendar',
-            path: 'calendar/:challengeName',
+            path: 'calendar/:challengeId',
             component: () =>
               import(
                 /* webpackChunkName: "inProgressBadges" */ '../views/user/profile/Calendar.vue'

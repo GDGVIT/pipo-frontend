@@ -13,7 +13,7 @@
       <CloseIcon name="close" />
     </span>
     <div>
-      <div class="text-3xl font-gbold text-center">Add a Post</div>
+      <div class="text-3xl font-gbold text-center">Add a Post 🔖</div>
       <div class="my-6">
         Record your experience with people around the world!. Select the
         challenge you wish to conquer!. Along with that enter the title,
@@ -44,7 +44,7 @@
               :key="index"
               @click="submitChallenge(challenge)"
             >
-              {{ challenge }}
+              {{ challenge.badgeName }}
             </li>
           </ul>
         </div>
@@ -152,14 +152,15 @@ export default {
     const tag = ref("");
     const selectedChallenge = ref(null);
     const imageFile = ref(null);
-
     const tags = ref([]);
 
     onMounted(() => (challenges.value = getAllBadges()));
 
     watch(challengeTyped, () => {
       updatedChallenges.value = challenges.value.filter((badge) =>
-        badge.toLowerCase().includes(challengeTyped.value?.toLowerCase())
+        badge.badgeName
+          .toLowerCase()
+          .includes(challengeTyped.value?.toLowerCase())
       );
     });
 
@@ -178,12 +179,11 @@ export default {
 
     const onSelectImage = (event) => {
       imageFile.value = event.target.files[0];
-      // console.log("image", imageFile.value);
     };
 
     const submitChallenge = (challenge) => {
-      selectedChallenge.value = challenge;
-      challengeTyped.value = challenge;
+      selectedChallenge.value = challenge.badgeName;
+      challengeTyped.value = challenge.badgeName;
       updatedChallenges.value = [];
     };
 

@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: Make filter work with load more -->
   <div class="relative w-60 sm:w-96">
     <div class="flex items-center">
       <input
@@ -35,7 +36,7 @@
         :key="index"
         @click="selectBadge(badge)"
       >
-        {{ badge }}
+        {{ badge.badgeName }}
       </li>
     </ul>
   </div>
@@ -58,6 +59,7 @@ export default {
 
     const { loadBadges, getAllBadges } = getBadges();
     const { isLoggedIn } = setUser();
+    const { generalFilter, myPostsFilter } = filter();
 
     const route = useRoute();
 
@@ -71,14 +73,15 @@ export default {
       if (isLoggedIn.value) {
         loadBadges();
         const b = getAllBadges();
-        badges.value = ["All Badges", ...b];
+        const allBadges = { badgeId: 1, badgeName: "All Badges" };
+        badges.value = [allBadges, ...b];
         console.log("Badges after updating from getAlBadges", badges.value);
       }
     });
 
     watch(badgeTyped, () => {
       updatedBadges.value = badges.value.filter((badge) =>
-        badge.toLowerCase().includes(badgeTyped.value?.toLowerCase())
+        badge.badgeName.toLowerCase().includes(badgeTyped.value?.toLowerCase())
       );
     });
 
@@ -91,15 +94,12 @@ export default {
       console.log(route);
       console.log("Badge selected and the current route is :: ", route.path);
       if (path === "/") {
-        filter().generalFilter.value = badge;
-        console.log("General filter changed to ", filter().generalFilter.value);
+        generalFilter.value = badge;
+        console.log("General filter changed to ", generalFilter.value);
       }
       if (path === "/posts") {
-        filter().myPostsFilter.value = badge;
-        console.log(
-          "My Posts filter changed to ",
-          filter().myPostsFilter.value
-        );
+        myPostsFilter.value = badge;
+        console.log("My Posts filter changed to ", myPostsFilter.value);
       }
       badgeTyped.value = null;
       updatedBadges.value = [];

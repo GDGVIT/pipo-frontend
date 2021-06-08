@@ -10,7 +10,7 @@
         <div class="mt-6">
           Welcome back!,
           <span class="text-myRed text-lg font-gbold"
-            >{{ user.userName ? user.userName : "Anonymous" }}.
+            >{{ user?.userName ? user?.userName : "anonymous" }}.
           </span>
           Here are all the posts you have posted so far. Post more or challenge
           your buddies to earn points. Remember to maintain your streaks to earn
@@ -77,13 +77,11 @@ export default {
         console.log("Loading my posts");
         await loadMyPosts();
         myPosts.value = filtered.value;
+        resizeGridItem(masonry.value);
       }
     });
 
-    window.addEventListener("resize", () => {
-      // console.log("Calling resize because window size change");
-      resizeGridItem(masonry.value);
-    });
+    window.addEventListener("resize", () => resizeGridItem(masonry.value));
 
     watch(filtered, () => (myPosts.value = filtered.value));
 

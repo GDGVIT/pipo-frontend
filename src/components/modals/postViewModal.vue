@@ -10,9 +10,9 @@
       <div class="absolute top-64 left-5 arrow-bounce" @click="prev()">
         <PostSVG name="leftArrow" />
       </div>
-      <div class="px-5 md:px-20 py-5">
+      <div class="py-5">
         <!-- middle -->
-        <div class="flex justify-between mt-4 items-center">
+        <div class="flex justify-between mt-4 items-center mx-5 md:mx-10">
           <!-- header -->
           <div class="flex justify-start items-center">
             <div class="text-xl font-gbold">
@@ -21,7 +21,6 @@
                   name: 'randomUserPosts',
                   params: {
                     userId: `${postModal?.userId}`,
-                    username: `${postModal?.username}`,
                   },
                 }"
                 >@{{ postModal?.username }}</router-link
@@ -58,20 +57,27 @@
           </div>
         </div>
         <!-- Post Content -->
-        <div class="text-center h-l2 px-2 mx-12 mt-4 overflow-y-auto">
+        <div class="text-center mt-4">
           <!-- title -->
-          <div class="text-2xl break-words my-7 font-gbold text-center">
+          <div class="text-2xl break-words my-7 font-gbold text-center px-10">
             {{ postModal?.title }}
           </div>
-          <!-- Images -->
-          <div class="grid place-items-center">
-            <div v-for="(img, index) in postModal?.image" :key="index">
-              <img class="post-image" :src="img" alt="post-image" />
+          <div
+            :class="[
+              postModal?.image?.length > 0 ? 'xl:grid-cols-3' : '',
+              'h-l1 overflow-y-auto grid px-20',
+            ]"
+          >
+            <!-- Images -->
+            <div v-if="postModal?.image?.length > 0" class="grid xl:col-span-2">
+              <div v-for="(img, index) in postModal?.image" :key="index">
+                <img class="post-image" :src="img" alt="post-image" />
+              </div>
             </div>
-          </div>
-          <!-- content -->
-          <div class="p-4">
-            {{ postModal?.description }}
+            <!-- content -->
+            <div class="px-8">
+              {{ postModal?.description }}
+            </div>
           </div>
         </div>
 
@@ -154,7 +160,7 @@
 import PostSVG from "../post/postSVG";
 import Icon from "@/components/navbar/navIcons";
 import { getComments, postModalFn } from "../../composables/posts";
-import { onMounted, ref, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
 
 export default {
@@ -176,34 +182,22 @@ export default {
     watchEffect(() => {
       if (isLoggedIn.value) {
         postModal.value = getCurrentPost.value;
-        console.log("Post modal value", postModal.value);
+        if (postModal.value?.upvotes.includes(user.value.userId)) {
+          console.log("Yes we are already upvoted it!");
+          upvoted.value = true;
+        }
       }
     });
-
-    onMounted(() => checkUpvoted());
 
     //Shift
     const next = () => {
       upvoted.value = false;
       postModal.value = getNextPost();
-      checkUpvoted();
     };
 
     const prev = () => {
       upvoted.value = false;
       postModal.value = getPrevPost();
-      checkUpvoted();
-    };
-
-    //Upvotes section
-    const checkUpvoted = () => {
-      if (postModal.value) {
-        postModal.value.upvotes.forEach((u) => {
-          if (u === user.userId) {
-            upvoted.value = true;
-          }
-        });
-      }
     };
 
     const upvotePost = () => {
@@ -249,7 +243,7 @@ export default {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(235, 235, 235);
+  background-color: rgb(204, 204, 204);
   border-radius: 20px;
 }
 

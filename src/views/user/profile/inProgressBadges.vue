@@ -22,12 +22,20 @@
         :key="index"
       >
         <div v-if="badge?.badgeId" class="grid place-items-center">
-          <img
-            @click="this.$router.push(`/user/calendar/${badge.badgeName}`)"
-            class="w-16 h-16"
-            :src="badge?.identicon"
-            alt="in-progress-badge-pic"
-          />
+          <router-link
+            :to="{
+              name: 'calendar',
+              params: {
+                challengeId: `${badge.badgeId}`,
+              },
+            }"
+          >
+            <img
+              class="w-16 h-16"
+              :src="badge?.identicon"
+              alt="in-progress-badge-pic"
+            />
+          </router-link>
           <span class="font-gbold text-sm">{{ badge?.badgeName }}</span>
         </div>
         <div
@@ -43,12 +51,13 @@
 import LeftArrow from "@/components/user/userIcons";
 import { getUserBadges } from "../../../composables/badges";
 import { onMounted, ref, watchEffect } from "vue";
+import { setUser } from "../../../composables/auth";
 
 export default {
   components: { LeftArrow },
   setup() {
     const { loadInProgress, getInProgress } = getUserBadges();
-
+    const { isLoggedIn } = setUser();
     const inProgress = ref([]);
 
     onMounted(() => {
@@ -66,10 +75,10 @@ export default {
     };
 
     watchEffect(async () => {
-      if (getInProgress.value.length === 0) {
-        await loadInProgress();
+      if (isLoggedIn.value) {
+        if (getInProgress.value.length === 0) await loadInProgress();
+        showInProgress(getInProgress.value);
       }
-      showInProgress(getInProgress.value);
     });
 
     return { inProgress };
