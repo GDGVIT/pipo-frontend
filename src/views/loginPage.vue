@@ -1,36 +1,44 @@
 <template>
-  <div class="bg-blue-100 h-screen">
-    <!-- Login background -->
-    <Background name="login-bg" class="login-bg" />
+  <div>
+    <div class="relative">
+      <!-- Login background -->
+      <Background name="login-bg" class="login-bg" />
 
-    <!-- Logo -->
-    <LoginSVG name="pipoLogo" />
+      <!-- Logo -->
+      <LoginSVG name="pipoLogo" />
 
-    <!-- Login button -->
-    <div
-      class="absolute top-1/4 left-1/2 transform -translate-x-1/2 md:top-8 md:translate-x-0 md:right-10 md:left-auto"
-    >
-      <div class="font-gbold text-3xl text-white text-center mb-6 md:hidden">
-        Login
+      <!-- Penguin -->
+      <LoginSVG name="pipoPenguin" class="pipo-penguin" />
+
+      <!-- Login button -->
+      <div
+        class="absolute top-1/4 left-1/2 transform -translate-x-1/2 md:top-8 md:translate-x-0 md:right-10 md:left-auto"
+      >
+        <div class="font-gbold text-3xl text-white text-center mb-6 md:hidden">
+          Login
+        </div>
+        <LoginButton @click="signIn()" />
       </div>
-      <LoginButton @click="signIn()" />
+
+      <!-- absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight -->
+      <div
+        class="absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight"
+      >
+        <div class="font-gbold text-5xl mb-8 tracking-wide">PiPo✨</div>
+        <div class="leading-8 text-xl tracking-wide">
+          Your all in one personal scrapbook. Challenge your friends, maintain
+          streaks to gain badges and gain upvotes to your posts to earn points.
+          More are the points the merrier.
+        </div>
+      </div>
     </div>
 
-    <div
-      class="absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight"
-    >
-      <div class="font-gbold text-5xl mb-8 tracking-wide">PiPo✨</div>
-      <div class="leading-8 text-xl tracking-wide">
-        Your all in one personal scrapbook. Challenge your friends, maintain
-        streaks to gain badges and gain upvotes to your posts to earn points.
-        More are the points the merrier.
-      </div>
+    <div class="">
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure in vel
+      eveniet laboriosam hic nulla minus reiciendis expedita numquam ullam?
     </div>
-
-    <LoginSVG name="pipoPenguin" class="pipo-penguin" />
-
     <!-- footer -->
-    <div class="fixed bottom-5 left-1/2 transform -translate-x-1/2">
+    <div class="w-full mt-3">
       <MadeWithLove />
     </div>
   </div>
@@ -79,53 +87,48 @@ export default {
 </script>
 <style scoped>
 /* The never ending saga of adjusting penguin and the background */
-@media screen and (min-width: 490px) {
-  .pipo-penguin {
-    position: absolute;
-    width: 120px;
-    bottom: 7%;
-    left: 16%;
-  }
+.pipo-penguin {
+  position: relative;
+  width: 120px;
+  margin-top: -120px;
+  left: 16%;
+}
+.login-bg {
+  width: 1400px;
+  transform: translate(-18%, -5%);
+}
+
+@media screen and (min-width: 530px) {
   .login-bg {
-    width: 1400px;
-    transform: translate(-16%, -2%);
+    transform: translate(-16%, -5%);
   }
 }
 
-@media screen and (min-width: 683px) {
-  .pipo-penguin {
-    position: absolute;
-    width: 120px;
-    bottom: 2%;
-    left: 16%;
-  }
+@media screen and (min-width: 640px) {
   .login-bg {
-    width: 1400px;
-    transform: translate(-16%, -2%);
+    transform: translate(-14%, -7%);
   }
 }
 
 @media screen and (min-width: 940px) {
   .pipo-penguin {
-    width: 120px;
-    bottom: 2%;
     left: 22%;
   }
   .login-bg {
-    width: 1400px;
-    transform: translate(-6%, 0);
+    transform: translate(-6%, -7%);
   }
 }
 
 @media screen and (min-width: 1230px) {
-  .pipo-penguin {
-    width: 120px;
-    bottom: 2%;
-    left: 24%;
-  }
   .login-bg {
     width: 100%;
     transform: translate(0, -4%);
+  }
+}
+
+@media screen and (min-width: 1500px) {
+  .login-bg {
+    transform: translate(0, -6%);
   }
 }
 </style>

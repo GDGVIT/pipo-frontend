@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center font-gbold text-base text-gray-400 tracking-wider"
+    class="flex justify-center items-center font-gbold text-base text-gray-400 tracking-wider"
   >
     <span>made with</span>
     <svg class="ml-1" xmlns="http://www.w3.org/2000/svg" width="30" height="31">
