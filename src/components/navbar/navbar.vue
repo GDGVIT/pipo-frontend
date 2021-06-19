@@ -2,7 +2,9 @@
   <div class="navbar" ref="nav" v-click-outside="closeSideBar">
     <div class="flex items-center">
       <!-- Logo -->
-      <Icon name="pipoLogo" />
+      <router-link to="/login/#details">
+        <Icon name="pipoLogo" />
+      </router-link>
 
       <!-- Routes -->
       <div v-if="isLoggedIn" class="hidden xl:flex xl:items-center">

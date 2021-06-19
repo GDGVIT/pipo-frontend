@@ -12,9 +12,9 @@
     <div class="flex justify-between">
       <div class="flex items-center">
         <span class="text-xl font-gbold">@ {{ post?.username }}</span>
-        <span class="streak-btn font-semibold ml-2 text-xs">{{
-          post?.points
-        }}</span>
+        <span class="streak-btn font-semibold ml-2 py-1 text-xs"
+          >{{ post?.points }} pts</span
+        >
       </div>
       <div class="flex items-center">
         <postSVG name="likeLight" />
@@ -47,8 +47,6 @@
 </template>
 <script>
 import postSVG from "./postSVG";
-import { stringToColor } from "../../generate";
-import { computed } from "vue";
 import { postModalFn, resizing } from "../../composables/posts";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
 
@@ -59,16 +57,12 @@ export default {
     const { assignIndex } = postModalFn();
     const { resizeGridItem } = resizing();
 
-    const border = computed(() => {
-      return props.post ? stringToColor(props.post.badgeName) : "#fff";
-    });
-
     const openPostModal = () => {
       emit("open", null);
       assignIndex(props.index);
     };
 
-    return { border, openPostModal, resizeGridItem };
+    return { openPostModal, resizeGridItem };
   },
 };
 </script>

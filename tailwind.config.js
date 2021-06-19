@@ -4,9 +4,11 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        gthin: ['Gilroy-Thin'],
         glight: ['Gilroy-Light'],
         gregular: ['Gilroy-Regular'],
         gbold: ['Gilroy-ExtraBold'],
+        gsemibold: ['Gilroy-SemiBold'],
         gmedium: ['Gilroy-Medium'],
         gheavy: ['Gilroy-Heavy']
       },
@@ -18,6 +20,11 @@ module.exports = {
       },
       zIndex: {
         '-10': '-10'
+      },
+      width: {
+        l1: '400px',
+        l2: '460px',
+        l3: '500px'
       },
       height: {
         l1: '400px',

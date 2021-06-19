@@ -5,10 +5,11 @@
   <!-- posts display -->
   <div class="mt-24">
     <!-- Title -->
-    <div
-      class="text-white text-4xl md:text-5xl text-center font-gheavy tracking-wide"
-    >
-      PiPo Daily
+    <div class="text-white text-center font-gheavy">
+      <div class="text-4xl md:text-5xl tracking-wide">PiPo Daily</div>
+      <div class="text-xl text-myRed px-10 my-10 font-gregular">
+        Add Posts +. Gain Upvotes. Earn Points and Badges.
+      </div>
     </div>
     <div ref="masonry" class="posts-container">
       <MyLatestPost :masonry="masonry" class="post" />
@@ -23,7 +24,9 @@
       />
     </div>
 
-    <LoadMore @click="loadMore()" />
+    <div v-if="posts.length > 8">
+      <LoadMore @click="loadMore()" />
+    </div>
   </div>
 
   <PostViewModal v-if="postModal" @close="postModal = false" />
@@ -32,7 +35,14 @@
 </template>
 
 <script>
-import { defineAsyncComponent, onMounted, ref, watch, watchEffect } from "vue";
+import {
+  defineAsyncComponent,
+  onMounted,
+  onUpdated,
+  ref,
+  watch,
+  watchEffect,
+} from "vue";
 import LoadMore from "@/components/loadComponents/loadMore";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
 import LoadingMyLatestPost from "@/components/loadComponents/LoadingMyLatestPost";
@@ -85,13 +95,12 @@ export default {
       if (isLoggedIn.value) {
         await loadPosts();
         posts.value = filtered.value;
-        resizeGridItem(masonry.value);
       }
     });
 
-    watch(filtered, () => {
-      posts.value = filtered.value;
-    });
+    onUpdated(() => resizeGridItem(masonry.value));
+
+    watch(filtered, () => (posts.value = filtered.value));
 
     // For resizing the masonry
     window.addEventListener("resize", () => resizeGridItem(masonry.value));

@@ -4,20 +4,27 @@
     <div class="p-8 grid md:grid-cols-4">
       <!-- Profile pic -->
       <div class="grid place-items-center">
-        <div v-if="randomUser?.user?.picture">
-          <img
-            class="w-40 h-40 rounded-full"
-            :src="randomUser?.user?.picture"
-            alt="profile-pic"
-          />
-        </div>
-        <div v-else>
-          <Icon name="profileIcon" />
+        <div class="relative">
+          <div v-if="randomUser?.user?.picture">
+            <img
+              class="w-32 h-32 md:w-40 md:h-40 rounded-full"
+              :src="randomUser?.user?.picture"
+              alt="profile-pic"
+            />
+          </div>
+          <div v-else>
+            <Icon name="profileIcon" />
+          </div>
+          <div
+            class="absolute top-2 right-0 bg-myRed text-white font-gbold px-2 rounded-full"
+          >
+            {{ randomUser.user.points ? randomUser.user.points : 0 }} pts
+          </div>
         </div>
       </div>
       <!-- Content -->
       <div class="pt-3 pb-8 text-center md:text-left md:col-span-3">
-        <div class="font-gbold text-5xl py-5">
+        <div class="font-gbold text-4xl md:text-5xl py-5">
           {{ randomUser?.user?.userName }}
         </div>
         <div class="text-sm">
@@ -32,7 +39,7 @@
           <div
             v-for="(interest, index) in randomUser?.user?.tags"
             :key="index"
-            class="inline-block mr-2 py-1 font-gbold text-myRed"
+            class="inline-block mr-2 py-1 font-gbold text-myRed break-all"
           >
             {{ interest }}
           </div>
@@ -42,13 +49,13 @@
             @click="followThisPerson($route.params.userId)"
             class="bg-myBlue px-4 py-1 font-gbold rounded-sm mr-2"
           >
-            Follow +
+            Follow
           </button>
           <button
             @click="makeFriend($route.params.userId)"
             class="bg-myRed px-4 py-1 font-gbold rounded-sm ml-2"
           >
-            Friend +
+            Friend
           </button>
         </div>
       </div>
@@ -78,7 +85,7 @@ import Post from "@/components/post/post";
 import PostViewModal from "@/components/modals/postViewModal";
 import LoadMore from "@/components/loadComponents/loadMore";
 
-import { onMounted, ref, watch, watchEffect } from "vue";
+import { onMounted, onUpdated, ref, watch, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
 import { getPostsOfUser, resizing } from "../../composables/posts";
 import { useRoute } from "vue-router";
@@ -106,6 +113,8 @@ export default {
       for (let i = 0; i < 6; i++) userPosts.value.push(null);
     });
 
+    onUpdated(() => resizeGridItem(masonry.value));
+
     watchEffect(async () => {
       if (isLoggedIn.value) {
         await getRandomUserProfile(route.params.userId);
@@ -119,7 +128,6 @@ export default {
         randomUser.value?.user?.userName
       );
       userPosts.value = randomUserPosts.value;
-      resizeGridItem(masonry.value);
       console.log("user posts", userPosts.value);
       stopWatchingRandomUser();
     });

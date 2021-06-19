@@ -4,6 +4,11 @@ import { setUser } from './auth'
 import { generateIdenticon, timeAgo } from '@/generate.js'
 import { filter } from './filter'
 import { useRoute } from 'vue-router'
+import { useToast } from 'vue-toastification'
+import Fuse from 'fuse.js'
+
+// Fuse Syntax
+// generalFuse.value.search("plant 1 tree")[0].item.badgeName
 
 const POSTS_COUNT = 8
 
@@ -13,6 +18,7 @@ const postsOfAUser = ref([])
 const latestPost = ref(null)
 const currIndex = ref(0)
 const count = ref(POSTS_COUNT)
+const toast = useToast()
 
 // MASONRY
 const resizing = () => {
@@ -53,7 +59,7 @@ const getLatestPost = () => {
   const updateLatestPost = async () => {
     try {
       latestPost.value = temporaryPost()
-      const res1 = await api.get('/posts/myLatestPost', config.value)
+      const res1 = await api.get('/posts/mypost/myLatestPost', config.value)
       const myLatestPost = filterMyLatestPost(res1.data, user)
       latestPost.value = myLatestPost
     } catch (error) {
@@ -71,8 +77,13 @@ const getPosts = () => {
   const { config } = setUser()
   const filtered = ref([])
   const error = ref(null)
+  const generalFuse = ref(null)
 
-  watch(error, () => window.alert(error.value))
+  const options = {
+    keys: ['title', 'description', 'badgeName']
+  }
+
+  watch(error, () => toast.error(error.value))
 
   const loadPosts = async () => {
     try {
@@ -84,6 +95,12 @@ const getPosts = () => {
       console.log('General Posts', latestPosts)
       generalPosts.value = latestPosts
       filtered.value = latestPosts
+      generalFuse.value = new Fuse(generalPosts.value, options)
+
+      console.log(
+        'general fuse value',
+        generalFuse.value.search('plant 1 tree')[0].badgeName
+      )
     } catch (error) {
       console.log('Error while receiving latest posts from backend', error)
     }
@@ -117,7 +134,9 @@ const getPosts = () => {
   }
 
   watchEffect(async () => {
-    if (generalFilter.value.badgeName === 'All Badges') { filtered.value = generalPosts.value.splice(0, count.value) } else {
+    if (generalFilter.value.badgeName === 'All Badges') {
+      filtered.value = generalPosts.value.splice(0, count.value)
+    } else {
       await loadBadgeGeneralPosts()
     }
   })
@@ -133,7 +152,7 @@ const myPostsFn = () => {
   const filtered = ref([])
   const error = ref(null)
 
-  watch(error, () => window.alert(error.value))
+  watch(error, () => toast.error(error.value))
 
   const loadMyPosts = async () => {
     console.log('Getting config from user', config.value)
@@ -169,7 +188,9 @@ const myPostsFn = () => {
   }
 
   watchEffect(async () => {
-    if (myPostsFilter.value.badgeName === 'All Badges') { filtered.value = myPosts.value.splice(0, count.value) } else {
+    if (myPostsFilter.value.badgeName === 'All Badges') {
+      filtered.value = myPosts.value.splice(0, count.value)
+    } else {
       await loadBadgeMyPosts()
     }
   })
@@ -188,7 +209,7 @@ const addPostFn = async (data) => {
   const { config, user } = setUser()
   const error = ref(null)
 
-  watch(error, () => window.alert(error.value))
+  watch(error, () => toast.error(error.value))
 
   try {
     const formData = new FormData()
@@ -241,7 +262,7 @@ const postModalFn = () => {
   const route = useRoute()
   const error = ref(null)
 
-  watch(error, () => window.alert(error.value))
+  watch(error, () => toast.error(error.value))
 
   const assignIndex = (index) => (currIndex.value = index)
 
@@ -301,7 +322,11 @@ const postModalFn = () => {
       try {
         await api.post('/posts/upvote', { postId }, config.value)
 
-        if (route.path === '/') { generalPosts.value[index].upvotes.push(user.value.userId) } else if (route.path === '/posts') { myPosts.value[index].upvotes.push(user.value.userId) } else postsOfAUser.value[index].upvotes.push(user.value.userId)
+        if (route.path === '/') {
+          generalPosts.value[index].upvotes.push(user.value.userId)
+        } else if (route.path === '/posts') {
+          myPosts.value[index].upvotes.push(user.value.userId)
+        } else postsOfAUser.value[index].upvotes.push(user.value.userId)
       } catch (err) {
         console.log('Error while upvoting the post', err)
         error.value = err
@@ -408,7 +433,7 @@ const getPostsOfUser = () => {
   const count = ref(6)
   const err = ref(null)
 
-  watch(err, () => window.alert(err))
+  watch(err, () => toast.error(err.value))
 
   const loadMore = () => (count.value += 6)
 

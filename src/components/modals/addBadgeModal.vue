@@ -79,6 +79,8 @@
 import { ref, watch } from "vue";
 import { getBadges } from "../../composables/badges";
 import { setUser } from "../../composables/auth";
+import { useToast } from "vue-toastification";
+
 export default {
   emits: ["close"],
   setup() {
@@ -87,12 +89,13 @@ export default {
     const badgeHasStreak = ref(false);
     const badgeImageUrl = ref(null);
     const alert = ref(null);
+    const toast = useToast();
 
     const { postBadge } = getBadges();
     const { isLoggedIn, user } = setUser();
 
     watch(alert, () => {
-      window.alert(alert.value);
+      toast.error(alert.value);
     });
 
     const submitBadge = () => {

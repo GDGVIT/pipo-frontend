@@ -53,7 +53,6 @@ export default {
 
 ::-webkit-scrollbar-thumb {
   background-color: #ff6666;
-  border-radius: 20px;
 }
 
 a {

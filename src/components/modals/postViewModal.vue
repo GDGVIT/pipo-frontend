@@ -15,7 +15,7 @@
         <div class="flex justify-between mt-4 items-center mx-5 md:mx-10">
           <!-- header -->
           <div class="flex justify-start items-center">
-            <div class="text-xl font-gbold">
+            <div class="text-lg font-gbold">
               <router-link
                 :to="{
                   name: 'randomUserPosts',
@@ -30,7 +30,7 @@
               v-if="postModal?.points"
               class="ml-3 text-xs bg-myRed text-white font-gbold px-2 rounded-full py-1"
             >
-              {{ postModal?.points }}
+              {{ postModal?.points }} pts
             </div>
           </div>
           <div class="flex">
@@ -46,8 +46,8 @@
               </div>
             </div>
             <!-- Date and close -->
-            <div class="flex items-center ml-5">
-              <div class="text-xs text-gray-400">
+            <div class="flex items-center">
+              <div class="text-xs text-gray-400 px-3 hidden md:block">
                 {{ postModal?.createDate }}
               </div>
               <div @click="$emit('close', null)">

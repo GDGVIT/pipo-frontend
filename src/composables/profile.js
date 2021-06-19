@@ -1,6 +1,7 @@
 import api from '@/api.js'
 import { computed, ref, watch } from 'vue'
 import { setUser } from './auth'
+import { useToast } from 'vue-toastification'
 
 const { config, user } = setUser()
 
@@ -9,9 +10,10 @@ const followers = ref([])
 const following = ref([])
 const friends = ref([])
 const error = ref(null)
+const toast = useToast()
 
 // watch for errors
-watch(error, () => window.alert(error.value))
+watch(error, () => toast.error(error.value))
 
 const getProfile = () => {
   const loadProfile = async () => {
@@ -39,7 +41,7 @@ const getProfile = () => {
         },
         config.value
       )
-      window.alert('Username updated refresh page to see the changes')
+      toast.success('Username updated refresh page to see the changes')
     } catch (error) {
       console.log('Error while updating user details in the backend', error)
     }
@@ -113,7 +115,7 @@ const socialCircle = () => {
         if (res.data.message) throw new Error(res.data.message)
 
         randomUserInfo.value.user.following++
-        window.alert('Following this person')
+        toast.success('Following this person 🤗')
         following.value.push(res.data)
       } catch (err) {
         error.value = err
@@ -134,7 +136,7 @@ const socialCircle = () => {
         if (res.data.message) throw new Error(res.data.message)
 
         randomUserInfo.value.user.friends++
-        window.alert('Added as a friend')
+        toast.success('Added as a friend')
       } catch (err) {
         error.value = 'Unable to add as a friend. Try again after sometime!'
         console.log('Error while sending friend request through backend', err)

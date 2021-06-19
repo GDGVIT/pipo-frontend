@@ -4,14 +4,14 @@
   </div>
   <div
     v-else
-    class="post bg-myRed text-white font-glight p-9 relative sm:rounded-md"
+    class="post bg-myRed text-white font-glight p-9 pb-6 relative sm:rounded-md"
   >
     <div class="flex justify-between">
       <div class="flex items-center">
         <span class="text-xl font-gbold">@ {{ profile?.user?.userName }}</span>
         <span
-          class="bg-white text-myRed font-semibold ml-2 text-xs rounded-full px-2"
-          >{{ profile?.user?.points }}</span
+          class="bg-white text-myRed font-semibold ml-2 py-1 text-xs rounded-full px-2"
+          >{{ profile?.user?.points }} pts</span
         >
       </div>
     </div>
@@ -58,7 +58,7 @@ import LoadingMyLatestPost from "@/components/loadComponents/LoadingMyLatestPost
 export default {
   components: { LoadingMyLatestPost },
   props: ["masonry"],
-  setup() {
+  setup(props) {
     const { loadProfile, profile } = getProfile();
     const { updateLatestPost, latestPost } = getLatestPost();
     const { isLoggedIn } = setUser();
@@ -68,6 +68,7 @@ export default {
       if (isLoggedIn.value) {
         await loadProfile();
         await updateLatestPost();
+        resizeGridItem(props.masonry);
       }
     });
 
