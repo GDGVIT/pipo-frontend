@@ -1,18 +1,19 @@
 <template>
   <div>
-    <div class="relative">
+    <div class="relative h-screen">
       <!-- Login background -->
       <Background name="login-bg" class="login-bg" />
 
       <!-- Logo -->
-      <LoginSVG name="pipoLogo" />
+      <LoginSVG data-aos="fade-up" name="pipoLogo" />
 
       <!-- Penguin -->
       <LoginSVG name="pipoPenguin" class="pipo-penguin" />
 
       <!-- Login button -->
       <div
-        class="absolute top-1/4 left-1/2 transform -translate-x-1/2 md:top-8 md:translate-x-0 md:right-10 md:left-auto"
+        data-aos="fade-up"
+        class="absolute top-1/4 left-1/3 transform -translate-x-1/2 md:top-8 md:translate-x-0 md:right-10 md:left-auto"
       >
         <div class="font-gbold text-3xl text-white text-center mb-6 md:hidden">
           Login
@@ -22,28 +23,49 @@
 
       <!-- absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight -->
       <div
-        class="absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight"
+        class="absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight whitespace-nowrap"
       >
         <div class="font-gbold text-5xl mb-8 tracking-wide">PiPo✨</div>
-        <div class="leading-8 text-xl tracking-wide">
-          Your all in one personal scrapbook. Challenge your friends, maintain
-          streaks to gain badges and gain upvotes to your posts to earn points.
-          More are the points the merrier.
+        <div data-aos="fade-up" class="font-gbold text-5xl">
+          #
+          <span id="days" class="text-7xl text-myRed">100</span>
+          Days of
+          <span class="text-7xl text-myRed ">X</span>
         </div>
       </div>
     </div>
+    <section id="details">
+      <div
+        class="grid place-items-center lg:grid-cols-2 bg-myRed my-5 font-gbold"
+      >
+        <div class="m-10 text-white text-4xl sm:text-6xl font-gbold">
+          Post More. Gain Upvotes. Earn Badges and Points.
+        </div>
+        <div class="animate-floating relative my-10">
+          <div class="absolute">
+            <Post
+              :post="temporaryPost"
+              class="w-l1 transform sm:rotate-12 sm:scale-90 z-10"
+            />
+          </div>
+          <div class="animate-floating relative right-56">
+            <Post
+              :post="temporaryPost"
+              class="w-l1 transform sm:-rotate-12 scale-0 sm:scale-50"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <div class="">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure in vel
-      eveniet laboriosam hic nulla minus reiciendis expedita numquam ullam?
-    </div>
     <!-- footer -->
-    <div class="w-full mt-3">
+    <div class="w-full my-3">
       <MadeWithLove />
     </div>
   </div>
 </template>
 <script>
+import anime from "animejs/lib/anime.es.js";
 import firebase from "firebase/app";
 import "firebase/auth";
 
@@ -51,23 +73,67 @@ import LoginSVG from "../components/login/loginSVG";
 import Background from "../components/backgrounds/bgSVG";
 import LoginButton from "../components/login/login-btn";
 import MadeWithLove from "../components/login/made-with-love";
+import Post from "../components/post/post.vue";
 
 import { setUser } from "../composables/auth";
-import { watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
   name: "login-page",
+  components: {
+    MadeWithLove,
+    Background,
+    LoginButton,
+    LoginSVG,
+    Post,
+  },
   setup() {
     const router = useRouter();
-    const { isLoggedIn } = setUser();
+    const { isLoggedIn, signInAttempt, hasAttemptedSignIn } = setUser();
+    const showLoading = ref(false);
+
+    if (hasAttemptedSignIn.value) showLoading.value = true;
+
+    const temporaryPost = {
+      postId: 1,
+      title: "A PiPo Post Card",
+      image: ["https://i.imgur.com/HuNalGN.png"],
+      description:
+        "Enter some spicy content here. Maybe some latest framework or some tips to reduce fat or increase productivity. Your imagination is the limit!",
+      badgeName: "PiPo",
+      tags: ["spicy🔥", "tag your content here"],
+      username: "username",
+      upvotes: ["1", "2", "3"],
+      points: "200 Points",
+    };
+
+    onMounted(() => {
+      anime({
+        targets: "#days",
+        innerHTML: [0, 100],
+        duration: 5000,
+        round: 1,
+      });
+      anime({
+        targets: ".displayPost",
+        keyframes: [{ translateY: 5 }, { translateY: -5 }],
+        loop: true,
+        duration: 3000,
+        easing: "easeOutCubic",
+      });
+    });
 
     watch(isLoggedIn, async () => {
-      if (isLoggedIn) await router.push("/");
+      if (isLoggedIn.value) {
+        showLoading.value = false;
+        await router.push("/");
+      }
     });
 
     const signIn = async () => {
       try {
+        signInAttempt();
         const provider = new firebase.auth.GoogleAuthProvider();
         await firebase.auth().signInWithRedirect(provider);
       } catch (error) {
@@ -75,13 +141,7 @@ export default {
       }
     };
 
-    return { signIn };
-  },
-  components: {
-    MadeWithLove,
-    Background,
-    LoginButton,
-    LoginSVG,
+    return { signIn, temporaryPost, showLoading };
   },
 };
 </script>

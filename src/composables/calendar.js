@@ -2,13 +2,16 @@ import api from '@/api.js'
 import { ref } from '@vue/reactivity'
 import { computed, watch } from '@vue/runtime-core'
 import { setUser } from './auth'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
 
 const postsOfAChallenge = () => {
   const { config, user } = setUser()
   const challengePosts = ref([])
   const error = ref(null)
 
-  watch(error, () => window.alert(error.value))
+  watch(error, () => toast(error.value))
 
   const loadChallengePosts = async (badgeId) => {
     if (badgeId && challengePosts.value.length === 0) {

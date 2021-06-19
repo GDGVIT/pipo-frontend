@@ -3,17 +3,24 @@
     @click="$emit('closeModal')"
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
   />
+  <!-- Confetti background -->
+  <canvas id="confetti-holder" class="fixed top-0 w-full h-full z-20" />
   <div
-    class="fixed bg-white p-14 h-4/5 z-20 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
+    class="fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
   >
     <span
       @click="$emit('closeModal')"
       class="absolute top-16 right-16 cursor-pointer"
     >
-      <CloseIcon name="close" />
+      <Icon name="close" />
     </span>
     <div>
-      <div class="text-3xl font-gbold text-center">Add a Post 🔖</div>
+      <div class="text-3xl font-gbold flex items-center">
+        <span>Add a Post 🔖</span>
+        <div @click="showInfo = true">
+          <Icon name="info" />
+        </div>
+      </div>
       <div class="my-6">
         Record your experience with people around the world!. Select the
         challenge you wish to conquer!. Along with that enter the title,
@@ -26,6 +33,7 @@
         <label for="challenge">Challenge</label>
         <div class="col-span-3 relative">
           <input
+            id="challengeInput"
             type="text"
             ref="dropdown"
             autocomplete="off"
@@ -34,12 +42,15 @@
             placeholder="Search"
             @click="loadAll()"
           />
+          <label for="challengeInput" class="absolute top-3 right-2">
+            <ModalSVG name="downArrow" />
+          </label>
           <ul
             v-if="updatedChallenges.length"
             class="absolute w-full top-9 overflow-y-auto max-h-40 bg-white rounded-sm border border-gray-200 transition-transform p-2"
           >
             <li
-              class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-gray-200 rounded-md"
+              class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-myBlue"
               v-for="(challenge, index) in updatedChallenges"
               :key="index"
               @click="submitChallenge(challenge)"
@@ -90,7 +101,7 @@
               class="cursor-pointer font-glight"
               @click="tags.splice(index, 1)"
             >
-              <CloseIcon name="close" />
+              <Icon name="close" />
             </span>
           </div>
         </div>
@@ -99,8 +110,12 @@
       <div class="mt-10 my-4 md:px-10 flex">
         <div class="font-gbold mr-3">Add Images</div>
         <div class="relative flex">
-          <label for="img">
+          <label
+            for="img"
+            class="bg-myRed flex items-center px-3 rounded-sm cursor-pointer"
+          >
             <ModalSVG name="imageIcon" />
+            <span class="text-xs text-white">Image +</span>
           </label>
           <div
             v-if="imageFile"
@@ -117,35 +132,69 @@
           />
         </div>
       </div>
-      <div class="text-center">
+      <div v-if="!confirmation" class="text-center mt-10">
         <button
-          @click="onSubmit()"
-          class="tracking-widest text-sm font-gbold bg-myRed px-3 py-2 text-white"
+          @click="confirmation = true"
+          class="tracking-widest text-sm font-gbold text-myRed px-3 py-2 border-2 border-myRed rounded-full"
           type="submit"
         >
           POST
         </button>
       </div>
+      <div v-if="confirmation" class="text-center mt-10">
+        <div class="font-gbold text-myRed">You sure?</div>
+        <div class="mb-6 text-xs text-gray-500">
+          Don't worry you can always update or delete them later
+        </div>
+        <div class="flex justify-center gap-10 font-gbold">
+          <div>
+            <button
+              @click="onSubmit()"
+              class="text-myBlue border-2 border-myBlue p-2 rounded-md"
+            >
+              Confirm
+            </button>
+          </div>
+          <div class="text-myRed border-2 border-myRed p-2 rounded-md">
+            <button @click="confirmation = false">
+              No Wait
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info modal for add post -->
+      <InfoModal
+        @close="showInfo = false"
+        v-if="showInfo"
+        modal="addPostInfo"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import ModalSVG from "./modalSVG";
-import CloseIcon from "../post/postSVG";
+import ConfettiGenerator from "confetti-js";
+import Icon from "../post/postSVG";
 import { getBadges } from "../../composables/badges";
-import { onMounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { addPostFn } from "../../composables/posts";
+import InfoModal from "../../components/modals/infoModal";
+import { useToast } from "vue-toastification";
 
 export default {
-  components: { ModalSVG, CloseIcon },
+  components: { ModalSVG, Icon, InfoModal },
   emits: ["closeModal"],
-  setup(props, { emit }) {
+  setup() {
     const { getAllBadges } = getBadges();
     const challenges = ref([]);
     const updatedChallenges = ref([]);
     const challengeTyped = ref(null);
     const dropdown = ref(null);
+    const confirmation = ref(false);
+    const showInfo = ref(false);
+    const toast = useToast();
 
     const title = ref(null);
     const description = ref(null);
@@ -153,6 +202,8 @@ export default {
     const selectedChallenge = ref(null);
     const imageFile = ref(null);
     const tags = ref([]);
+
+    let confetti = null;
 
     onMounted(() => (challenges.value = getAllBadges()));
 
@@ -196,14 +247,27 @@ export default {
         tags: tags.value,
       });
 
-      if (res === 0) emit("closeModal", null);
+      const confettiSettings = {
+        target: "confetti-holder",
+        max: 160,
+        rotate: true,
+      };
+      confetti = new ConfettiGenerator(confettiSettings);
+      confetti.render();
+
+      if (res === 0) {
+        toast.success("Yayy! another day another post!🥳");
+      }
     };
+
+    onBeforeUnmount(() => confetti?.clear());
 
     return {
       title,
       tags,
       tag,
       addTag,
+      confirmation,
       loadAll,
       dropdown,
       description,
@@ -213,6 +277,7 @@ export default {
       submitChallenge,
       onSelectImage,
       onSubmit,
+      showInfo,
     };
   },
 };

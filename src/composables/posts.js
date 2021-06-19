@@ -4,8 +4,18 @@ import { setUser } from './auth'
 import { generateIdenticon, timeAgo } from '@/generate.js'
 import { filter } from './filter'
 import { useRoute } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 const POSTS_COUNT = 8
+const USERNAME_LENGTH_LIMIT = 10
+
+const toast = useToast()
+const { generalFilter } = filter()
+
+const err = ref('')
+
+// Fuse Syntax
+// generalFuse.value.search("plant 1 tree")[0].item.badgeName
 
 const generalPosts = ref([])
 const myPosts = ref([])
@@ -13,6 +23,8 @@ const postsOfAUser = ref([])
 const latestPost = ref(null)
 const currIndex = ref(0)
 const count = ref(POSTS_COUNT)
+
+watch(err, () => toast.error(err.value))
 
 // MASONRY
 const resizing = () => {
@@ -45,7 +57,7 @@ const getLatestPost = () => {
   const temporaryPost = () => {
     return {
       description:
-        'No Latest Post yet! Well, this is the beginning of your journey why not add some posts ✏ and see what other think about it 🤔. Pick out any challenge you like and work on it🔥',
+        'No Latest Post yet! Well, this is the beginning of your journey why not add some posts and see what others think about it 🤔. Pick out any challenge you like and work on it🔥. Lost? You can always check out the details by clicking on the logo on top 😊',
       image: ['https://i.imgur.com/HuNalGN.png']
     }
   }
@@ -53,11 +65,12 @@ const getLatestPost = () => {
   const updateLatestPost = async () => {
     try {
       latestPost.value = temporaryPost()
-      const res1 = await api.get('/posts/myLatestPost', config.value)
-      const myLatestPost = filterMyLatestPost(res1.data, user)
+      const res = await api.get('/posts/mypost/myLatestPost', config.value)
+      const myLatestPost = filterMyPost(res.data, user.value?.userName)
       latestPost.value = myLatestPost
     } catch (error) {
       console.log('Error while obtaining latest post from backend')
+      err.value = "Couldn't load your latest post 🙄"
     }
   }
   return { updateLatestPost, latestPost }
@@ -67,31 +80,29 @@ const getLatestPost = () => {
 const getPosts = () => {
   // To reset the count to 8
   count.value = POSTS_COUNT
-  const { generalFilter } = filter()
   const { config } = setUser()
   const filtered = ref([])
-  const error = ref(null)
-
-  watch(error, () => window.alert(error.value))
 
   const loadPosts = async () => {
-    try {
-      const res2 = await api.get(
-        `/posts/allLatestPosts/${count.value}`,
-        config.value
-      )
-      const latestPosts = filterPost(res2.data.posts)
-      console.log('General Posts', latestPosts)
-      generalPosts.value = latestPosts
-      filtered.value = latestPosts
-    } catch (error) {
-      console.log('Error while receiving latest posts from backend', error)
+    if (config.value) {
+      try {
+        const res2 = await api.get(
+          `/posts/allLatestPosts/${count.value}`,
+          config.value
+        )
+        const latestPosts = filterPost(res2.data.posts)
+        console.log('General Posts', latestPosts)
+        generalPosts.value = latestPosts
+        filtered.value = latestPosts
+      } catch (error) {
+        console.log('Error while receiving latest posts from backend', error)
+        err.value = 'There was an issue loading posts try again later 😖'
+      }
     }
   }
 
   const loadMore = async () => {
-    // console.log("Loading more posts for you :)");
-    count.value += generalPosts.value.length < count.value ? 0 : 8
+    count.value += filtered.value.length < count.value ? 0 : 8
     if (generalFilter.value.badgeName === 'All Badges') await loadPosts()
     else await loadBadgeGeneralPosts()
   }
@@ -104,20 +115,20 @@ const getPosts = () => {
           config.value
         )
         filtered.value = filterPost(res.data.posts)
-      } catch (err) {
-        if (err.s) {
-          console.log(
-            'Error while obtaining badge specific general posts from backend',
-            err
-          )
-        }
-        error.value = 'No such posts found!'
+      } catch (error) {
+        console.log(
+          'Error while obtaining badge specific general posts from backend',
+          error
+        )
+        err.value = 'No such posts found!'
       }
     }
   }
 
   watchEffect(async () => {
-    if (generalFilter.value.badgeName === 'All Badges') { filtered.value = generalPosts.value.splice(0, count.value) } else {
+    if (generalFilter.value.badgeName === 'All Badges') {
+      filtered.value = generalPosts.value.splice(0, count.value)
+    } else {
       await loadBadgeGeneralPosts()
     }
   })
@@ -133,14 +144,14 @@ const myPostsFn = () => {
   const filtered = ref([])
   const error = ref(null)
 
-  watch(error, () => window.alert(error.value))
+  watch(error, () => toast.error(error.value))
 
   const loadMyPosts = async () => {
     console.log('Getting config from user', config.value)
 
     try {
       const res = await api.get(`/posts/of/${user.value.userId}`, config.value)
-      const myposts = filterMyPosts(res.data.posts, user)
+      const myposts = filterMyPosts(res.data.posts, user.value.userName)
       console.log('my posts', myposts)
       myPosts.value = myposts
       filtered.value = myposts
@@ -156,7 +167,7 @@ const myPostsFn = () => {
           `/posts/postsByBadgeName/${myPostsFilter.value.badgeId}/${count.value}`,
           config.value
         )
-        filtered.value = filterMyPosts(res.data.posts, user)
+        filtered.value = filterMyPosts(res.data.posts, user.value.userName)
       } catch (err) {
         console.log(
           'Error while obtaining badge specific general posts from backend',
@@ -169,7 +180,9 @@ const myPostsFn = () => {
   }
 
   watchEffect(async () => {
-    if (myPostsFilter.value.badgeName === 'All Badges') { filtered.value = myPosts.value.splice(0, count.value) } else {
+    if (myPostsFilter.value.badgeName === 'All Badges') {
+      filtered.value = myPosts.value.splice(0, count.value)
+    } else {
       await loadBadgeMyPosts()
     }
   })
@@ -188,7 +201,7 @@ const addPostFn = async (data) => {
   const { config, user } = setUser()
   const error = ref(null)
 
-  watch(error, () => window.alert(error.value))
+  watch(error, () => toast.error(error.value))
 
   try {
     const formData = new FormData()
@@ -200,15 +213,14 @@ const addPostFn = async (data) => {
       data.tags = tags.slice(0, -1)
       formData.append('tags', data.tags)
     }
-
+    if (!data.badgeName) {
+      throw new Error('User did not select any challenge')
+    }
     if (!data.title) {
       throw new Error('User has not given title to the post')
     }
     if (!data.description) {
       throw new Error('User has not given any description')
-    }
-    if (!data.badgeName) {
-      throw new Error('User did not select any challenge')
     }
 
     formData.append('title', data.title)
@@ -220,17 +232,20 @@ const addPostFn = async (data) => {
     const result = await api.post('/posts', formData, config.value)
     console.log('result', result)
 
-    const postCreated = result.data.response.postCreated
+    const postCreated = filterMyPost(
+      result.data.response.postNewCreated,
+      user.value?.userName
+    )
 
     console.log('postCreated', postCreated)
     generalPosts.value.push(postCreated)
     myPosts.value.unshift(postCreated)
-    latestPost.value = filterMyLatestPost(postCreated, user)
+    latestPost.value = postCreated
 
     return 0
   } catch (err) {
     console.log('Error while sending post to the backend', err)
-    error.value = err
+    error.value = err.message
     return 1
   }
 }
@@ -241,7 +256,7 @@ const postModalFn = () => {
   const route = useRoute()
   const error = ref(null)
 
-  watch(error, () => window.alert(error.value))
+  watch(error, () => toast.error(error.value))
 
   const assignIndex = (index) => (currIndex.value = index)
 
@@ -301,7 +316,11 @@ const postModalFn = () => {
       try {
         await api.post('/posts/upvote', { postId }, config.value)
 
-        if (route.path === '/') { generalPosts.value[index].upvotes.push(user.value.userId) } else if (route.path === '/posts') { myPosts.value[index].upvotes.push(user.value.userId) } else postsOfAUser.value[index].upvotes.push(user.value.userId)
+        if (route.path === '/') {
+          generalPosts.value[index].upvotes.push(user.value.userId)
+        } else if (route.path === '/posts') {
+          myPosts.value[index].upvotes.push(user.value.userId)
+        } else postsOfAUser.value[index].upvotes.push(user.value.userId)
       } catch (err) {
         console.log('Error while upvoting the post', err)
         error.value = err
@@ -406,32 +425,23 @@ const getComments = () => {
 const getPostsOfUser = () => {
   const { config } = setUser()
   const count = ref(6)
-  const err = ref(null)
-
-  watch(err, () => window.alert(err))
 
   const loadMore = () => (count.value += 6)
 
   const loadUserPosts = async (userId, username) => {
     if (userId) {
       try {
-        console.log('username', username)
+        console.log('username used :: ', username)
         const res = await api.get(`/posts/of/${userId}`, config.value)
         console.log('Response of posts of that user from backend', res)
-        postsOfAUser.value = res.data.posts.map((post) => {
-          post.username = username || 'anonymous'
-          post.upvotes = post.upvotes ? post.upvotes : []
-          post.identicon = generateIdenticon(post.badgeName)
-          post.createDate = timeAgo(new Date(), new Date(post.createDate))
-          post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
-          return post
-        })
+        postsOfAUser.value = filterMyPosts(res.data.posts, username)
       } catch (error) {
         console.log(
           'Error while obtaining random user posts from backend',
           err
         )
-        err.value = error
+        err.value =
+          'Unable to load this users posts 😬 try again after sometime'
       }
     }
   }
@@ -454,41 +464,55 @@ const filterPost = (posts) => {
     .filter((post) => post !== null)
     .map((post) => {
       post.upvotes = post.upvotes ? post.upvotes : []
-      post.username = post.username ? post.username : 'anonymous'
-      post.identicon = generateIdenticon(post.badgeName)
+      post.username = validateUserName(
+        post.username ? post.username : 'anonymous'
+      )
+      post.identicon = generateIdenticon(
+        post.badgeName ? post.badgeName : 'unknown'
+      )
       post.createDate = timeAgo(new Date(), new Date(post.createDate))
-      post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
       return post
     })
     .sort(sortByPoints)
 }
 
-const filterMyPosts = (posts, user) => {
+const filterMyPosts = (posts, username) => {
   return posts
     .filter((post) => post !== null)
     .sort(sortByPostDate)
     .map((post) => {
-      const username = user.value.userName
-      post.upvotes = post.upvotes ? post.upvotes : []
-      post.username = username || 'anonymous'
-      post.identicon = generateIdenticon(post.badgeName)
-      post.createDate = timeAgo(new Date(), new Date(post.createDate))
-      post.updatedDate = timeAgo(new Date(), new Date(post.updatedDate))
-      post.points = user.value.points ? user.value.points : 0
-      return post
+      return filterMyPost(post, username)
     })
 }
 
-const filterMyLatestPost = (post, user) => {
+const filterMyPost = (post, username) => {
   try {
     post.upvotes = post.upvotes ? post.upvotes : []
     post.points = post.points ? post.points : 0
-    post.userName = user.value.userName
+    post.userName = validateUserName(username)
+    post.identicon = generateIdenticon(
+      post.badgeName ? post.badgeName : 'anonymous'
+    )
     post.createDate = timeAgo(new Date(), new Date(post.createDate))
     return post
   } catch (error) {
-    console.log('Error while filtering the latest post', error)
+    console.log('Error while filtering my post', error)
   }
+}
+
+const checkUserName = (username) => {
+  const re = new RegExp(`^[a-z0-9_@./#&+-]{1,${USERNAME_LENGTH_LIMIT}}$`)
+  return re.test(username)
+}
+
+const validateUserName = (username) => {
+  if (!checkUserName(username)) {
+    return username
+      .substring(0, USERNAME_LENGTH_LIMIT)
+      .toLowerCase()
+      .replaceAll(' ', '_')
+  }
+  return username
 }
 
 export {
@@ -499,5 +523,7 @@ export {
   getComments,
   getLatestPost,
   myPostsFn,
-  getPostsOfUser
+  getPostsOfUser,
+  checkUserName,
+  validateUserName
 }

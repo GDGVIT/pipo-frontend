@@ -1,6 +1,8 @@
 import api from '@/api.js'
 import { computed, ref, watch } from 'vue'
 import { setUser } from './auth'
+import { useToast } from 'vue-toastification'
+import { validateUserName } from '../composables/posts'
 
 const { config, user } = setUser()
 
@@ -9,24 +11,26 @@ const followers = ref([])
 const following = ref([])
 const friends = ref([])
 const error = ref(null)
+const toast = useToast()
 
 // watch for errors
-watch(error, () => window.alert(error.value))
+watch(error, () => toast.error(error.value))
 
 const getProfile = () => {
   const loadProfile = async () => {
-    if (!userInfo.value && user.value.userId) {
-      try {
+    try {
+      if (!userInfo.value && user.value?.userId) {
         const res = await api.get(`/user/${user.value.userId}`, config.value)
         userInfo.value = filterRandomUser(res.data)
         console.log('user value', userInfo.value)
-      } catch (err) {
-        console.log(
-          'Error occured while fetching user details from backend',
-          err
-        )
-        error.value = err
       }
+    } catch (err) {
+      console.log(
+        'Error occured while fetching user details from backend',
+        err
+      )
+      error.value =
+        "Wasn't while fetching your details. Try again after sometime! 😓"
     }
   }
 
@@ -39,7 +43,7 @@ const getProfile = () => {
         },
         config.value
       )
-      window.alert('Username updated refresh page to see the changes')
+      toast.success('Username updated refresh page to see the changes')
     } catch (error) {
       console.log('Error while updating user details in the backend', error)
     }
@@ -113,7 +117,7 @@ const socialCircle = () => {
         if (res.data.message) throw new Error(res.data.message)
 
         randomUserInfo.value.user.following++
-        window.alert('Following this person')
+        toast.success('Following this person 🤗')
         following.value.push(res.data)
       } catch (err) {
         error.value = err
@@ -134,7 +138,7 @@ const socialCircle = () => {
         if (res.data.message) throw new Error(res.data.message)
 
         randomUserInfo.value.user.friends++
-        window.alert('Added as a friend')
+        toast.success('Added as a friend')
       } catch (err) {
         error.value = 'Unable to add as a friend. Try again after sometime!'
         console.log('Error while sending friend request through backend', err)
@@ -172,7 +176,9 @@ const socialCircle = () => {
 }
 
 const filterRandomUser = (u) => {
-  u.user.userName = u.user.userName ? u.user.userName : 'anonymous'
+  u.user.userName = validateUserName(
+    u.user.userName ? u.user.userName : 'anonymous'
+  )
   u.user.points = u.user.points ? u.user.points : 0
   u.user.tags = u.user.tags ? u.user.tags : []
   if (u.user.tags.length > 5) u.user.tags = u.user.tags.slice(0, 5)

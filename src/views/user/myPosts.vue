@@ -34,9 +34,20 @@
         @click="myPostModal = true"
       />
     </div>
+
+    <div
+      v-if="!myPosts.length"
+      class="mt-16 text-center font-gbold p-8 text-lg bg-myBlue rounded-sm sm:w-1/2 mx-auto text-white"
+    >
+      You haven't posted anything yet 😗. Add a new post and select any
+      challenge you would like to work on and earn badges.🔥
+    </div>
+
     <!-- Load more -->
     <!-- TODO: Currently myPosts is returning all the values -->
-    <LoadMore @click="loadMore()" />
+    <div v-if="myPosts.length > 8">
+      <LoadMore @click="loadMore()" />
+    </div>
 
     <AddPostModal v-if="addPostModal" @closeModal="addPostModal = false" />
 
@@ -45,15 +56,22 @@
 </template>
 
 <script>
-import Post from "@/components/post/post";
 import LoadMore from "@/components/loadComponents/loadMore";
 import PostViewModal from "@/components/modals/postViewModal";
 import AddPostBtn from "@/components/post/addPostBtn";
 import AddPostModal from "@/components/modals/addPostModal";
 
 import { myPostsFn, resizing } from "../../composables/posts";
-import { onMounted, ref, watch, watchEffect } from "vue";
+import { defineAsyncComponent, onMounted, ref, watch, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
+
+import LoadingCard from "@/components/loadComponents/LoadingCard";
+
+const Post = defineAsyncComponent({
+  loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
+  loadingComponent: LoadingCard,
+  delay: 200,
+});
 
 export default {
   components: { Post, PostViewModal, LoadMore, AddPostBtn, AddPostModal },
@@ -69,7 +87,7 @@ export default {
 
     //for the purpose of loading cards
     onMounted(() => {
-      for (let i = 0; i < 8; i++) myPosts.value.push(null);
+      for (let i = 0; i < 6; i++) myPosts.value.push(null);
     });
 
     watchEffect(async () => {

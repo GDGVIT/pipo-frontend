@@ -2,26 +2,39 @@
 @tailwind components;
 
 @font-face {
+  font-family: "Gilroy-Thin";
+  src: local("Gilroy-Thin"),
+    url("../../fonts/Gilroy-Thin.ttf") format("truetype");
+}
+
+@font-face {
   font-family: "Gilroy-Light";
   src: local("Gilroy-Light"),
-    url("../../fonts/Gilroy-Light.woff") format("woff");
+    url("../../fonts/Gilroy-Light.otf") format("opentype");
 }
 
 @font-face {
   font-family: "Gilroy-Regular";
   src: local("Gilroy-Regular"),
-    url("../../fonts/Gilroy-Regular.woff") format("woff");
+    url("../../fonts/Gilroy-Regular.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "Gilroy-Medium";
   src: local("Gilroy-Medium"),
-    url("../../fonts/Gilroy-Medium.woff") format("woff");
+    url("../../fonts/Gilroy-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Gilroy-SemiBold";
+  src: local("Gilroy-Heavy"),
+    url("../../fonts/Gilroy-SemiBold.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "Gilroy-Bold";
-  src: local("Gilroy-Bold"), url("../../fonts/Gilroy-Bold.woff") format("woff");
+  src: local("Gilroy-Bold"),
+    url("../../fonts/Gilroy-Bold.ttf") format("truetype");
 }
 
 @font-face {
@@ -33,7 +46,7 @@
 @font-face {
   font-family: "Gilroy-Heavy";
   src: local("Gilroy-Heavy"),
-    url("../../fonts/Gilroy-Heavy.woff") format("woff");
+    url("../../fonts/Gilroy-Heavy.ttf") format("truetype");
 }
 
 @tailwind utilities;

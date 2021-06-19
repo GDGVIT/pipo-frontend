@@ -3,7 +3,7 @@
   <svg
     v-if="name === 'rightArrow' || name === 'leftArrow'"
     xmlns="http://www.w3.org/2000/svg"
-    class="w-7 p-2 mr-10 cursor-pointer bg-myRed text-white rounded-full"
+    class="w-7 p-2 cursor-pointer bg-myRed text-white rounded-full"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"

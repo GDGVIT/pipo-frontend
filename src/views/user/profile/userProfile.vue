@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-rows-5 sm:grid-rows-1 sm:grid-cols-3 lg:grid-cols-4 font-gbold overflow-y-auto h-full "
+    class="grid grid-rows-5 sm:grid-rows-1 sm:grid-cols-3 lg:grid-cols-4 font-gbold overflow-y-auto overflow-x-hidden h-full "
   >
     <!-- Profile -->
     <div
@@ -8,39 +8,50 @@
     >
       <!-- Profile pic -->
       <div class="grid place-items-center">
-        <div v-if="profile?.user?.picture">
-          <img
-            class="w-32 h-32 rounded-full"
-            :src="profile?.user?.picture"
-            alt="profile-pic"
-            referrerpolicy="no-referrer"
-          />
-        </div>
-        <div v-if="!profile?.user?.picture">
-          <Icon name="profileIcon" />
+        <div class="relative">
+          <div v-if="profile?.user?.picture">
+            <img
+              class="w-32 h-32 rounded-full"
+              :src="profile?.user?.picture"
+              alt="profile-pic"
+              referrerpolicy="no-referrer"
+            />
+          </div>
+          <div v-if="!profile?.user?.picture">
+            <Icon name="profileIcon" />
+          </div>
+          <div
+            class="absolute top-2 right-0 bg-white text-myRed text-xs px-2 rounded-full"
+          >
+            20 pts
+          </div>
         </div>
       </div>
       <!-- Profile details -->
       <div class="flex flex-col items-center p-2">
         <div
-          class="text-2xl md:text-3xl font-gbold text-center my-2 mx-auto flex break-all"
+          class="relative w-full text-2xl md:text-3xl font-gbold text-center my-2 mx-auto flex break-all"
         >
-          <span class="mr-2">@</span>
-          <span
+          <label for="username" class="ml-2 absolute top-0 right-3">
+            <!-- TODO: Look into alignments of tooltips -->
+            <Tooltip
+              tooltipStyle="w-28"
+              text="Edit username. 10 characters long with no spaces in lowercase"
+              alignment=""
+            >
+              <Icon name="editPencil" />
+            </Tooltip>
+          </label>
+          <input
             @keydown="updatingUsername = true"
-            @keydown.enter="updateUsername"
             v-click-outside="updateUsernameByClick"
-            role="textbox"
             type="text"
             spellcheck="false"
-            class="bg-myRed text-center break-words focus:outline-none"
-            ref="usernameRef"
-            contenteditable="true"
-            >{{ profile?.user?.userName }}
-          </span>
-          <label for="username">
-            <Icon name="editPencil" />
-          </label>
+            class="bg-myRed w-40 mx-auto text-center break-words focus:outline-none"
+            v-model="usernameRef"
+            autocomplete="off"
+            id="username"
+          />
         </div>
         <div class="font-glight py-3 px-2 w-full break-all text-center">
           {{ profile?.user?.email }}
@@ -104,6 +115,15 @@
           <router-link to="/user/in-progress"
             ><Icon name="rightArrow"
           /></router-link>
+        </div>
+        <div
+          v-if="noInProgress"
+          class="p-10 bg-red-50 text-myRed font-gbold rounded-md my-5 mb-10"
+        >
+          Looks there's no progress recently😢. Start your journey today.🎲
+          Simply add a post with a challenge you like 😍 and you will see your
+          badge📛 being displayed here in progress waiting to be completed. Go
+          try it out!
         </div>
         <div
           class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-center mt-5 mb-10"
@@ -187,14 +207,20 @@ import { onMounted, ref, watchEffect } from "vue";
 import { setUser } from "../../../composables/auth";
 import { getUserBadges } from "../../../composables/badges";
 import { getTodos, getInterests } from "../../../composables/activities";
+import Tooltip from "../../../components/tooltips/tooltip";
+import { useToast } from "vue-toastification";
+import { checkUserName } from "../../../composables/posts";
 
 export default {
-  components: { Icon },
+  components: { Icon, Tooltip },
   setup() {
     const inProgress = ref([]);
     const completed = ref([]);
     const usernameRef = ref(null);
     const updatingUsername = ref(false);
+    const noInProgress = ref(true);
+    const noCompleted = ref(true);
+    const toast = useToast();
 
     const { isLoggedIn } = setUser();
     const { profile, loadProfile, changeUserDetails } = getProfile();
@@ -217,6 +243,7 @@ export default {
     const showInProgress = () => {
       const inp = getInProgress.value;
       if (inp) {
+        noInProgress.value = inp.length ? false : true;
         for (let i = 0; i < 6; i++) inProgress.value[i] = inp[i];
       }
     };
@@ -224,6 +251,7 @@ export default {
     const showCompleted = () => {
       const cp = getCompleted.value;
       if (cp) {
+        noCompleted.value = cp.length ? false : true;
         for (let i = 0; i < 6; i++) completed.value[i] = cp[i];
       }
     };
@@ -232,6 +260,7 @@ export default {
       if (isLoggedIn.value) {
         // Load Profile
         await loadProfile();
+        usernameRef.value = profile.value?.user?.userName;
 
         //Load Badges
         await loadInProgress();
@@ -245,21 +274,24 @@ export default {
       }
     });
 
-    const updateUsername = () => {
-      changeUserDetails({ userName: usernameRef.value.textContent });
-      updatingUsername.value = false;
-    };
-
     const updateUsernameByClick = () => {
       if (updatingUsername.value) {
-        changeUserDetails({ userName: usernameRef.value.textContent });
-        updatingUsername.value = false;
+        const curr = profile.value?.user?.userName;
+        const next = usernameRef.value;
+
+        if (curr !== next) {
+          if (checkUserName(next)) {
+            changeUserDetails({ userName: next });
+            updatingUsername.value = false;
+          } else {
+            toast.error("Username doesn't match the criteria 🤔.");
+          }
+        }
       }
     };
 
     return {
       profile,
-      updateUsername,
       usernameRef,
       updatingUsername,
       updateUsernameByClick,
@@ -267,14 +299,9 @@ export default {
       completed,
       todos5,
       interestList5,
+      noInProgress,
+      noCompleted,
     };
   },
 };
 </script>
-
-<style scoped>
-::-webkit-scrollbar-thumb {
-  background-color: #ff6666;
-  border-radius: 0px;
-}
-</style>

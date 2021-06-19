@@ -1,5 +1,9 @@
 import { createApp } from 'vue'
 import App from './views/App.vue'
+import Toast, { POSITION } from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 import router from './router'
 import firebase from 'firebase/app'
 import './assets/tailwind.css'
@@ -35,7 +39,13 @@ const clickOutside = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig)
 
-createApp(App)
+const app = createApp(App)
   .use(router)
+  .use(Toast, {
+    position: POSITION.TOP_CENTER,
+    toastClassName: 'font-gbold'
+  })
   .directive('click-outside', clickOutside)
   .mount('#app')
+
+app.AOS = new AOS.init()

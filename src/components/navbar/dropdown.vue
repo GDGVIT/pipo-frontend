@@ -80,6 +80,8 @@ export default {
     });
 
     watch(badgeTyped, () => {
+      console.log("Trying to change filter");
+      generalFilter.value = badgeTyped;
       updatedBadges.value = badges.value.filter((badge) =>
         badge.badgeName.toLowerCase().includes(badgeTyped.value?.toLowerCase())
       );
