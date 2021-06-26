@@ -1,14 +1,23 @@
 <template>
-  <div>
+  <div class="overflow-x-hidden">
     <div class="relative h-screen">
       <!-- Login background -->
       <Background name="login-bg" class="login-bg" />
 
       <!-- Logo -->
-      <LoginSVG data-aos="fade-up" name="pipoLogo" />
+      <LoginSVG name="pipoLogo" />
 
       <!-- Penguin -->
-      <LoginSVG name="pipoPenguin" class="pipo-penguin" />
+      <div class="pipo-penguin">
+        <LoginSVG name="pipoPenguin" />
+      </div>
+
+      <!-- Down -->
+      <div
+        class="absolute animate-bounce bottom-4 w-10 transform left-1/2 text-myBlue"
+      >
+        <LoginSVG name="narrowDownArrow" />
+      </div>
 
       <!-- Login button -->
       <div
@@ -21,7 +30,6 @@
         <LoginButton @click="signIn()" />
       </div>
 
-      <!-- absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight -->
       <div
         class="absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight whitespace-nowrap"
       >
@@ -30,7 +38,9 @@
           #
           <span id="days" class="text-7xl text-myRed">100</span>
           Days of
-          <span class="text-7xl text-myRed ">X</span>
+          <span id="X" class="transition-opacity opacity-0 text-7xl text-myRed "
+            >X</span
+          >
         </div>
       </div>
     </div>
@@ -38,9 +48,15 @@
       <div
         class="grid place-items-center lg:grid-cols-2 bg-myRed my-5 font-gbold"
       >
-        <div class="m-10 text-white text-4xl sm:text-6xl font-gbold">
-          Post More. Gain Upvotes. Earn Badges and Points.
+        <div class="m-10">
+          <div class="text-white text-4xl sm:text-6xl font-gbold">
+            Post More. Gain Upvotes. Earn Badges and Points.
+          </div>
+          <div class="my-8">
+            <LoginButton @click="signIn()" />
+          </div>
         </div>
+
         <div class="animate-floating relative my-10">
           <div class="absolute">
             <Post
@@ -90,6 +106,8 @@ export default {
   },
   setup() {
     const router = useRouter();
+    // const ax = ["X", "Weight Loss", "Meditation", "Tech", "your hardwork"];
+
     const { isLoggedIn, signInAttempt, hasAttemptedSignIn } = setUser();
     const showLoading = ref(false);
 
@@ -115,12 +133,20 @@ export default {
         duration: 5000,
         round: 1,
       });
-      anime({
-        targets: ".displayPost",
-        keyframes: [{ translateY: 5 }, { translateY: -5 }],
-        loop: true,
-        duration: 3000,
-        easing: "easeOutCubic",
+
+      const t = anime.timeline({
+        easing: "easeOutExpo",
+        targets: "#X",
+        duration: 2000,
+      });
+
+      t.add({
+        innerHTML: "good",
+        keyframes: [
+          { opacity: 1, translateY: 250 },
+          { opacity: 0, translateY: -250 },
+          { opacity: 1, translateY: 250 },
+        ],
       });
     });
 
@@ -156,6 +182,12 @@ export default {
 .login-bg {
   width: 1400px;
   transform: translate(-18%, -5%);
+}
+
+.animateX {
+  transition-property: "opacity";
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 1000ms;
 }
 
 @media screen and (min-width: 530px) {

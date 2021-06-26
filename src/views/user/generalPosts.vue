@@ -24,7 +24,7 @@
       />
     </div>
 
-    <div v-if="posts.length > 8">
+    <div v-if="showLoadMore">
       <LoadMore @click="loadMore()" />
     </div>
   </div>
@@ -50,7 +50,12 @@ import AddPostModal from "@/components/modals/addPostModal";
 import PostViewModal from "@/components/modals/postViewModal";
 import AddPostBtn from "@/components/post/addPostBtn";
 import { setUser } from "../../composables/auth";
-import { getPosts, resizing } from "../../composables/posts";
+import {
+  getPosts,
+  originalPosts,
+  POSTS_COUNT,
+  resizing,
+} from "../../composables/posts";
 
 const Post = defineAsyncComponent({
   loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
@@ -81,10 +86,13 @@ export default {
     const addPostModal = ref(false);
     const postModal = ref(false);
     const posts = ref([]);
+    const showLoadMore = ref(false);
+
     const masonry = ref(null);
     const { isLoggedIn } = setUser();
     const { loadPosts, filtered, loadMore } = getPosts();
     const { resizeGridItem } = resizing();
+    const { immutablePosts } = originalPosts();
 
     //for the purpose of loading cards
     onMounted(() => {
@@ -95,6 +103,8 @@ export default {
       if (isLoggedIn.value) {
         await loadPosts();
         posts.value = filtered.value;
+        if (immutablePosts.general.length > POSTS_COUNT)
+          showLoadMore.value = true;
       }
     });
 
@@ -111,6 +121,7 @@ export default {
       postModal,
       posts,
       loadMore,
+      showLoadMore,
     };
   },
 };

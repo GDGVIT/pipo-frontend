@@ -10,6 +10,7 @@
               class="w-32 h-32 md:w-40 md:h-40 rounded-full"
               :src="randomUser?.user?.picture"
               alt="profile-pic"
+              referrerpolicy="no-referrer"
             />
           </div>
           <div v-else>
@@ -73,7 +74,7 @@
       />
     </div>
 
-    <div v-if="userPosts.length > 8">
+    <div v-if="showLoadMore">
       <LoadMore @click="loadMore()" />
     </div>
 
@@ -95,7 +96,12 @@ import {
   watchEffect,
 } from "vue";
 import { setUser } from "../../composables/auth";
-import { getPostsOfUser, resizing } from "../../composables/posts";
+import {
+  getPostsOfUser,
+  originalPosts,
+  POSTS_COUNT,
+  resizing,
+} from "../../composables/posts";
 import { useRoute } from "vue-router";
 import { socialCircle } from "../../composables/profile";
 
@@ -112,6 +118,8 @@ export default {
     const userPostModal = ref(false);
     const userPosts = ref([]);
     const randomUser = ref(null);
+    const showLoadMore = ref(false);
+    const u = ref(null);
 
     const { isLoggedIn } = setUser();
     const route = useRoute();
@@ -124,8 +132,10 @@ export default {
       randomUserDetails,
     } = socialCircle();
 
+    const { immutablePosts } = originalPosts();
+
     onMounted(async () => {
-      for (let i = 0; i < 6; i++) userPosts.value.push(null);
+      for (let i = 0; i < POSTS_COUNT; i++) userPosts.value.push(null);
     });
 
     onUpdated(() => resizeGridItem(masonry.value));
@@ -135,11 +145,13 @@ export default {
         await getRandomUserProfile(route.params.userId);
         randomUser.value = randomUserDetails.value;
 
-        await loadUserPosts(
-          route.params.userId,
-          randomUser.value?.user?.userName
-        );
+        u.value = randomUser.value.user;
+
+        await loadUserPosts(route.params.userId, u);
         userPosts.value = randomUserPosts.value;
+
+        if (immutablePosts.randomUser.length > POSTS_COUNT)
+          showLoadMore.value = true;
       }
     });
 
@@ -148,13 +160,14 @@ export default {
     window.addEventListener("resize", () => resizeGridItem(masonry.value));
 
     return {
-      loadMore,
       userPostModal,
       userPosts,
       masonry,
       followThisPerson,
       makeFriend,
       randomUser,
+      loadMore,
+      showLoadMore,
     };
   },
 };

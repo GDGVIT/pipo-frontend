@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { useToast } from 'vue-toastification'
+import { validateUserName } from './posts'
 
 const signInClicked = ref(false)
 const user = ref(null)
@@ -15,6 +16,8 @@ const setUser = () => {
   const setLoggedInUser = (userDetails, token, logged) => {
     try {
       user.value = userDetails
+      user.value.userName = validateUserName(user.value.userName)
+
       isLoggedIn.value = logged
       config.value.headers.Authorization = token
       signInClicked.value = false

@@ -1,10 +1,13 @@
 <template>
   <div
-    @click="$emit('closeModal')"
-    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
+    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-70 backdrop-filter backdrop-blur-3xl"
   />
   <!-- Confetti background -->
-  <canvas id="confetti-holder" class="fixed top-0 w-full h-full z-20" />
+  <canvas
+    id="confetti-holder"
+    @click="$emit('closeModal')"
+    class="fixed top-0 w-full h-full z-20"
+  />
   <div
     class="fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
   >
@@ -40,7 +43,8 @@
             v-model="challengeTyped"
             class="input-border pl-4 py-1 focus:outline-none font-gregular"
             placeholder="Search"
-            @click="loadAll()"
+            @focus="loadAll()"
+            @blur="updatedChallenges = []"
           />
           <label for="challengeInput" class="absolute top-3 right-2">
             <ModalSVG name="downArrow" />
@@ -53,7 +57,7 @@
               class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-myBlue"
               v-for="(challenge, index) in updatedChallenges"
               :key="index"
-              @click="submitChallenge(challenge)"
+              @mousedown="submitChallenge(challenge)"
             >
               {{ challenge.badgeName }}
             </li>
@@ -66,7 +70,7 @@
           name="title"
           id="title"
           autocomplete="off"
-          v-model="title"
+          v-model="post.title"
         />
         <label for="description">Description</label>
         <textarea
@@ -75,7 +79,7 @@
           class="input-border resize-none col-span-3"
           style="height:10em"
           autocomplete="off"
-          v-model="description"
+          v-model="post.description"
         />
         <label for="tags">Tags</label>
         <input
@@ -91,7 +95,7 @@
       <!-- Tags display -->
       <div class="mt-10 md:px-10">
         <div
-          v-for="(t, index) in tags"
+          v-for="(t, index) in post.tags"
           :key="index"
           class="bg-myBlue text-white font-gbold inline-block rounded-md pl-3 py-1 mr-3"
         >
@@ -118,10 +122,10 @@
             <span class="text-xs text-white">Image +</span>
           </label>
           <div
-            v-if="imageFile"
+            v-if="post.imageFile"
             class="bg-myBlue text-white px-2 py-1 text-xs ml-4 rounded-md"
           >
-            {{ imageFile.name }}
+            {{ post.imageFile.name }}
           </div>
           <input
             @change="onSelectImage"
@@ -178,7 +182,7 @@ import ModalSVG from "./modalSVG";
 import ConfettiGenerator from "confetti-js";
 import Icon from "../post/postSVG";
 import { getBadges } from "../../composables/badges";
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { addPostFn } from "../../composables/posts";
 import InfoModal from "../../components/modals/infoModal";
 import { useToast } from "vue-toastification";
@@ -187,25 +191,32 @@ export default {
   components: { ModalSVG, Icon, InfoModal },
   emits: ["closeModal"],
   setup() {
-    const { getAllBadges } = getBadges();
+    const { getAllBadges, loadBadges } = getBadges();
     const challenges = ref([]);
     const updatedChallenges = ref([]);
-    const challengeTyped = ref(null);
+
     const dropdown = ref(null);
     const confirmation = ref(false);
     const showInfo = ref(false);
     const toast = useToast();
 
-    const title = ref(null);
-    const description = ref(null);
+    const challengeTyped = ref(null);
     const tag = ref("");
-    const selectedChallenge = ref(null);
-    const imageFile = ref(null);
-    const tags = ref([]);
+
+    const post = reactive({
+      title: null,
+      description: null,
+      badgeName: null,
+      imageFile: null,
+      tags: [],
+    });
 
     let confetti = null;
 
-    onMounted(() => (challenges.value = getAllBadges()));
+    onMounted(async () => {
+      challenges.value = getAllBadges.value;
+      if (challenges.value.length === 0) await loadBadges();
+    });
 
     watch(challengeTyped, () => {
       updatedChallenges.value = challenges.value.filter((badge) =>
@@ -215,47 +226,35 @@ export default {
       );
     });
 
-    document.addEventListener("click", (e) => {
-      if (dropdown.value && dropdown.value !== e.target) {
-        updatedChallenges.value = [];
-      }
-    });
-
-    const loadAll = () => (updatedChallenges.value = getAllBadges());
+    const loadAll = () => (updatedChallenges.value = getAllBadges.value);
 
     const addTag = () => {
-      tags.value.push(tag.value);
+      post.tags.push(tag.value);
       tag.value = "";
     };
 
     const onSelectImage = (event) => {
-      imageFile.value = event.target.files[0];
+      post.imageFile = event.target.files[0];
     };
 
     const submitChallenge = (challenge) => {
-      selectedChallenge.value = challenge.badgeName;
+      post.badgeName = challenge.badgeName;
       challengeTyped.value = challenge.badgeName;
       updatedChallenges.value = [];
     };
 
     const onSubmit = async () => {
-      const res = await addPostFn({
-        title: title.value,
-        badgeName: selectedChallenge.value,
-        description: description.value,
-        post: imageFile.value,
-        tags: tags.value,
-      });
+      const res = await addPostFn(post);
 
       const confettiSettings = {
         target: "confetti-holder",
         max: 160,
         rotate: true,
       };
-      confetti = new ConfettiGenerator(confettiSettings);
-      confetti.render();
 
       if (res === 0) {
+        confetti = new ConfettiGenerator(confettiSettings);
+        confetti.render();
         toast.success("Yayy! another day another post!🥳");
       }
     };
@@ -263,17 +262,14 @@ export default {
     onBeforeUnmount(() => confetti?.clear());
 
     return {
-      title,
-      tags,
       tag,
       addTag,
       confirmation,
       loadAll,
       dropdown,
-      description,
       challengeTyped,
       updatedChallenges,
-      imageFile,
+      post,
       submitChallenge,
       onSelectImage,
       onSubmit,

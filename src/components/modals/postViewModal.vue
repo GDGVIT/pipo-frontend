@@ -183,7 +183,6 @@ export default {
       if (isLoggedIn.value) {
         postModal.value = getCurrentPost.value;
         if (postModal.value?.upvotes.includes(user.value.userId)) {
-          console.log("Yes we are already upvoted it!");
           upvoted.value = true;
         }
       }

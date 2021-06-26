@@ -17,14 +17,16 @@
     >
       Post A Badge +
     </button>
-    <!-- Streak Badges -->
+    <!-- My badges -->
     <div>
-      <div class="text-2xl font-gbold my-2">Streaks</div>
+      <div class="text-xl text-myBlue font-gbold mt-4">
+        My Badges
+      </div>
       <div
-        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 place-items-center h-36 overflow-auto pt-6"
+        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 place-items-center h-36 overflow-auto"
       >
         <div
-          v-for="badge in streakBadges"
+          v-for="badge in myBadges"
           :key="badge.badgeId"
           class="grid place-items-center"
         >
@@ -35,14 +37,15 @@
         </div>
       </div>
     </div>
-    <!-- No Streak Badges -->
+    <!-- Available -->
     <div>
-      <div class="font-gbold text-2xl mt-3">No Streaks</div>
+      <div class="text-xl text-myBlue font-gbold mt-4">Available</div>
+
       <div
         class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 place-items-center h-36 overflow-auto"
       >
         <div
-          v-for="badge in noStreakBadges"
+          v-for="badge in available"
           :key="badge.badgeId"
           class="grid place-items-center"
         >
@@ -61,33 +64,55 @@
 <script>
 import BadgeModal from "@/components/modals/addBadgeModal";
 import { ref, watchEffect } from "vue";
-import { getBadges } from "../../composables/badges";
+import { getBadges, getUserBadges } from "../../composables/badges";
 import { setUser } from "../../composables/auth";
 
 export default {
   components: { BadgeModal },
   setup() {
     const { isLoggedIn } = setUser();
+    const showMyBadges = ref(true);
 
-    const streakBadges = ref([]);
-    const noStreakBadges = ref([]);
+    const myBadges = ref([]);
+    const available = ref([]);
+
     const badgeModal = ref(false);
 
-    const { loadBadges, getStreakBadges, getNoStreakBadges } = getBadges();
+    const { loadBadges, getAllBadges } = getBadges();
+    const {
+      loadInProgress,
+      loadCompleted,
+      getInProgress,
+      getCompleted,
+    } = getUserBadges();
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
-        console.log("Logged in hence loading badges!");
         await loadBadges();
-        streakBadges.value = getStreakBadges.value;
-        noStreakBadges.value = getNoStreakBadges.value;
+        await loadInProgress();
+        await loadCompleted();
 
-        console.log("Streakbadges", streakBadges.value);
-        console.log("noStreakbadges", noStreakBadges.value);
+        myBadges.value = getInProgress.value;
+
+        getCompleted.value.forEach((c) => {
+          let found = false;
+          myBadges.value.forEach((m) => {
+            if (c.badgeId === m.badgeId) found = true;
+          });
+          if (!found) myBadges.value.push(c);
+        });
+
+        available.value = getAllBadges.value.filter((a) => {
+          let found = false;
+          myBadges.value.forEach((m) => {
+            if (a?.badgeId === m?.badgeId) found = true;
+          });
+          return !found;
+        });
       }
     });
 
-    return { streakBadges, noStreakBadges, badgeModal };
+    return { badgeModal, myBadges, available, showMyBadges };
   },
 };
 </script>

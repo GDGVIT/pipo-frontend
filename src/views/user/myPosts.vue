@@ -43,9 +43,7 @@
       challenge you would like to work on and earn badges.🔥
     </div>
 
-    <!-- Load more -->
-    <!-- TODO: Currently myPosts is returning all the values -->
-    <div v-if="myPosts.length > 8">
+    <div v-if="showLoadMore">
       <LoadMore @click="loadMore()" />
     </div>
 
@@ -61,8 +59,20 @@ import PostViewModal from "@/components/modals/postViewModal";
 import AddPostBtn from "@/components/post/addPostBtn";
 import AddPostModal from "@/components/modals/addPostModal";
 
-import { myPostsFn, resizing } from "../../composables/posts";
-import { defineAsyncComponent, onMounted, ref, watch, watchEffect } from "vue";
+import {
+  myPostsFn,
+  resizing,
+  originalPosts,
+  POSTS_COUNT,
+} from "../../composables/posts";
+import {
+  defineAsyncComponent,
+  onMounted,
+  onUpdated,
+  ref,
+  watch,
+  watchEffect,
+} from "vue";
 import { setUser } from "../../composables/auth";
 
 import LoadingCard from "@/components/loadComponents/LoadingCard";
@@ -80,14 +90,16 @@ export default {
     const myPostModal = ref(false);
     const masonry = ref(null);
     const addPostModal = ref(false);
+    const showLoadMore = ref(false);
 
     const { loadMyPosts, filtered, loadMore } = myPostsFn();
     const { isLoggedIn, user } = setUser();
     const { resizeGridItem } = resizing();
+    const { immutablePosts } = originalPosts();
 
     //for the purpose of loading cards
     onMounted(() => {
-      for (let i = 0; i < 6; i++) myPosts.value.push(null);
+      for (let i = 0; i < POSTS_COUNT; i++) myPosts.value.push(null);
     });
 
     watchEffect(async () => {
@@ -95,15 +107,28 @@ export default {
         console.log("Loading my posts");
         await loadMyPosts();
         myPosts.value = filtered.value;
+
+        if (immutablePosts.mine.length > POSTS_COUNT) showLoadMore.value = true;
+
         resizeGridItem(masonry.value);
       }
     });
+
+    onUpdated(() => resizeGridItem(masonry.value));
 
     window.addEventListener("resize", () => resizeGridItem(masonry.value));
 
     watch(filtered, () => (myPosts.value = filtered.value));
 
-    return { myPosts, myPostModal, addPostModal, loadMore, masonry, user };
+    return {
+      myPosts,
+      myPostModal,
+      addPostModal,
+      loadMore,
+      masonry,
+      user,
+      showLoadMore,
+    };
   },
 };
 </script>
