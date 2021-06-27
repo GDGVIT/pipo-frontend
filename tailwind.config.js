@@ -37,6 +37,16 @@ module.exports = {
       },
       inset: {
         26: '105px'
+      },
+      animation: {
+        floating: 'floating 1s ease-in-out infinite'
+      },
+      keyframes: {
+        floating: {
+          '0%': { transform: 'translate(0,0px)' },
+          '50%': { transform: 'translate(0, 4px)' },
+          '100%': { transform: 'translate(0, -0px)' }
+        }
       }
     }
   },

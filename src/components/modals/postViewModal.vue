@@ -69,7 +69,10 @@
             ]"
           >
             <!-- Images -->
-            <div v-if="postModal?.image?.length > 0" class="grid xl:col-span-2">
+            <div
+              v-if="postModal?.image?.length > 0"
+              class="grid place-items-center xl:col-span-2"
+            >
               <div v-for="(img, index) in postModal?.image" :key="index">
                 <img class="post-image" :src="img" alt="post-image" />
               </div>
@@ -81,14 +84,28 @@
           </div>
         </div>
 
-        <!-- Tags -->
-        <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12">
+        <!-- Tags and update and delete -->
+        <div class="grid grid-cols-12 items-center">
+          <!-- tags -->
+          <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12 col-span-10">
+            <div
+              class="text-xs bg-myBlue text-white font-gbold px-3 py-1 rounded-md mr-2"
+              v-for="(tag, index) in postModal?.tags"
+              :key="index"
+            >
+              {{ tag }}
+            </div>
+          </div>
+          <!-- update and delete -->
+          <div @click="update()" v-if="isMyPosts" class="text-myBlue">
+            <UserIcon name="editPencil" />
+          </div>
           <div
-            class="text-xs bg-myBlue text-white font-gbold px-3 py-1 rounded-md mr-2"
-            v-for="(tag, index) in postModal?.tags"
-            :key="index"
+            @click="showDeleteModal = true"
+            v-if="isMyPosts"
+            class="text-myBlue"
           >
-            {{ tag }}
+            <UserIcon name="bin" />
           </div>
         </div>
       </div>
@@ -154,40 +171,76 @@
       </div>
     </div>
   </div>
+
+  <!-- Update modal to update the post -->
+  <UpdateModal @closeModal="showUpdateModal = false" v-if="showUpdateModal" />
+
+  <InfoModal
+    @close="showDeleteModal = false"
+    @delete="del()"
+    v-if="showDeleteModal"
+    modal="deleteConfirmation"
+  />
 </template>
 
 <script>
+import UpdateModal from "./updateModal.vue";
+import InfoModal from "./infoModal.vue";
 import PostSVG from "../post/postSVG";
+import UserIcon from "../user/userIcons.vue";
 import Icon from "@/components/navbar/navIcons";
 import { getComments, postModalFn } from "../../composables/posts";
 import { ref, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
+import { useRoute } from "vue-router";
 
 export default {
   components: {
     PostSVG,
     Icon,
+    UpdateModal,
+    InfoModal,
+    UserIcon,
   },
   emits: ["close"],
-  setup() {
+  setup(props, { emit }) {
     const postModal = ref(null);
     const upvoted = ref(false);
     const isCommentActive = ref(false);
     const { isLoggedIn, user } = setUser();
     const userComment = ref(null);
+    const showUpdateModal = ref(false);
+    const showDeleteModal = ref(false);
+    const isMyPosts = ref(false);
+    const route = useRoute();
 
-    const { getCurrentPost, getNextPost, getPrevPost, vote } = postModalFn();
+    const {
+      getCurrentPost,
+      getNextPost,
+      getPrevPost,
+      vote,
+      deletePost,
+    } = postModalFn();
     const { loadComments, orderedComments, postComment } = getComments();
 
     watchEffect(() => {
       if (isLoggedIn.value) {
         postModal.value = getCurrentPost.value;
         if (postModal.value?.upvotes.includes(user.value.userId)) {
-          console.log("Yes we are already upvoted it!");
           upvoted.value = true;
         }
+        if (route.name === "myPosts") isMyPosts.value = true;
       }
     });
+
+    //update
+    const update = () => (showUpdateModal.value = true);
+
+    //delete
+    const del = async () => {
+      await deletePost(postModal.value?.postId);
+      emit("close", null);
+    };
 
     //Shift
     const next = () => {
@@ -227,6 +280,11 @@ export default {
       isCommentActive,
       userComment,
       sendComment,
+      showUpdateModal,
+      showDeleteModal,
+      update,
+      del,
+      isMyPosts,
     };
   },
 };

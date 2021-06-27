@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="overflow-x-hidden">
     <div class="relative h-screen">
       <!-- Login background -->
       <Background name="login-bg" class="login-bg" />
@@ -8,7 +8,16 @@
       <LoginSVG data-aos="fade-up" name="pipoLogo" />
 
       <!-- Penguin -->
-      <LoginSVG name="pipoPenguin" class="pipo-penguin" />
+      <div class="pipo-penguin">
+        <LoginSVG name="pipoPenguin" />
+      </div>
+
+      <!-- Down -->
+      <div
+        class="absolute animate-bounce bottom-4 w-10 transform left-1/2 text-myBlue"
+      >
+        <LoginSVG name="narrowDownArrow" />
+      </div>
 
       <!-- Login button -->
       <div
@@ -21,7 +30,6 @@
         <LoginButton @click="signIn()" />
       </div>
 
-      <!-- absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight -->
       <div
         class="absolute left-1/2 top-1/3 absolute-center hidden md:block text-white text-center font-glight whitespace-nowrap"
       >
@@ -30,7 +38,9 @@
           #
           <span id="days" class="text-7xl text-myRed">100</span>
           Days of
-          <span class="text-7xl text-myRed ">X</span>
+          <span id="X" class="transition-opacity opacity-0 text-7xl text-myRed "
+            >X</span
+          >
         </div>
       </div>
     </div>
@@ -38,17 +48,23 @@
       <div
         class="grid place-items-center lg:grid-cols-2 bg-myRed my-5 font-gbold"
       >
-        <div class="m-10 text-white text-4xl sm:text-6xl font-gbold">
-          Post More. Gain Upvotes. Earn Badges and Points.
+        <div class="m-10">
+          <div class="text-white text-4xl sm:text-6xl font-gbold">
+            Post More. Gain Upvotes. Earn Badges and Points.
+          </div>
+          <div class="my-8">
+            <LoginButton @click="signIn()" />
+          </div>
         </div>
-        <div class="displayPost relative my-10">
+
+        <div class="animate-floating relative my-10">
           <div class="absolute">
             <Post
               :post="temporaryPost"
               class="w-l1 transform sm:rotate-12 sm:scale-90 z-10"
             />
           </div>
-          <div class="displayPost relative right-56">
+          <div class="animate-floating relative right-56">
             <Post
               :post="temporaryPost"
               class="w-l1 transform sm:-rotate-12 scale-0 sm:scale-50"
@@ -76,14 +92,26 @@ import MadeWithLove from "../components/login/made-with-love";
 import Post from "../components/post/post.vue";
 
 import { setUser } from "../composables/auth";
-import { onMounted, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
   name: "login-page",
+  components: {
+    MadeWithLove,
+    Background,
+    LoginButton,
+    LoginSVG,
+    Post,
+  },
   setup() {
     const router = useRouter();
-    const { isLoggedIn } = setUser();
+    // const ax = ["X", "Weight Loss", "Meditation", "Tech", "your hardwork"];
+
+    const { isLoggedIn, signInAttempt, hasAttemptedSignIn } = setUser();
+    const showLoading = ref(false);
+
+    if (hasAttemptedSignIn.value) showLoading.value = true;
 
     const temporaryPost = {
       postId: 1,
@@ -105,6 +133,30 @@ export default {
         duration: 5000,
         round: 1,
       });
+
+      const t = anime.timeline({
+        easing: "easeOutExpo",
+        targets: "#X",
+        duration: 2000,
+      });
+
+      t.add({
+        innerHTML: "good",
+        keyframes: [
+          { opacity: 1, translateY: 250 },
+          { opacity: 0, translateY: -250 },
+          { opacity: 1, translateY: 250 },
+        ],
+      });
+    });
+
+    onMounted(() => {
+      anime({
+        targets: "#days",
+        innerHTML: [0, 100],
+        duration: 5000,
+        round: 1,
+      });
       anime({
         targets: ".displayPost",
         keyframes: [{ translateY: 5 }, { translateY: -5 }],
@@ -115,11 +167,15 @@ export default {
     });
 
     watch(isLoggedIn, async () => {
-      if (isLoggedIn) await router.push("/");
+      if (isLoggedIn.value) {
+        showLoading.value = false;
+        await router.push("/");
+      }
     });
 
     const signIn = async () => {
       try {
+        signInAttempt();
         const provider = new firebase.auth.GoogleAuthProvider();
         await firebase.auth().signInWithRedirect(provider);
       } catch (error) {
@@ -127,14 +183,7 @@ export default {
       }
     };
 
-    return { signIn, temporaryPost };
-  },
-  components: {
-    MadeWithLove,
-    Background,
-    LoginButton,
-    LoginSVG,
-    Post,
+    return { signIn, temporaryPost, showLoading };
   },
 };
 </script>
@@ -149,6 +198,12 @@ export default {
 .login-bg {
   width: 1400px;
   transform: translate(-18%, -5%);
+}
+
+.animateX {
+  transition-property: "opacity";
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 1000ms;
 }
 
 @media screen and (min-width: 530px) {

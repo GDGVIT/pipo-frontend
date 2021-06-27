@@ -10,6 +10,7 @@
               class="w-32 h-32 md:w-40 md:h-40 rounded-full"
               :src="randomUser?.user?.picture"
               alt="profile-pic"
+              referrerpolicy="no-referrer"
             />
           </div>
           <div v-else>
@@ -18,7 +19,7 @@
           <div
             class="absolute top-2 right-0 bg-myRed text-white font-gbold px-2 rounded-full"
           >
-            {{ randomUser.user.points ? randomUser.user.points : 0 }} pts
+            {{ randomUser?.user?.points ? randomUser.user.points : 0 }} pts
           </div>
         </div>
       </div>
@@ -73,7 +74,9 @@
       />
     </div>
 
-    <LoadMore @click="loadMore()" />
+    <div v-if="showLoadMore">
+      <LoadMore @click="loadMore()" />
+    </div>
 
     <PostViewModal v-if="userPostModal" @close="userPostModal = false" />
   </div>
@@ -81,15 +84,33 @@
 
 <script>
 import Icon from "@/components/user/userIcons";
-import Post from "@/components/post/post";
 import PostViewModal from "@/components/modals/postViewModal";
 import LoadMore from "@/components/loadComponents/loadMore";
-
-import { onMounted, onUpdated, ref, watch, watchEffect } from "vue";
+import LoadingCard from "@/components/loadComponents/LoadingCard";
+import {
+  defineAsyncComponent,
+  onMounted,
+  onUpdated,
+  ref,
+  watch,
+  watchEffect,
+} from "vue";
 import { setUser } from "../../composables/auth";
-import { getPostsOfUser, resizing } from "../../composables/posts";
+import {
+  getPostsOfUser,
+  originalPosts,
+  POSTS_COUNT,
+  resizing,
+} from "../../composables/posts";
 import { useRoute } from "vue-router";
 import { socialCircle } from "../../composables/profile";
+
+const Post = defineAsyncComponent({
+  loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
+  loadingComponent: LoadingCard,
+  delay: 200,
+});
+
 export default {
   components: { Post, LoadMore, PostViewModal, Icon },
   setup() {
@@ -97,6 +118,8 @@ export default {
     const userPostModal = ref(false);
     const userPosts = ref([]);
     const randomUser = ref(null);
+    const showLoadMore = ref(false);
+    const u = ref(null);
 
     const { isLoggedIn } = setUser();
     const route = useRoute();
@@ -109,8 +132,10 @@ export default {
       randomUserDetails,
     } = socialCircle();
 
+    const { immutablePosts } = originalPosts();
+
     onMounted(async () => {
-      for (let i = 0; i < 6; i++) userPosts.value.push(null);
+      for (let i = 0; i < POSTS_COUNT; i++) userPosts.value.push(null);
     });
 
     onUpdated(() => resizeGridItem(masonry.value));
@@ -119,17 +144,15 @@ export default {
       if (isLoggedIn.value) {
         await getRandomUserProfile(route.params.userId);
         randomUser.value = randomUserDetails.value;
-      }
-    });
 
-    const stopWatchingRandomUser = watch(randomUser, async () => {
-      await loadUserPosts(
-        route.params.userId,
-        randomUser.value?.user?.userName
-      );
-      userPosts.value = randomUserPosts.value;
-      console.log("user posts", userPosts.value);
-      stopWatchingRandomUser();
+        u.value = randomUser.value.user;
+
+        await loadUserPosts(route.params.userId, u);
+        userPosts.value = randomUserPosts.value;
+
+        if (immutablePosts.randomUser.length > POSTS_COUNT)
+          showLoadMore.value = true;
+      }
     });
 
     watch(randomUserPosts, () => (userPosts.value = randomUserPosts.value));
@@ -137,13 +160,14 @@ export default {
     window.addEventListener("resize", () => resizeGridItem(masonry.value));
 
     return {
-      loadMore,
       userPostModal,
       userPosts,
       masonry,
       followThisPerson,
       makeFriend,
       randomUser,
+      loadMore,
+      showLoadMore,
     };
   },
 };

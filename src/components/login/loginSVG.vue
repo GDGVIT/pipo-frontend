@@ -6,6 +6,7 @@
     #28B446
     #F14336
    -->
+  <!-- Google Logo -->
   <svg
     v-if="name === 'googleLogo'"
     xmlns="http://www.w3.org/2000/svg"
@@ -36,6 +37,7 @@
 	C318.115,0,375.068,22.126,419.404,58.936z"
     />
   </svg>
+  <!-- PiPo Logo -->
   <svg
     v-else-if="name === 'pipoLogo'"
     xmlns="http://www.w3.org/2000/svg"
@@ -129,6 +131,7 @@
       </g>
     </g>
   </svg>
+  <!-- PiPo Penguin -->
   <svg
     v-else-if="name === 'pipoPenguin'"
     xmlns="http://www.w3.org/2000/svg"
@@ -247,6 +250,23 @@
         />
       </g>
     </g>
+  </svg>
+  <!-- Narrow down arrow -->
+
+  <svg
+    v-else-if="name === 'narrowDownArrow'"
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-6 w-6"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M19 13l-7 7-7-7m14-8l-7 7-7-7"
+    />
   </svg>
 </template>
 <script>

@@ -1,6 +1,6 @@
 import api from '@/api.js'
 import { generateIdenticon } from '../generate'
-import { computed, ref } from 'vue'
+import { computed, readonly, ref } from 'vue'
 import { setUser } from './auth'
 
 const badges = ref([])
@@ -35,13 +35,7 @@ const getBadges = () => {
     badges.value.filter((badge) => !badge.hasStreak)
   )
 
-  const getAllBadges = () =>
-    badges.value.map((badge) => {
-      return {
-        badgeName: badge.badgeName,
-        badgeId: badge.badgeId
-      }
-    })
+  const getAllBadges = readonly(badges)
 
   const postBadge = async (badgeData) => {
     try {
@@ -82,7 +76,7 @@ const getUserBadges = () => {
   const loadCompleted = async () => {
     try {
       const res = await api.get('/badge/completed', config.value)
-      const completedBadges = res.data.arr.map((badge) => {
+      const completedBadges = res.data.userBadge.map((badge) => {
         badge.identicon = generateIdenticon(badge.badgeName)
         return badge
       })
@@ -93,8 +87,8 @@ const getUserBadges = () => {
     }
   }
 
-  const getInProgress = computed(() => inProgress.value)
-  const getCompleted = computed(() => completed.value)
+  const getInProgress = readonly(inProgress)
+  const getCompleted = readonly(completed)
 
   return { loadInProgress, loadCompleted, getInProgress, getCompleted }
 }

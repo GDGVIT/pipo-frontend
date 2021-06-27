@@ -1,111 +1,180 @@
 <template>
   <!-- TODO: Make filter work with load more -->
   <div class="relative w-60 sm:w-96">
+    <DropdownFocus @keyup="slashSearch" />
     <div class="flex items-center">
       <input
         type="text"
-        ref="dropdown"
-        v-model="badgeTyped"
-        @click="loadAll()"
+        v-model="query"
+        @blur="searchResultsVisible = false"
+        @focus="searchResultsVisible = true"
+        @keydown.esc="searchResultsVisible = false"
+        @input="searchResultsVisible = true"
+        @keyup="performSearch()"
         class="pl-4 border-b-2 w-full py-1 focus:outline-none font-gregular"
-        placeholder="Search"
+        placeholder="Search (Press / to focus)"
+        ref="search"
       />
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="w-6 h-6 ml-2"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
+      <div @click="fixSearch()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-6 h-6 ml-2 cursor-pointer hover:enlarge"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </div>
     </div>
 
     <ul
-      v-if="updatedBadges.length"
-      class="absolute w-full top-8 overflow-y-auto max-h-48 bg-white rounded-sm border border-gray-200 transition-transform p-2"
+      v-if="searchResultsVisible"
+      class="absolute w-full top-8 bg-white rounded-sm border border-gray-200 transition-transform"
     >
-      <li
-        class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-gray-200 rounded-md"
-        v-for="(badge, index) in updatedBadges"
-        :key="index"
-        @click="selectBadge(badge)"
-      >
-        {{ badge.badgeName }}
+      <li class="flex pl-4 my-4 ">
+        <div
+          @mousedown.prevent="showAll()"
+          class="font-gbold bg-myBlue px-2 text-white rounded-full cursor-pointer"
+        >
+          All Posts
+        </div>
+      </li>
+      <div class="overflow-y-auto max-h-48">
+        <li
+          class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-myBlue"
+          v-for="(post, index) in searchPosts"
+          :key="index"
+          @mousedown.prevent="showPost(post)"
+        >
+          <div class="text-xl font-gbold my-2">{{ post?.title }}</div>
+          <div class="text-sm">
+            {{ post?.description?.substring(0, 50) }}...
+          </div>
+          <div
+            class="text-myBlue text-xs inline-block mr-2"
+            v-for="(tag, index) in post?.tags"
+            :key="index"
+          >
+            {{ tag }}
+          </div>
+        </li>
+      </div>
+      <li class="pl-4 py-2 font-gregular" v-if="searchPosts.length === 0">
+        No results for your query 😓
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { getBadges } from "../../composables/badges";
+import Fuse from "fuse.js";
+import DropdownFocus from "./dropdownFocus.vue";
+import { ref, watchEffect } from "vue";
+import { onBeforeRouteUpdate, useRoute } from "vue-router";
+import { originalPosts, updateFuse } from "../../composables/posts";
 import { setUser } from "../../composables/auth";
-import { filter } from "../../composables/filter";
-
-import { ref, watch, watchEffect } from "vue";
-import { useRoute } from "vue-router";
 
 export default {
+  components: { DropdownFocus },
   setup() {
-    const badges = ref([]);
-    const badgeTyped = ref(null);
-    const updatedBadges = ref([]);
-    const dropdown = ref(null);
-
-    const { loadBadges, getAllBadges } = getBadges();
+    const query = ref("");
+    const searchPosts = ref([]);
+    const mainPosts = ref([]);
+    const searchResultsVisible = ref(false);
+    const search = ref(null);
+    const { immutablePosts } = originalPosts();
+    const { generalUpdate, myUpdate, randomUserUpdate } = updateFuse();
     const { isLoggedIn } = setUser();
-    const { generalFilter, myPostsFilter } = filter();
 
     const route = useRoute();
-
-    document.addEventListener("click", (e) => {
-      if (dropdown.value && dropdown.value !== e.target) {
-        updatedBadges.value = [];
-      }
-    });
+    let fuse = null;
+    const options = {
+      includeMatches: true,
+      threshold: 0.5,
+      location: 0,
+      distance: 500,
+      maxPatternLength: 32,
+      minMatchCharLength: 1,
+      keys: ["badgeName", "title", "description", "tags"],
+    };
 
     watchEffect(() => {
       if (isLoggedIn.value) {
-        loadBadges();
-        const b = getAllBadges();
-        const allBadges = { badgeId: 1, badgeName: "All Badges" };
-        badges.value = [allBadges, ...b];
-        console.log("Badges after updating from getAlBadges", badges.value);
+        console.log("Setting posts...", immutablePosts);
+        if (route.name === "generalPosts")
+          mainPosts.value = immutablePosts.general;
+        else if (route.name === "myPosts")
+          mainPosts.value = immutablePosts.mine;
+        else if (route.name === "randomUserPosts")
+          mainPosts.value = immutablePosts.randomUser;
+        fuse = new Fuse(mainPosts.value, options);
       }
     });
 
-    watch(badgeTyped, () => {
-      updatedBadges.value = badges.value.filter((badge) =>
-        badge.badgeName.toLowerCase().includes(badgeTyped.value?.toLowerCase())
-      );
+    const performSearch = () => {
+      const result = fuse?.search(query.value);
+      if (Array.isArray(result)) {
+        if (!query.value.length) {
+          searchPosts.value = mainPosts.value;
+        } else searchPosts.value = result.map((i) => i.item);
+      }
+    };
+
+    const fixSearch = () => {
+      if (route.name === "generalPosts") generalUpdate(searchPosts.value);
+      else if (route.name === "myPosts") myUpdate(searchPosts.value);
+      else if (route.name === "randomUserPosts")
+        randomUserUpdate(searchPosts.value);
+      searchResultsVisible.value = false;
+      query.value = "";
+    };
+
+    const showPost = (post) => {
+      const p = [];
+      p.push(post);
+      if (route.name === "generalPosts") generalUpdate(p);
+      else if (route.name === "myPosts") myUpdate(p);
+      else if (route.name === "randomUserPosts") {
+        console.log("random user i send", p);
+        randomUserUpdate(p);
+      }
+      searchResultsVisible.value = false;
+    };
+
+    const showAll = () => {
+      searchPosts.value = mainPosts.value;
+      fixSearch();
+    };
+
+    const slashSearch = (e) => {
+      if (e.key === "/") {
+        search.value?.focus();
+      }
+    };
+
+    onBeforeRouteUpdate(() => {
+      searchPosts.value = [];
+      searchResultsVisible.value = false;
     });
 
-    const loadAll = () => {
-      updatedBadges.value = badges.value;
+    return {
+      query,
+      searchResultsVisible,
+      search,
+      performSearch,
+      slashSearch,
+      searchPosts,
+      mainPosts,
+      fixSearch,
+      showPost,
+      showAll,
     };
-
-    const selectBadge = (badge) => {
-      const path = route.path;
-      console.log(route);
-      console.log("Badge selected and the current route is :: ", route.path);
-      if (path === "/") {
-        generalFilter.value = badge;
-        console.log("General filter changed to ", generalFilter.value);
-      }
-      if (path === "/posts") {
-        myPostsFilter.value = badge;
-        console.log("My Posts filter changed to ", myPostsFilter.value);
-      }
-      badgeTyped.value = null;
-      updatedBadges.value = [];
-    };
-
-    return { loadAll, dropdown, badgeTyped, selectBadge, updatedBadges };
   },
 };
 </script>

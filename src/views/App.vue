@@ -1,5 +1,8 @@
 <template>
   <router-view />
+  <template v-if="showLoading">
+    <LoadingScreen />
+  </template>
 </template>
 
 <script>
@@ -7,15 +10,20 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import api from "@/api.js";
 import { setUser } from "../composables/auth";
+import LoadingScreen from "../components/loadComponents/loadingScreen.vue";
+import { ref } from "@vue/reactivity";
 
 export default {
   name: "App",
+  components: { LoadingScreen },
   setup() {
     const { setLoggedInUser } = setUser();
+    const showLoading = ref(false);
 
     firebase.auth().onAuthStateChanged(async (u) => {
       if (u) {
         try {
+          showLoading.value = true;
           // token from firebase
           const idToken = await firebase.auth().currentUser.getIdToken();
           // console.log("idToken of the user", idToken);
@@ -29,14 +37,16 @@ export default {
           const onToken = res.data.token;
 
           setLoggedInUser(userDetails, onToken, true);
+          showLoading.value = false;
         } catch (error) {
           console.error("Error has occured while logging in", error);
         }
       } else {
-        // console.log("User not logged in");
         setLoggedInUser(null, null, false);
       }
     });
+
+    return { showLoading };
   },
 };
 </script>

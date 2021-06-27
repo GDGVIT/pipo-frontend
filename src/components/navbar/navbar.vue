@@ -8,9 +8,13 @@
 
       <!-- Routes -->
       <div v-if="isLoggedIn" class="hidden xl:flex xl:items-center">
-        <router-link class="mx-8 ml-16" to="/">Home</router-link>
-        <router-link class="mx-8" to="/posts">My Posts</router-link>
-        <router-link class="mx-8" to="/badges">Badges</router-link>
+        <router-link class="mx-8 ml-16" :to="{ name: 'generalPosts' }"
+          >Home</router-link
+        >
+        <router-link class="mx-8" :to="{ name: 'myPosts' }"
+          >My Posts</router-link
+        >
+        <router-link class="mx-8" :to="{ name: 'badges' }">Badges</router-link>
       </div>
     </div>
 
@@ -30,7 +34,7 @@
 
       <!-- Profile pic -->
       <div class="hidden xl:block">
-        <router-link to="/user/profile">
+        <router-link :to="{ name: 'userProfile' }">
           <Icon v-if="!isLoggedIn" name="profileIcon" />
           <img
             v-if="isLoggedIn"
@@ -69,7 +73,7 @@
       <div class="flex flex-col mt-20 text-center">
         <!-- Profile pic -->
         <div class="grid place-items-center pt-4 pb-10">
-          <router-link to="/user/profile">
+          <router-link :to="{ name: 'userProfile' }">
             <Icon v-if="!isLoggedIn" name="profileIcon" />
             <img
               v-if="isLoggedIn"
@@ -84,11 +88,15 @@
           <DIcon name="challengesIcon" />
           <DIcon name="notificationsIcon" />
         </div>
-        <router-link class="my-10 text-xl font-glight" to="/">Home</router-link>
-        <router-link class="my-10 text-xl font-glight" to="/posts"
+        <router-link
+          class="my-10 text-xl font-glight"
+          :to="{ name: 'generalPosts' }"
+          >Home</router-link
+        >
+        <router-link class="my-10 text-xl font-glight" :to="{ name: 'myPosts' }"
           >My Posts</router-link
         >
-        <router-link class="my-10 text-xl font-glight" to="/badges"
+        <router-link class="my-10 text-xl font-glight" :to="{ name: 'badges' }"
           >Badges</router-link
         >
         <div>
@@ -112,14 +120,15 @@ import firebase from "firebase/app";
 import "firebase/auth";
 
 import { setUser } from "../../composables/auth";
-import { ref, watchEffect } from "vue";
-import { useRouter } from "vue-router";
+import { ref, watch, watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 export default {
   name: "navbar",
   components: { Icon, Dropdown, DIcon },
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const photo = ref(null);
     const showSideBar = ref(false);
     const isToggle = ref(false);
@@ -144,6 +153,8 @@ export default {
     const goToProfile = async () => {
       if (isLoggedIn.value) await router.push("/user");
     };
+
+    watch(route, () => (showSideBar.value = false));
 
     return {
       isLoggedIn,

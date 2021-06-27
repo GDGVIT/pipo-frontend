@@ -7,7 +7,7 @@
     <!-- Title -->
     <div class="text-white text-center font-gheavy">
       <div class="text-4xl md:text-5xl tracking-wide">PiPo Daily</div>
-      <div class="text-xl text-myRed px-10 my-10 font-gregular">
+      <div class="text-xl text-myRed px-10 my-10 font-gbold">
         Add Posts +. Gain Upvotes. Earn Points and Badges.
       </div>
     </div>
@@ -24,7 +24,7 @@
       />
     </div>
 
-    <div v-if="posts.length > 8">
+    <div v-if="showLoadMore">
       <LoadMore @click="loadMore()" />
     </div>
   </div>
@@ -50,7 +50,12 @@ import AddPostModal from "@/components/modals/addPostModal";
 import PostViewModal from "@/components/modals/postViewModal";
 import AddPostBtn from "@/components/post/addPostBtn";
 import { setUser } from "../../composables/auth";
-import { getPosts, resizing } from "../../composables/posts";
+import {
+  getPosts,
+  originalPosts,
+  POSTS_COUNT,
+  resizing,
+} from "../../composables/posts";
 
 const Post = defineAsyncComponent({
   loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
@@ -81,20 +86,25 @@ export default {
     const addPostModal = ref(false);
     const postModal = ref(false);
     const posts = ref([]);
+    const showLoadMore = ref(false);
+
     const masonry = ref(null);
     const { isLoggedIn } = setUser();
     const { loadPosts, filtered, loadMore } = getPosts();
     const { resizeGridItem } = resizing();
+    const { immutablePosts } = originalPosts();
 
     //for the purpose of loading cards
     onMounted(() => {
-      for (let i = 0; i < 8; i++) posts.value.push(null);
+      for (let i = 0; i < 5; i++) posts.value.push(null);
     });
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
         await loadPosts();
         posts.value = filtered.value;
+        if (immutablePosts.general.length > POSTS_COUNT)
+          showLoadMore.value = true;
       }
     });
 
@@ -111,6 +121,7 @@ export default {
       postModal,
       posts,
       loadMore,
+      showLoadMore,
     };
   },
 };

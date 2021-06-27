@@ -33,9 +33,11 @@
           class="relative w-full text-2xl md:text-3xl font-gbold text-center my-2 mx-auto flex break-all"
         >
           <label for="username" class="ml-2 absolute top-0 right-3">
+            <!-- TODO: Look into alignments of tooltips -->
             <Tooltip
               tooltipStyle="w-28"
               text="Edit username. 10 characters long with no spaces in lowercase"
+              alignment=""
             >
               <Icon name="editPencil" />
             </Tooltip>
@@ -45,7 +47,7 @@
             v-click-outside="updateUsernameByClick"
             type="text"
             spellcheck="false"
-            class="bg-myRed w-32 mx-auto text-center break-words focus:outline-none"
+            class="bg-myRed w-40 mx-auto text-center break-words focus:outline-none"
             v-model="usernameRef"
             autocomplete="off"
             id="username"
@@ -207,6 +209,7 @@ import { getUserBadges } from "../../../composables/badges";
 import { getTodos, getInterests } from "../../../composables/activities";
 import Tooltip from "../../../components/tooltips/tooltip";
 import { useToast } from "vue-toastification";
+import { checkUserName } from "../../../composables/posts";
 
 export default {
   components: { Icon, Tooltip },
@@ -273,17 +276,15 @@ export default {
 
     const updateUsernameByClick = () => {
       if (updatingUsername.value) {
-        let re = new RegExp("^[a-z0-9_@./#&+-]{1,10}$");
-
         const curr = profile.value?.user?.userName;
         const next = usernameRef.value;
 
         if (curr !== next) {
-          if (re.test(next)) {
+          if (checkUserName(next)) {
             changeUserDetails({ userName: next });
             updatingUsername.value = false;
           } else {
-            toast.error("Username doesn't match the criteria.");
+            toast.error("Username doesn't match the criteria 🤔.");
           }
         }
       }
