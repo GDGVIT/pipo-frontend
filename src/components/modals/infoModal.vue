@@ -39,7 +39,7 @@
             <div class="font-gbold mb-3">Images and Tags</div>
             <div class="text-sm">
               Spice it up by adding images and tags to your post. This is
-              optional.
+              optional. Only jpg and png images are accepted.
             </div>
           </div>
         </div>

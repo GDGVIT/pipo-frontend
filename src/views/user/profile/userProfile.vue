@@ -1,13 +1,16 @@
 <template>
   <div
-    class="grid grid-rows-5 sm:grid-rows-1 sm:grid-cols-3 lg:grid-cols-4 font-gbold overflow-y-auto overflow-x-hidden h-full "
+    class="grid grid-rows-5 sm:grid-rows-1 sm:grid-cols-3 lg:grid-cols-4 font-gbold overflow-y-auto overflow-x-hidden h-full"
   >
     <!-- Profile -->
     <div
       class="row-span-4 sm:row-span-1 sm:col-span-1 grid grid-rows-3 bg-myRed text-white py-10"
     >
       <!-- Profile pic -->
-      <div class="grid place-items-center">
+      <div class="grid place-items-center relative">
+        <div @click="showPointsInfo = true" class="absolute top-2 right-2">
+          <Icon name="info" />
+        </div>
         <div class="relative">
           <div v-if="profile?.user?.picture">
             <img
@@ -53,26 +56,31 @@
             id="username"
           />
         </div>
-        <div class="font-glight py-3 px-2 w-full break-all text-center">
+        <div class="font-glight py-6 px-2 w-full break-all text-center">
           {{ profile?.user?.email }}
         </div>
-        <div
-          class="font-gbold grid grid-cols-2 place-items-center gap-y-3 m-auto"
-        >
-          <div>Followers</div>
-          <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
-            {{ profile?.followers }}
-          </div>
+        <div class="font-gbold grid gap-y-6 m-auto">
+          <router-link :to="{ name: 'followers' }">
+            <div class="grid grid-cols-2 place-items-center">
+              <div>Followers</div>
+              <div
+                class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs"
+              >
+                {{ profile?.followers }}
+              </div>
+            </div>
+          </router-link>
 
-          <div>Following</div>
-          <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
-            {{ profile?.following }}
-          </div>
-
-          <div>Friends</div>
-          <div class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs">
-            {{ profile?.friends }}
-          </div>
+          <router-link :to="{ name: 'following' }">
+            <div class="grid grid-cols-2 place-items-center">
+              <div>Following</div>
+              <div
+                class="bg-white text-myRed px-2 rounded-full ml-5 my-3 text-xs"
+              >
+                {{ profile?.following }}
+              </div>
+            </div>
+          </router-link>
         </div>
       </div>
     </div>
@@ -86,7 +94,20 @@
           <div class="py-3 font-gbold text-lg">
             Completed Badges
           </div>
-          <router-link to="/user/badges"><Icon name="rightArrow"/></router-link>
+          <router-link :to="{ name: 'completedBadges' }"
+            ><Icon name="rightArrow"
+          /></router-link>
+        </div>
+        <div
+          v-if="noCompleted"
+          class="p-10 bg-red-50 text-myRed font-gbold rounded-md my-5 mb-10"
+        >
+          No badges earned so far. Add posts daily to maintain the streak and
+          one day you will see the badges appear here.
+          <router-link :to="{ name: 'myPosts' }">
+            <u>Forget to post one today?. Do it now!</u>
+          </router-link>
+          😁
         </div>
         <div
           class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-center mt-5 mb-10"
@@ -112,7 +133,7 @@
       <div class="ml-5 pt-6">
         <div class="flex justify-between items-center">
           <div class="py-3 font-gbold text-lg">In Progress Badges</div>
-          <router-link to="/user/in-progress"
+          <router-link :to="{ name: 'inProgressBadges' }"
             ><Icon name="rightArrow"
           /></router-link>
         </div>
@@ -122,8 +143,8 @@
         >
           Looks there's no progress recently😢. Start your journey today.🎲
           Simply add a post with a challenge you like 😍 and you will see your
-          badge📛 being displayed here in progress waiting to be completed. Go
-          try it out!
+          badge being displayed here in progress waiting to be completed. Go try
+          it out!
         </div>
         <div
           class="grid grid-cols-3 gap-3 lg:grid-cols-6 justify-items-center items-center mt-5 mb-10"
@@ -149,7 +170,7 @@
       <div class="ml-5 pt-6 overflow-x-hidden">
         <div class="flex justify-between items-center">
           <div class="py-3 font-gbold text-lg">Interests</div>
-          <router-link to="/user/interests"
+          <router-link :to="{ name: 'interests' }"
             ><Icon name="rightArrow"
           /></router-link>
         </div>
@@ -174,7 +195,7 @@
       <div class="ml-5 pt-6">
         <div class="flex justify-between items-center">
           <div class="py-3 font-gbold text-lg">TodoList</div>
-          <router-link to="/user/todolist"
+          <router-link :to="{ name: 'todolist' }"
             ><Icon name="rightArrow"
           /></router-link>
         </div>
@@ -198,10 +219,17 @@
       </div>
     </div>
   </div>
+  <InfoModal
+    @close="showPointsInfo = false"
+    v-if="showPointsInfo"
+    modal="pointsInfo"
+  />
 </template>
 
 <script>
 import Icon from "@/components/user/userIcons";
+import InfoModal from "@/components/modals/userRelatedInfoModal";
+
 import { getProfile } from "../../../composables/profile";
 import { onMounted, ref, watchEffect } from "vue";
 import { setUser } from "../../../composables/auth";
@@ -212,7 +240,11 @@ import { useToast } from "vue-toastification";
 import { checkUserName } from "../../../composables/posts";
 
 export default {
-  components: { Icon, Tooltip },
+  components: {
+    Icon,
+    Tooltip,
+    InfoModal,
+  },
   setup() {
     const inProgress = ref([]);
     const completed = ref([]);
@@ -220,6 +252,9 @@ export default {
     const updatingUsername = ref(false);
     const noInProgress = ref(true);
     const noCompleted = ref(true);
+
+    const showPointsInfo = ref(false);
+
     const toast = useToast();
 
     const { isLoggedIn } = setUser();
@@ -301,6 +336,7 @@ export default {
       interestList5,
       noInProgress,
       noCompleted,
+      showPointsInfo,
     };
   },
 };

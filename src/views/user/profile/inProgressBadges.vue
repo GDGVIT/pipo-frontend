@@ -60,9 +60,10 @@ export default {
     const { isLoggedIn } = setUser();
     const inProgress = ref([]);
 
-    onMounted(() => {
+    onMounted(async () => {
       if (inProgress.value.length === 0)
         for (let i = 0; i < 15; i++) inProgress.value.push({});
+      await loadInProgress();
     });
 
     const showInProgress = (inp) => {
@@ -74,9 +75,8 @@ export default {
       }
     };
 
-    watchEffect(async () => {
+    watchEffect(() => {
       if (isLoggedIn.value) {
-        if (getInProgress.value.length === 0) await loadInProgress();
         showInProgress(getInProgress.value);
       }
     });

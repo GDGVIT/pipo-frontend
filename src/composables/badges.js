@@ -80,7 +80,6 @@ const getUserBadges = () => {
         badge.identicon = generateIdenticon(badge.badgeName)
         return badge
       })
-      console.log('completed badges', completedBadges)
       completed.value = completedBadges
     } catch (error) {
       console.log('Error while retrieving completed badges', error)

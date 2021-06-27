@@ -24,14 +24,13 @@
         </div>
       </div>
       <!-- Content -->
-      <div class="pt-3 pb-8 text-center md:text-left md:col-span-3">
+      <div class="pt-3 pb-8 text-center md:text-left md:col-span-3 md:ml-4">
         <div class="font-gbold text-4xl md:text-5xl py-5">
           {{ randomUser?.user?.userName }}
         </div>
         <div class="text-sm">
           <span class="pr-2">Following : {{ randomUser?.following }}</span>
           <span class="p-2">Followers : {{ randomUser?.followers }}</span>
-          <span class="p-2">Friends : {{ randomUser?.friends }}</span>
         </div>
         <div v-if="randomUser" class="mt-5">
           <div v-if="randomUser?.user?.tags.length > 0" class="text-xs">
@@ -47,27 +46,37 @@
         </div>
         <div v-if="randomUser" class="pt-6">
           <button
-            @click="followThisPerson($route.params.userId)"
+            v-if="!isFollowing"
+            @click="follow()"
             class="bg-myBlue px-4 py-1 font-gbold rounded-sm mr-2"
           >
             Follow
           </button>
-          <button
-            @click="makeFriend($route.params.userId)"
-            class="bg-myRed px-4 py-1 font-gbold rounded-sm ml-2"
+          <div
+            v-if="isFollowing"
+            class="bg-myRed inline-block px-4 py-1 font-gbold rounded-sm mr-2"
           >
-            Friend
-          </button>
+            Following
+          </div>
         </div>
       </div>
     </div>
     <!-- Bottom -->
+    <div
+      v-if="!userPosts.length"
+      class="mt-16 text-center font-gbold p-8 text-lg bg-myBlue rounded-sm sm:w-1/2 mx-auto text-white animate-floating"
+    >
+      This user hasn't posted anything yet 🤔. But you can! 😁. Add a new post
+      and select any challenge you would like to work on and earn badges.🔥
+    </div>
     <div ref="masonry" class="posts-container">
       <Post
         v-for="(post, index) in userPosts"
         :key="index"
         :masonry="masonry"
         :post="post"
+        data-aos="fade-up"
+        :data-aos-delay="index * 100"
         class="post"
         :index="index"
         @click="userPostModal = true"
@@ -120,6 +129,7 @@ export default {
     const randomUser = ref(null);
     const showLoadMore = ref(false);
     const u = ref(null);
+    const isFollowing = ref(false);
 
     const { isLoggedIn } = setUser();
     const route = useRoute();
@@ -127,7 +137,6 @@ export default {
     const { loadUserPosts, loadMore, randomUserPosts } = getPostsOfUser();
     const {
       followThisPerson,
-      makeFriend,
       getRandomUserProfile,
       randomUserDetails,
     } = socialCircle();
@@ -152,8 +161,17 @@ export default {
 
         if (immutablePosts.randomUser.length > POSTS_COUNT)
           showLoadMore.value = true;
+
+        if (randomUser.value?.amIFollowing)
+          isFollowing.value = randomUser.value?.amIFollowing;
       }
     });
+
+    const follow = async () => {
+      const userId = route.params.userId;
+      const result = await followThisPerson(userId);
+      if (result === 0) isFollowing.value = true;
+    };
 
     watch(randomUserPosts, () => (userPosts.value = randomUserPosts.value));
 
@@ -163,11 +181,11 @@ export default {
       userPostModal,
       userPosts,
       masonry,
-      followThisPerson,
-      makeFriend,
       randomUser,
       loadMore,
+      follow,
       showLoadMore,
+      isFollowing,
     };
   },
 };

@@ -11,7 +11,7 @@
         <router-link class="mx-8 ml-16" :to="{ name: 'generalPosts' }"
           >Home</router-link
         >
-        <router-link class="mx-8" :to="{ name: 'myPosts' }"
+        <router-link class="mx-8 whitespace-nowrap" :to="{ name: 'myPosts' }"
           >My Posts</router-link
         >
         <router-link class="mx-8" :to="{ name: 'badges' }">Badges</router-link>
@@ -33,7 +33,7 @@
       </div>
 
       <!-- Profile pic -->
-      <div class="hidden xl:block">
+      <div class="hidden xl:block w-12 h-12">
         <router-link :to="{ name: 'userProfile' }">
           <Icon v-if="!isLoggedIn" name="profileIcon" />
           <img
@@ -48,7 +48,7 @@
       <!-- Sign out -->
       <div class="hidden xl:block">
         <button
-          class="text-myRed text-sm ml-7 pr-4 py-2 cursor-pointer hover:opacity-90 rounded-sm"
+          class="text-myRed text-sm ml-7 pr-4 py-2 cursor-pointer hover:opacity-90 rounded-sm whitespace-nowrap"
           @click="signOutUser()"
         >
           Sign Out
@@ -154,7 +154,10 @@ export default {
       if (isLoggedIn.value) await router.push("/user");
     };
 
-    watch(route, () => (showSideBar.value = false));
+    watch(
+      () => route.name,
+      () => (showSideBar.value = false)
+    );
 
     return {
       isLoggedIn,

@@ -29,6 +29,8 @@
         :key="index"
         :masonry="masonry"
         :post="post"
+        data-aos="fade-up"
+        :data-aos-delay="index * 100"
         class="post"
         :index="index"
         @click="myPostModal = true"
@@ -37,7 +39,7 @@
 
     <div
       v-if="!myPosts.length"
-      class="mt-16 text-center font-gbold p-8 text-lg bg-myBlue rounded-sm sm:w-1/2 mx-auto text-white"
+      class="my-16 text-center font-gbold p-8 text-lg bg-myBlue rounded-sm sm:w-1/2 mx-auto text-white animate-floating"
     >
       You haven't posted anything yet 😗. Add a new post and select any
       challenge you would like to work on and earn badges.🔥

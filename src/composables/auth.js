@@ -16,7 +16,7 @@ const setUser = () => {
   const setLoggedInUser = (userDetails, token, logged) => {
     try {
       user.value = userDetails
-      user.value.userName = validateUserName(user.value.userName)
+      if (user.value?.userName) { user.value.userName = validateUserName(user.value.userName) }
 
       isLoggedIn.value = logged
       config.value.headers.Authorization = token

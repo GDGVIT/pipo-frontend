@@ -1,6 +1,5 @@
 <template>
-  <!-- TODO: Make filter work with load more -->
-  <div class="relative w-60 sm:w-96">
+  <div class="relative w-full md:w-l3 mx-4">
     <DropdownFocus @keyup="slashSearch" />
     <div class="flex items-center">
       <input
@@ -15,21 +14,8 @@
         placeholder="Search (Press / to focus)"
         ref="search"
       />
-      <div @click="fixSearch()">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-6 h-6 ml-2 cursor-pointer hover:enlarge"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
+      <div @click="fixSearch()" class="enlarge">
+        <Icon name="search" />
       </div>
     </div>
 
@@ -74,6 +60,7 @@
 
 <script>
 import Fuse from "fuse.js";
+import Icon from "./navIcons.vue";
 import DropdownFocus from "./dropdownFocus.vue";
 import { ref, watchEffect } from "vue";
 import { onBeforeRouteUpdate, useRoute } from "vue-router";
@@ -81,7 +68,7 @@ import { originalPosts, updateFuse } from "../../composables/posts";
 import { setUser } from "../../composables/auth";
 
 export default {
-  components: { DropdownFocus },
+  components: { DropdownFocus, Icon },
   setup() {
     const query = ref("");
     const searchPosts = ref([]);
@@ -104,16 +91,18 @@ export default {
       keys: ["badgeName", "title", "description", "tags"],
     };
 
+    const setPosts = () => {
+      if (route.name === "generalPosts")
+        mainPosts.value = immutablePosts.general;
+      else if (route.name === "myPosts") mainPosts.value = immutablePosts.mine;
+      else if (route.name === "randomUserPosts")
+        mainPosts.value = immutablePosts.randomUser;
+      fuse = new Fuse(mainPosts.value, options);
+    };
+
     watchEffect(() => {
       if (isLoggedIn.value) {
-        console.log("Setting posts...", immutablePosts);
-        if (route.name === "generalPosts")
-          mainPosts.value = immutablePosts.general;
-        else if (route.name === "myPosts")
-          mainPosts.value = immutablePosts.mine;
-        else if (route.name === "randomUserPosts")
-          mainPosts.value = immutablePosts.randomUser;
-        fuse = new Fuse(mainPosts.value, options);
+        setPosts();
       }
     });
 
@@ -173,6 +162,7 @@ export default {
       mainPosts,
       fixSearch,
       showPost,
+      setPosts,
       showAll,
     };
   },

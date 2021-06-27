@@ -7,8 +7,8 @@
     <!-- Title -->
     <div class="text-white text-center font-gheavy">
       <div class="text-4xl md:text-5xl tracking-wide">PiPo Daily</div>
-      <div class="text-xl text-myRed px-10 my-10 font-gbold">
-        Add Posts +. Gain Upvotes. Earn Points and Badges.
+      <div class="text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
+        Add Posts. Gain Upvotes. Earn Points and Badges.
       </div>
     </div>
     <div ref="masonry" class="posts-container">
@@ -17,6 +17,8 @@
         v-for="(post, index) in posts"
         :masonry="masonry"
         :key="index"
+        data-aos="fade-up"
+        :data-aos-delay="index * 100"
         class="post"
         :post="post"
         :index="index"

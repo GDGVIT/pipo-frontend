@@ -2,12 +2,19 @@
   <div class="px-10 py-5 h-full relative">
     <!-- Go back -->
     <router-link to="/user/profile">
-      <LeftArrow name="leftArrow" class="absolute top-10 left-24" />
+      <Icon name="leftArrow" class="absolute top-10 left-24" />
     </router-link>
 
     <!-- Intro -->
     <div class="text-center font-glight">
-      <div class="text-2xl md:text-3xl font-gbold my-4">Completed Badges</div>
+      <div
+        class="flex justify-center items-center text-2xl md:text-3xl font-gbold my-4"
+      >
+        <span>Completed Badges</span>
+        <div class="mx-4" @click="showCompletedInfo = true">
+          <Icon name="info" />
+        </div>
+      </div>
       <div class="my-8">
         These are the badges you have achieved so far!. Flaunt them in front of
         your friends. You deserve these badges!
@@ -42,42 +49,50 @@
       </div>
     </div>
   </div>
+  <!-- Info modal for completed badges -->
+  <InfoModal
+    @close="showCompletedInfo = false"
+    v-if="showCompletedInfo"
+    modal="completedBadgesInfo"
+  />
 </template>
 
 <script>
-import LeftArrow from "@/components/user/userIcons";
+import Icon from "@/components/user/userIcons";
+import InfoModal from "@/components/modals/userRelatedInfoModal";
 import { getUserBadges } from "../../../composables/badges";
 import { onMounted, ref, watchEffect } from "vue";
 import { setUser } from "../../../composables/auth";
 
 export default {
-  components: { LeftArrow },
+  components: { Icon, InfoModal },
   setup() {
     const completed = ref([]);
     const { isLoggedIn } = setUser();
     const { loadCompleted, getCompleted } = getUserBadges();
+    const showCompletedInfo = ref(false);
 
-    onMounted(() => {
+    onMounted(async () => {
       if (completed.value.length === 0)
-        for (let i = 0; i < 15; i++) completed.value.push(null);
+        for (let i = 0; i < 15; i++) completed.value.push({});
     });
 
     const showCompleted = (cp) => {
       if (cp) {
         const len = cp.length > 15 ? cp.length : 15;
-        console.log("completed", completed.value);
         for (let i = 0; i < len; i++) completed.value[i] = cp[i] ? cp[i] : {};
       }
     };
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
-        if (getCompleted.value.length === 0) await loadCompleted();
+        await loadCompleted();
+        console.log("I'm here!");
         showCompleted(getCompleted.value);
       }
     });
 
-    return { completed };
+    return { completed, showCompletedInfo };
   },
 };
 </script>

@@ -1,9 +1,10 @@
 <template>
-  <div v-if="!latestPost">
+  <div v-if="!latestPost" data-aos="fade-up">
     <LoadingMyLatestPost :masonry="masonry" />
   </div>
   <div
     v-else
+    data-aos="fade-up"
     class="post bg-myRed text-white font-glight p-9 pb-6 relative sm:rounded-md"
   >
     <div class="flex justify-between">

@@ -5,7 +5,7 @@
       <Background name="login-bg" class="login-bg" />
 
       <!-- Logo -->
-      <LoginSVG data-aos="fade-up" name="pipoLogo" />
+      <LoginSVG name="pipoLogo" />
 
       <!-- Penguin -->
       <div class="pipo-penguin">
@@ -38,33 +38,31 @@
           #
           <span id="days" class="text-7xl text-myRed">100</span>
           Days of
-          <span id="X" class="transition-opacity opacity-0 text-7xl text-myRed "
-            >X</span
-          >
+          <span class="text-7xl text-myRed ">X</span>
         </div>
       </div>
     </div>
-    <section id="details">
+    <section>
       <div
-        class="grid place-items-center lg:grid-cols-2 bg-myRed my-5 font-gbold"
+        class="grid place-items-center lg:grid-cols-2 bg-gray-100 py-5 font-gbold"
       >
-        <div class="m-10">
-          <div class="text-white text-4xl sm:text-6xl font-gbold">
+        <div class="m-10" data-aos="fade-right">
+          <div class="text-4xl sm:text-6xl font-gbold p-10">
             Post More. Gain Upvotes. Earn Badges and Points.
           </div>
-          <div class="my-8">
+          <div class="my-8 ml-10 inline-block border-2 border-gray-500">
             <LoginButton @click="signIn()" />
           </div>
         </div>
 
         <div class="animate-floating relative my-10">
-          <div class="absolute">
+          <div class="absolute" data-aos="fade-left">
             <Post
               :post="temporaryPost"
               class="w-l1 transform sm:rotate-12 sm:scale-90 z-10"
             />
           </div>
-          <div class="animate-floating relative right-56">
+          <div class="animate-floating relative right-56" data-aos="fade-left">
             <Post
               :post="temporaryPost"
               class="w-l1 transform sm:-rotate-12 scale-0 sm:scale-50"
@@ -75,7 +73,7 @@
     </section>
 
     <!-- footer -->
-    <div class="w-full my-3">
+    <div class="w-full py-3 bg-gray-100">
       <MadeWithLove />
     </div>
   </div>
@@ -132,21 +130,6 @@ export default {
         innerHTML: [0, 100],
         duration: 5000,
         round: 1,
-      });
-
-      const t = anime.timeline({
-        easing: "easeOutExpo",
-        targets: "#X",
-        duration: 2000,
-      });
-
-      t.add({
-        innerHTML: "good",
-        keyframes: [
-          { opacity: 1, translateY: 250 },
-          { opacity: 0, translateY: -250 },
-          { opacity: 1, translateY: 250 },
-        ],
       });
     });
 

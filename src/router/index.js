@@ -83,7 +83,7 @@ const routes = [
             path: 'calendar/:challengeId',
             component: () =>
               import(
-                /* webpackChunkName: "inProgressBadges" */ '../views/user/profile/Calendar.vue'
+                /* webpackChunkName: "calendar" */ '../views/user/profile/Calendar.vue'
               )
           },
           {
@@ -92,6 +92,22 @@ const routes = [
             component: () =>
               import(
                 /* webpackChunkName: "inProgressBadges" */ '../views/user/profile/inProgressBadges.vue'
+              )
+          },
+          {
+            name: 'followers',
+            path: 'followers',
+            component: () =>
+              import(
+                /* webpackChunkName: "followers" */ '../views/user/profile/followers.vue'
+              )
+          },
+          {
+            name: 'following',
+            path: 'following',
+            component: () =>
+              import(
+                /* webpackChunkName: "following" */ '../views/user/profile/following.vue'
               )
           }
         ]

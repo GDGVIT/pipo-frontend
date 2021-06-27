@@ -9,13 +9,13 @@
       <div v-if="badge" class="text-center">
         <div class="text-3xl text-myBlue">{{ badge.badgeName }}</div>
         <div
-          class="bg-myRed px-2 py-1 text-white my-2 rounded-full w-60 mx-auto"
+          class="bg-myRed px-2 py-1 text-white my-2 text-xs rounded-full w-40 mx-auto"
         >
           {{ badge.days }} Days Challenge
         </div>
       </div>
       <!-- message -->
-      <div class="text-2xl text-gray-700 text-center my-4">
+      <div class="text-gray-700 text-center my-4">
         <div v-if="!daysRemaining">
           Yayy! 🎉 You have successfully completed this challenge
         </div>
@@ -23,7 +23,7 @@
       </div>
     </div>
     <!-- Days -->
-    <div class="h-56 sm:h-64 lg:h-72 overflow-y-auto my-6">
+    <div class="h-72 sm:h-80 overflow-y-auto my-6">
       <div
         class="grid grid-cols-11 place-items-center break-all"
         v-for="(post, index) in streakPosts"
@@ -89,6 +89,7 @@ export default {
     watchEffect(async () => {
       if (isLoggedIn.value) {
         // Get badge details
+        console.log("challengeId being sent", challengeId);
         badge.value = await badgeDetails(challengeId);
         await loadChallengePosts(challengeId);
       }

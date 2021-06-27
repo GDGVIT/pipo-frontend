@@ -13,7 +13,7 @@
         </div>
       </div>
       <!-- Add your interest -->
-      <div class="w-96 my-7 relative m-auto">
+      <div class="w-96 my-7 relative m-auto" data-aos="fade-up">
         <textarea
           class="shadow-md rounded-lg focus:outline-none resize-none p-5"
           cols="40"
@@ -40,6 +40,7 @@
         <div
           v-if="interestList.length === 0"
           class="md:w-2/3 m-auto mt-10 text-center"
+          data-aos="fade-up"
         >
           No interests as of now.😭 Why not type some, it helps you connect with
           people 🧑 who share the same passion 🔥 as you. Keep it minimal and
@@ -51,6 +52,7 @@
           class="inline-block bg-myRed text-white mr-3 rounded-md px-3 py-1 my-1"
           v-for="(interest, index) in interestList"
           :key="index"
+          data-aos="zoom-in"
         >
           <div class="flex items-center justify-between">
             <span class="font-gbold">{{ interest }}</span>

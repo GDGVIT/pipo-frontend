@@ -15,7 +15,7 @@
       </div>
       <!-- Create a todo -->
       <div>
-        <div class="w-2/3 my-7 relative m-auto">
+        <div class="w-2/3 my-7 relative m-auto" data-aos="fade-up">
           <textarea
             class="shadow-md rounded-lg focus:outline-none resize-none p-5 w-full"
             rows="1"
@@ -41,9 +41,10 @@
         >
           <Icon name="bin" />
         </div>
-        <!-- If no interests -->
+        <!-- If no todos -->
         <div
           v-if="todolist.length === 0"
+          data-aos="fade-up"
           class="md:w-2/3 m-auto text-center font-gbold p-6 rounded-md bg-myRed text-white"
         >
           Get a hold of your tasks and work at your peak performance 🔥. List
@@ -62,6 +63,7 @@
             class="post font-gbold rounded-lg bg-myRed text-white"
             v-for="(todo, index) in todolist"
             :key="index"
+            data-aos="zoom-in"
           >
             <div class="relative px-8 py-5">
               <span>{{ todo }}</span>
