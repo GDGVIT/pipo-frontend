@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-70 backdrop-filter backdrop-blur-3xl"
+    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-0 backdrop-filter backdrop-blur-3xl"
   />
   <!-- Confetti background -->
   <canvas
@@ -18,49 +18,26 @@
       <Icon name="close" />
     </span>
     <div>
-      <div class="text-3xl font-gbold flex items-center">
-        <span>Add a Post 🔖</span>
+      <div class="text-3xl font-gbold flex items-center mb-10">
+        <span>Update Post</span>
         <div @click="showInfo = true">
           <Icon name="info" />
         </div>
       </div>
-      <div class="my-6">
-        Record your experience with people around the world!. Select the
-        challenge you wish to conquer!. Along with that enter the title,
-        description and atleast one image of your work. Be creative with your
-        words. As most upvoted posts get to be in the main page!
-      </div>
     </div>
     <div>
       <div class="grid sm:grid-cols-4 gap-4 md:px-10 items-center">
-        <label for="challenge">Challenge</label>
+        <label for="challenge">Challenge Selected</label>
         <div class="col-span-3 relative">
           <input
             id="challengeInput"
             type="text"
             autocomplete="off"
-            v-model="challengeTyped"
             class="input-border pl-4 py-1 focus:outline-none font-gregular"
             placeholder="Search"
-            @focus="loadAll()"
-            @blur="updatedChallenges = []"
+            :value="post?.badgeName"
+            readonly
           />
-          <label for="challengeInput" class="absolute top-3 right-2">
-            <ModalSVG name="downArrow" />
-          </label>
-          <ul
-            v-if="updatedChallenges.length"
-            class="absolute w-full top-9 overflow-y-auto max-h-40 bg-white rounded-sm border border-gray-200 transition-transform p-2"
-          >
-            <li
-              class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-myBlue"
-              v-for="(challenge, index) in updatedChallenges"
-              :key="index"
-              @mousedown="submitChallenge(challenge)"
-            >
-              {{ challenge.badgeName }}
-            </li>
-          </ul>
         </div>
         <label for="title">Title</label>
         <input
@@ -121,7 +98,7 @@
             <span class="text-xs text-white">Image +</span>
           </label>
           <div
-            v-if="post.post"
+            v-if="post.post.name"
             class="bg-myBlue text-white px-2 py-1 text-xs ml-4 rounded-md"
           >
             {{ post.post.name }}
@@ -141,13 +118,13 @@
           class="tracking-widest text-sm font-gbold text-myRed px-3 py-2 border-2 border-myRed rounded-full"
           type="submit"
         >
-          POST
+          UPDATE
         </button>
       </div>
       <div v-if="confirmation" class="text-center mt-10">
-        <div class="font-gbold text-myRed">You sure?</div>
+        <div class="font-gbold text-myRed">Should I Update?</div>
         <div class="mb-6 text-xs text-gray-500">
-          Don't worry you can always update or delete them later
+          Don't worry you can update your posts as many times as you want.
         </div>
         <div class="flex justify-center gap-10 font-gbold">
           <div>
@@ -155,7 +132,7 @@
               @click="onSubmit()"
               class="text-myBlue border-2 border-myBlue p-2 rounded-md"
             >
-              Confirm
+              Yes
             </button>
           </div>
           <div class="text-myRed border-2 border-myRed p-2 rounded-md">
@@ -165,19 +142,23 @@
           </div>
         </div>
       </div>
+
+      <!-- Info modal for update post -->
+      <InfoModal
+        @close="showInfo = false"
+        v-if="showInfo"
+        modal="updatePostInfo"
+      />
     </div>
   </div>
-  <!-- Info modal for add post -->
-  <InfoModal @close="showInfo = false" v-if="showInfo" modal="addPostInfo" />
 </template>
 
 <script>
 import ModalSVG from "./modalSVG";
 import ConfettiGenerator from "confetti-js";
 import Icon from "../post/postSVG";
-import { getBadges } from "../../composables/badges";
-import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { addPostFn } from "../../composables/posts";
+import { onBeforeUnmount, reactive, ref, watchEffect } from "vue";
+import { addPostFn, postModalFn } from "../../composables/posts";
 import InfoModal from "../../components/modals/infoModal";
 import { useToast } from "vue-toastification";
 
@@ -185,16 +166,12 @@ export default {
   components: { ModalSVG, Icon, InfoModal },
   emits: ["closeModal"],
   setup() {
-    const { getAllBadges, loadBadges } = getBadges();
-    const challenges = ref([]);
-    const updatedChallenges = ref([]);
-
     const confirmation = ref(false);
     const showInfo = ref(false);
     const toast = useToast();
 
-    const challengeTyped = ref(null);
     const tag = ref("");
+    const { getCurrentPost } = postModalFn();
 
     const post = reactive({
       title: null,
@@ -202,24 +179,22 @@ export default {
       badgeName: null,
       post: null,
       tags: [],
+      postId: null,
+    });
+
+    watchEffect(() => {
+      if (getCurrentPost.value) {
+        const p = getCurrentPost.value;
+        post.title = p.title;
+        post.description = p.description;
+        post.badgeName = p.badgeName;
+        post.post = p.image[0];
+        post.tags = p.tags;
+        post.postId = p.postId;
+      }
     });
 
     let confetti = null;
-
-    onMounted(async () => {
-      challenges.value = getAllBadges.value;
-      if (challenges.value.length === 0) await loadBadges();
-    });
-
-    watch(challengeTyped, () => {
-      updatedChallenges.value = challenges.value.filter((badge) =>
-        badge.badgeName
-          .toLowerCase()
-          .includes(challengeTyped.value?.toLowerCase())
-      );
-    });
-
-    const loadAll = () => (updatedChallenges.value = getAllBadges.value);
 
     const addTag = () => {
       post.tags.push(tag.value);
@@ -230,14 +205,8 @@ export default {
       post.post = event.target.files[0];
     };
 
-    const submitChallenge = (challenge) => {
-      post.badgeName = challenge.badgeName;
-      challengeTyped.value = challenge.badgeName;
-      updatedChallenges.value = [];
-    };
-
     const onSubmit = async () => {
-      const res = await addPostFn(post, "POST");
+      const res = await addPostFn(post, "PATCH");
 
       const confettiSettings = {
         target: "confetti-holder",
@@ -248,7 +217,7 @@ export default {
       if (res === 0) {
         confetti = new ConfettiGenerator(confettiSettings);
         confetti.render();
-        toast.success("Yayy! another day another post!🥳");
+        toast.success("Post updated!🥳. Refresh the page to see the changes");
       }
     };
 
@@ -258,11 +227,7 @@ export default {
       tag,
       addTag,
       confirmation,
-      loadAll,
-      challengeTyped,
-      updatedChallenges,
       post,
-      submitChallenge,
       onSelectImage,
       onSubmit,
       showInfo,

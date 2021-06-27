@@ -39,7 +39,7 @@
     </div>
     <!-- Available -->
     <div>
-      <div class="text-xl text-myBlue font-gbold mt-4">Available</div>
+      <div class="text-xl text-myBlue font-gbold mt-4">Remaining Available</div>
 
       <div
         class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 place-items-center h-36 overflow-auto"

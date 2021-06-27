@@ -134,7 +134,7 @@ const myPostsFn = () => {
 }
 
 // ADD POST
-const addPostFn = async (data) => {
+const addPostFn = async (data, type) => {
   const { config, user } = setUser()
   const error = ref(null)
 
@@ -163,20 +163,38 @@ const addPostFn = async (data) => {
     formData.append('title', data.title)
     formData.append('description', data.description)
     formData.append('badgeName', data.badgeName)
+    formData.append('post', data.post)
 
     console.log('Data from add post', data)
 
-    const result = await api.post('/posts', formData, config.value)
-    console.log('result', result)
+    if (type === 'POST') {
+      const result = await api.post('/posts', formData, config.value)
+      console.log('result', result)
 
-    const postCreated = filterMyPost(
-      result.data.response.postCreated,
-      user.value?.userName
-    )
+      const postCreated = filterMyPost(
+        result.data.response.postCreated,
+        user.value?.userName
+      )
 
-    console.log('postCreated', postCreated)
-    posts.mine.unshift(postCreated)
-    latestPost.value = postCreated
+      console.log('postCreated', postCreated)
+      posts.mine.unshift(postCreated)
+      latestPost.value = postCreated
+    } else if (type === 'PATCH') {
+      if (data.postId) {
+        const result = await api.patch(
+          `/posts/${data.postId}`,
+          formData,
+          config.value
+        )
+        console.log('updated result', result)
+
+        if (!result.data.response.update) {
+          throw new Error(
+            "Couldn't update the post try again after sometime😕"
+          )
+        }
+      }
+    }
 
     return 0
   } catch (err) {
@@ -298,13 +316,31 @@ const postModalFn = () => {
     }
   }
 
+  const deletePost = async (postId) => {
+    try {
+      if (postId) {
+        const result = await api.delete(`/posts/${postId}`, config.value)
+        const outcome = result.data.response.deleted
+        if (outcome && outcome === 1) {
+          toast.info(
+            "Post deleted successfully! Don't forget to add a new post to maintain your streak 😗. Refresh the page to see the changes"
+          )
+        }
+      }
+    } catch (error) {
+      console.log('Error while deleting this post from backend', error)
+      err.value = 'Some issue with deleting posts. Try again after sometime😣'
+    }
+  }
+
   return {
     getCurrentPost,
     getNextPost,
     getPrevPost,
     openPost,
     vote,
-    assignIndex
+    assignIndex,
+    deletePost
   }
 }
 
