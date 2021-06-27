@@ -21,8 +21,7 @@
 
       <!-- Login button -->
       <div
-        data-aos="fade-up"
-        class="absolute top-1/4 left-1/3 transform -translate-x-1/2 md:top-8 md:translate-x-0 md:right-10 md:left-auto"
+        class="absolute top-1/4 w-full grid place-items-center md:w-auto md:top-8 md:translate-x-0 md:right-10 md:left-auto"
       >
         <div class="font-gbold text-3xl text-white text-center mb-6 md:hidden">
           Login
@@ -113,7 +112,7 @@ export default {
 
     const temporaryPost = {
       postId: 1,
-      title: "A PiPo Post Card",
+      title: "A PiPo Post Card Title",
       image: ["https://i.imgur.com/HuNalGN.png"],
       description:
         "Enter some spicy content here. Maybe some latest framework or some tips to reduce fat or increase productivity. Your imagination is the limit!",
@@ -121,7 +120,7 @@ export default {
       tags: ["spicy🔥", "tag your content here"],
       username: "username",
       upvotes: ["1", "2", "3"],
-      points: "200 Points",
+      points: "200",
     };
 
     onMounted(() => {

@@ -2,7 +2,7 @@
   <div class="px-10 py-5 h-full relative">
     <!-- Go back -->
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-10 left-20" />
+      <Icon name="leftArrow" class="absolute top-10 left-10" />
     </router-link>
     <div class="font-glight">
       <!-- Introduction -->
@@ -13,9 +13,9 @@
         </div>
       </div>
       <!-- Add your interest -->
-      <div class="w-96 my-7 relative m-auto" data-aos="fade-up">
+      <div class="w-11/12 md:w-2/3 my-7 relative m-auto" data-aos="fade-up">
         <textarea
-          class="shadow-md rounded-lg focus:outline-none resize-none p-5"
+          class="shadow-md rounded-lg focus:outline-none resize-none p-5 w-full"
           cols="40"
           rows="3"
           placeholder="Enter your interest here.."

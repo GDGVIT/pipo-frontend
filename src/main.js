@@ -48,4 +48,4 @@ const app = createApp(App)
   .directive('click-outside', clickOutside)
   .mount('#app')
 
-app.AOS = new AOS.init()
+app.AOS = AOS.init()

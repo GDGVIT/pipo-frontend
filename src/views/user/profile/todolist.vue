@@ -2,7 +2,7 @@
   <div class="px-10 py-5 h-full relative">
     <!-- Go back -->
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-10 left-20" />
+      <Icon name="leftArrow" class="absolute top-10 left-10" />
     </router-link>
     <div class="font-glight">
       <!-- Introduction -->
@@ -15,7 +15,7 @@
       </div>
       <!-- Create a todo -->
       <div>
-        <div class="w-2/3 my-7 relative m-auto" data-aos="fade-up">
+        <div class="w-11/12 md:w-2/3 my-7 relative m-auto" data-aos="fade-up">
           <textarea
             class="shadow-md rounded-lg focus:outline-none resize-none p-5 w-full"
             rows="1"
@@ -33,7 +33,7 @@
       </div>
 
       <!-- Todolist -->
-      <div class="break-words text-black rounded-md h-72 overflow-y-auto p-10">
+      <div class="break-words text-black rounded-md h-72 overflow-y-auto py-10">
         <!-- Delete all -->
         <div
           class="absolute top-10 right-10 bg-white text-black rounded-full"
@@ -45,11 +45,10 @@
         <div
           v-if="todolist.length === 0"
           data-aos="fade-up"
-          class="md:w-2/3 m-auto text-center font-gbold p-6 rounded-md bg-myRed text-white"
+          class="w-full md:w-2/3 m-auto text-center font-gbold p-6 overflow-y-auto h-40 rounded-md bg-myRed text-white"
         >
-          Get a hold of your tasks and work at your peak performance 🔥. List
-          them down here and work on them from time to time. Avoiding burning
-          out 💣 and keep your todos and small as possible
+          Work at your peak performance 🔥. List your tasks down here and work
+          on them from time to time.
           <div class="text-right mt-2">
             Your cute lil guy PiPo 🐧
           </div>
