@@ -1,7 +1,7 @@
 <template>
   <!-- Profile Icon -->
   <svg
-    class="w-12 h-12 rounded-full mx-4"
+    class="w-12 h-12 rounded-full"
     v-if="name === 'profileIcon'"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 44 44"

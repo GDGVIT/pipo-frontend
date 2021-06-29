@@ -22,6 +22,9 @@
         <AddPostBtn />
       </div>
     </div>
+
+    <!-- Confetti background -->
+    <canvas id="confetti-holder" class="fixed top-0 w-full h-full -z-5" />
     <!-- Bottom cards -->
     <div ref="masonry" class="posts-container">
       <Post
@@ -49,9 +52,17 @@
       <LoadMore @click="loadMore()" />
     </div>
 
-    <AddPostModal v-if="addPostModal" @closeModal="addPostModal = false" />
+    <AddPostModal
+      v-if="addPostModal"
+      @confetti="showConfetti = true"
+      @closeModal="addPostModal = false"
+    />
 
-    <PostViewModal v-if="myPostModal" @close="myPostModal = false" />
+    <PostViewModal
+      v-if="myPostModal"
+      @confetti="showConfetti = true"
+      @close="myPostModal = false"
+    />
   </div>
 </template>
 
@@ -60,6 +71,7 @@ import LoadMore from "@/components/loadComponents/loadMore";
 import PostViewModal from "@/components/modals/postViewModal";
 import AddPostBtn from "@/components/post/addPostBtn";
 import AddPostModal from "@/components/modals/addPostModal";
+import ConfettiGenerator from "confetti-js";
 
 import {
   myPostsFn,
@@ -69,6 +81,7 @@ import {
 } from "../../composables/posts";
 import {
   defineAsyncComponent,
+  onBeforeUnmount,
   onMounted,
   onUpdated,
   ref,
@@ -122,6 +135,44 @@ export default {
 
     watch(filtered, () => (myPosts.value = filtered.value));
 
+    // For confetti showcase
+    const showConfetti = ref(false);
+    let confettiInterval = null;
+    let confetti = null;
+    const confettiSettings = {
+      target: "confetti-holder",
+      max: 150,
+      rotate: true,
+    };
+
+    const runConfetti = () => {
+      let time = 5;
+      confetti = new ConfettiGenerator(confettiSettings);
+      confetti.render();
+      confettiInterval = setInterval(() => {
+        if (!time) {
+          showConfetti.value = false;
+          confetti.clear();
+          clearInterval(confettiInterval);
+        }
+        console.log("Showing confetti for ", time);
+        time--;
+      }, 1000);
+    };
+
+    watch(showConfetti, () => {
+      if (showConfetti.value) {
+        runConfetti();
+      }
+    });
+
+    onBeforeUnmount(() => {
+      if (confettiInterval) {
+        clearInterval(confettiInterval);
+        showConfetti.value = false;
+      }
+    });
+
     return {
       myPosts,
       myPostModal,
@@ -130,6 +181,7 @@ export default {
       masonry,
       user,
       showLoadMore,
+      showConfetti,
     };
   },
 };

@@ -4,7 +4,7 @@
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
   />
   <div
-    class="fixed bg-white text-black z-20 h-5/6 top-24 left-0 right-0 sm:left-10 sm:right-10 md:w-3/4 md:m-auto lg:w-2/3 font-glight"
+    class="postViewModal fixed bg-white text-black z-20 h-5/6 top-24 left-0 right-0 sm:left-10 sm:right-10 md:w-3/4 md:m-auto lg:w-2/3 font-glight"
   >
     <div v-if="!isCommentActive" class="relative">
       <div class="absolute top-64 left-5 arrow-bounce" @click="prev()">
@@ -71,7 +71,7 @@
             <!-- Images -->
             <div
               v-if="postModal?.image?.length > 0"
-              class="grid place-items-center xl:col-span-2"
+              class="grid justify-center items-start xl:col-span-2"
             >
               <div v-for="(img, index) in postModal?.image" :key="index">
                 <img class="post-image" :src="img" alt="post-image" />
@@ -116,10 +116,7 @@
 
     <!-- Comments -->
     <div v-if="isCommentActive" class="p-10">
-      <div
-        class="absolute top-10 left-10 arrow-bounce"
-        @click="isCommentActive = false"
-      >
+      <div class="absolute top-11 left-5" @click="isCommentActive = false">
         <PostSVG name="leftArrow" />
       </div>
       <div class="grid place-items-center">
@@ -130,23 +127,31 @@
       </div>
       <div class="h-96 px-2 overflow-y-scroll">
         <div
-          v-for="comment in orderedComments"
+          v-for="(comment, index) in orderedComments"
           :key="comment?.commentId"
-          class="grid grid-cols-12 px-5 bg-gray-50 py-3 rounded-md mt-6"
+          data-aos="fade-right"
+          :data-aos-delay="index * 100"
+          class="grid grid-cols-12 px-3 border-2 border-myBlue py-3 rounded-md mt-6"
         >
           <!-- Profile -->
-          <div class="col-span-2">
+          <div
+            class="hidden sm:col-span-2 lg:col-span-1 sm:grid sm:place-items-center"
+          >
             <img
-              v-if="comment.photoURL"
-              :src="comment.photoURL"
+              v-if="comment.picture"
+              :src="comment.picture"
               alt="profile-pic"
+              width="20"
+              height="20"
             />
             <Icon v-if="!comment.photoURL" name="profileIcon" />
           </div>
           <!-- Comment -->
-          <div class="col-span-10 pl-3">
+          <div class="col-span-full sm:col-span-10 lg:col-span-11 pl-3">
             <div class="flex justify-between items-baseline">
-              <div class="text-sm font-gbold">@ {{ comment.userName }}</div>
+              <div class="text-sm font-gbold whitespace-nowrap">
+                @ {{ comment.userName }}
+              </div>
               <div class="text-xs">{{ comment.createdAt }}</div>
             </div>
             <div class="my-2">{{ comment.comment }}</div>
@@ -173,7 +178,7 @@
   </div>
 
   <!-- Update modal to update the post -->
-  <UpdateModal @closeModal="showUpdateModal = false" v-if="showUpdateModal" />
+  <UpdateModal @closeModal="close()" v-if="showUpdateModal" />
 
   <InfoModal
     @close="showDeleteModal = false"
@@ -184,13 +189,15 @@
 </template>
 
 <script>
+import anime from "animejs/lib/anime.es.js";
 import UpdateModal from "./updateModal.vue";
 import InfoModal from "./infoModal.vue";
 import PostSVG from "../post/postSVG";
 import UserIcon from "../user/userIcons.vue";
 import Icon from "@/components/navbar/navIcons";
 import { getComments, postModalFn } from "../../composables/posts";
-import { ref, watchEffect } from "vue";
+import { focusSearch } from "../../composables/fuzzySearch";
+import { onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
 import { useRoute } from "vue-router";
 
@@ -202,7 +209,7 @@ export default {
     InfoModal,
     UserIcon,
   },
-  emits: ["close"],
+  emits: ["close", "confetti"],
   setup(props, { emit }) {
     const postModal = ref(null);
     const upvoted = ref(false);
@@ -213,6 +220,7 @@ export default {
     const showDeleteModal = ref(false);
     const isMyPosts = ref(false);
     const route = useRoute();
+    const { updateShouldFocusSearch } = focusSearch();
 
     const {
       getCurrentPost,
@@ -222,6 +230,16 @@ export default {
       deletePost,
     } = postModalFn();
     const { loadComments, orderedComments, postComment } = getComments();
+
+    onMounted(() => {
+      anime({
+        targets: ".postViewModal",
+        scale: ["0", "1"],
+        duration: 500,
+        easing: "easeOutCubic",
+      });
+      updateShouldFocusSearch(false);
+    });
 
     watchEffect(() => {
       if (isLoggedIn.value) {
@@ -262,12 +280,22 @@ export default {
     watchEffect(async () => {
       if (postModal.value) {
         await loadComments();
+        console.log("ordered comments are ", orderedComments.value);
       }
     });
 
     const sendComment = () => {
       postComment(userComment.value);
       userComment.value = null;
+    };
+
+    onBeforeUnmount(() => updateShouldFocusSearch(true));
+
+    // close
+    const close = () => {
+      showUpdateModal.value = false;
+      emit("confetti", null);
+      emit("close", null);
     };
 
     return {
@@ -285,6 +313,7 @@ export default {
       update,
       del,
       isMyPosts,
+      close,
     };
   },
 };

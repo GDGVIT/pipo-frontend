@@ -30,7 +30,12 @@
       </div>
       <div class="grid place-items-center mt-5">
         <div v-for="(img, index) in post?.image" :key="index">
-          <img :src="img" alt="post-image" @load="resizeGridItem(masonry)" />
+          <img
+            class="w-full"
+            :src="img"
+            alt="post-image"
+            @load="resizeGridItem(masonry)"
+          />
         </div>
       </div>
       <div class="flex mt-4">

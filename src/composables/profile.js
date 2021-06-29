@@ -57,7 +57,7 @@ const socialCircle = () => {
   const randomUserInfo = ref(null)
 
   const loadFollowing = async () => {
-    if (user.value.userId && following.value.length === 0) {
+    if (user.value?.userId && following.value.length === 0) {
       try {
         const res = await api.get(
           `/follow/following/${user.value.userId}`,
@@ -86,7 +86,7 @@ const socialCircle = () => {
   }
 
   const loadFollowers = async () => {
-    if (user.value.userId && followers.value.length === 0) {
+    if (user.value?.userId && followers.value.length === 0) {
       try {
         const res = await api.get(
           `/follow/followers/${user.value.userId}`,
@@ -118,6 +118,11 @@ const socialCircle = () => {
   const followThisPerson = async (userId) => {
     if (userId) {
       try {
+        if (user.value?.userId === userId) {
+          toast.warning("You can't follow yourself 🤨")
+          return 1
+        }
+
         console.log('User id of the user to be followed..', userId)
         const res = await api.post(
           `/follow/toFollow/${userId}`,
@@ -165,7 +170,7 @@ const socialCircle = () => {
     }
   }
 
-  const randomUserDetails = computed(() => randomUserInfo.value)
+  const randomUserDetails = readonly(randomUserInfo)
 
   return {
     loadFollowers,

@@ -14,19 +14,6 @@ const generateIdenticon = (str) => {
   return src
 }
 
-const stringToColor = (str) => {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  let colour = '#'
-  for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xff
-    colour += ('00' + value.toString(16)).substr(-2)
-  }
-  return colour
-}
-
 const timeAgo = (current, previous) => {
   const msPerMinute = 60 * 1000
   const msPerHour = msPerMinute * 60
@@ -34,7 +21,7 @@ const timeAgo = (current, previous) => {
   const msPerMonth = msPerDay * 30
   const msPerYear = msPerDay * 365
 
-  const elapsed = current - previous
+  const elapsed = Math.abs(current - previous)
 
   if (elapsed < msPerMinute) {
     return Math.round(elapsed / 1000) + ' seconds ago'
@@ -51,4 +38,4 @@ const timeAgo = (current, previous) => {
   }
 }
 
-export { stringToColor, generateIdenticon, timeAgo }
+export { generateIdenticon, timeAgo }

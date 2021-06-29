@@ -55,6 +55,14 @@ const routes = [
               )
           },
           {
+            name: 'randomUserProfile',
+            path: 'profile/:userId',
+            component: () =>
+              import(
+                /* webpackChunkName: "randomUserProfile" */ '../views/user/profile/randomUserProfile.vue'
+              )
+          },
+          {
             name: 'todolist',
             path: 'todolist',
             component: () =>

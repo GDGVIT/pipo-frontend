@@ -2,7 +2,7 @@
   <div class="navbar" ref="nav" v-click-outside="closeSideBar">
     <div class="flex items-center">
       <!-- Logo -->
-      <router-link to="/login/#details">
+      <router-link :to="{ name: 'generalPosts' }">
         <Icon name="pipoLogo" />
       </router-link>
 
@@ -22,16 +22,6 @@
     <Dropdown />
 
     <div class="flex items-center">
-      <!-- Icons -->
-      <!-- TODO: Do these later -->
-      <div
-        v-if="false"
-        class="md:w-24 flex items-center justify-between md:ml-16 md:mr-3"
-      >
-        <Icon name="challengesIcon" />
-        <Icon name="notificationsIcon" />
-      </div>
-
       <!-- Profile pic -->
       <div class="hidden xl:block w-12 h-12">
         <router-link :to="{ name: 'userProfile' }">
@@ -74,7 +64,9 @@
         <!-- Profile pic -->
         <div class="grid place-items-center pt-4 pb-10">
           <router-link :to="{ name: 'userProfile' }">
-            <Icon v-if="!isLoggedIn" name="profileIcon" />
+            <div class="ml-4">
+              <Icon v-if="!isLoggedIn" name="profileIcon" />
+            </div>
             <img
               v-if="isLoggedIn"
               class="w-24 h-24 rounded-full ml-4"
@@ -82,11 +74,6 @@
               referrerpolicy="no-referrer"
             />
           </router-link>
-        </div>
-        <!-- TODO: Do these later -->
-        <div v-if="false" class="flex items-center justify-between w-24 m-auto">
-          <DIcon name="challengesIcon" />
-          <DIcon name="notificationsIcon" />
         </div>
         <router-link
           class="my-10 text-xl font-glight"
@@ -113,30 +100,35 @@
 </template>
 <script>
 import Icon from "./navIcons";
-import DIcon from "./dropdownIcons";
 import Dropdown from "./dropdown";
 
 import firebase from "firebase/app";
 import "firebase/auth";
 
 import { setUser } from "../../composables/auth";
+import { notify } from "../../composables/notifications";
 import { ref, watch, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 export default {
   name: "navbar",
-  components: { Icon, Dropdown, DIcon },
+  components: { Icon, Dropdown },
   setup() {
+    const { isLoggedIn } = setUser();
+
     const router = useRouter();
     const route = useRoute();
     const photo = ref(null);
     const showSideBar = ref(false);
     const isToggle = ref(false);
 
-    const { isLoggedIn } = setUser();
+    //notifications part
+    const { requestPermission } = notify();
+
     watchEffect(() => {
-      if (isLoggedIn.value && !photo.value) {
-        photo.value = firebase.auth()?.currentUser.photoURL;
+      if (isLoggedIn.value) {
+        if (!photo.value) photo.value = firebase.auth()?.currentUser.photoURL;
+        requestPermission();
       }
     });
 

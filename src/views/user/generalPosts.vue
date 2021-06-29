@@ -2,10 +2,12 @@
   <div @click="addPostModal = true">
     <AddPostBtn />
   </div>
+  <!-- Confetti background -->
+  <canvas id="confetti-holder" class="fixed top-0 w-full h-full -z-5" />
   <!-- posts display -->
   <div class="mt-24">
     <!-- Title -->
-    <div class="text-white text-center font-gheavy">
+    <div class="text-white text-center font-gbold">
       <div class="text-4xl md:text-5xl tracking-wide">PiPo Daily</div>
       <div class="text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
         Add Posts. Gain Upvotes. Earn Points and Badges.
@@ -33,12 +35,17 @@
 
   <PostViewModal v-if="postModal" @close="postModal = false" />
 
-  <AddPostModal v-if="addPostModal" @closeModal="addPostModal = false" />
+  <AddPostModal
+    v-if="addPostModal"
+    @confetti="showConfetti = true"
+    @closeModal="addPostModal = false"
+  />
 </template>
 
 <script>
 import {
   defineAsyncComponent,
+  onBeforeUnmount,
   onMounted,
   onUpdated,
   ref,
@@ -47,30 +54,22 @@ import {
 } from "vue";
 import LoadMore from "@/components/loadComponents/loadMore";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
-import LoadingMyLatestPost from "@/components/loadComponents/LoadingMyLatestPost";
+import MyLatestPost from "@/components/post/myLatestPost";
 import AddPostModal from "@/components/modals/addPostModal";
 import PostViewModal from "@/components/modals/postViewModal";
 import AddPostBtn from "@/components/post/addPostBtn";
-import { setUser } from "../../composables/auth";
+import ConfettiGenerator from "confetti-js";
+import { setUser } from "@/composables/auth";
 import {
   getPosts,
   originalPosts,
   POSTS_COUNT,
   resizing,
-} from "../../composables/posts";
+} from "@/composables/posts";
 
 const Post = defineAsyncComponent({
   loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
   loadingComponent: LoadingCard,
-  delay: 200,
-});
-
-const MyLatestPost = defineAsyncComponent({
-  loader: () =>
-    import(
-      "@/components/post/myLatestPost" /*webpackChunkName: "MyLatestPost"*/
-    ),
-  loadingComponent: LoadingMyLatestPost,
   delay: 200,
 });
 
@@ -117,6 +116,44 @@ export default {
     // For resizing the masonry
     window.addEventListener("resize", () => resizeGridItem(masonry.value));
 
+    // For confetti showcase
+    const showConfetti = ref(false);
+    let confettiInterval = null;
+    let confetti = null;
+    const confettiSettings = {
+      target: "confetti-holder",
+      max: 150,
+      rotate: true,
+    };
+
+    const runConfetti = () => {
+      let time = 5;
+      confetti = new ConfettiGenerator(confettiSettings);
+      confetti.render();
+      confettiInterval = setInterval(() => {
+        if (!time) {
+          showConfetti.value = false;
+          confetti.clear();
+          clearInterval(confettiInterval);
+        }
+        console.log("Showing confetti for ", time);
+        time--;
+      }, 1000);
+    };
+
+    watch(showConfetti, () => {
+      if (showConfetti.value) {
+        runConfetti();
+      }
+    });
+
+    onBeforeUnmount(() => {
+      if (confettiInterval) {
+        clearInterval(confettiInterval);
+        showConfetti.value = false;
+      }
+    });
+
     return {
       masonry,
       addPostModal,
@@ -124,6 +161,7 @@ export default {
       posts,
       loadMore,
       showLoadMore,
+      showConfetti,
     };
   },
 };

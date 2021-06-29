@@ -1,12 +1,7 @@
 <template>
   <div
-    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-0 backdrop-filter backdrop-blur-3xl"
-  />
-  <!-- Confetti background -->
-  <canvas
-    id="confetti-holder"
     @click="$emit('closeModal')"
-    class="fixed top-0 w-full h-full z-20"
+    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-0 backdrop-filter backdrop-blur-3xl"
   />
   <div
     class="fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
@@ -33,7 +28,7 @@
             id="challengeInput"
             type="text"
             autocomplete="off"
-            class="input-border pl-4 py-1 focus:outline-none font-gregular"
+            class="input-border pl-4 py-1 focus:outline-none font-glight"
             placeholder="Search"
             :value="post?.badgeName"
             readonly
@@ -66,42 +61,41 @@
           v-model="tag"
           @keydown.enter="addTag()"
         />
-      </div>
-
-      <!-- Tags display -->
-      <div class="mt-10 md:px-10">
-        <div
-          v-for="(t, index) in post.tags"
-          :key="index"
-          class="bg-myBlue text-white font-gbold inline-block rounded-md pl-3 py-1 mr-3"
-        >
-          <div class="flex items-center">
-            <span>{{ t }}</span>
-            <span
-              class="cursor-pointer font-glight"
-              @click="post.tags.splice(index, 1)"
-            >
-              <Icon name="close" />
-            </span>
+        <!-- Tags display -->
+        <div v-if="post.tags" class="col-start-2 col-span-3">
+          <div
+            v-for="(t, index) in post.tags"
+            :key="index"
+            class="bg-myBlue text-white font-gbold inline-block rounded-md pl-3 py-1 mr-3"
+          >
+            <div class="flex items-center">
+              <span>{{ t }}</span>
+              <span
+                class="cursor-pointer font-glight"
+                @click="post.tags?.splice(index, 1)"
+              >
+                <Icon name="close" />
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="mt-10 my-4 md:px-10 flex">
-        <div class="font-gbold mr-3">Add Images</div>
+        <div class="font-gbold mr-3 whitespace-nowrap">Add Image</div>
         <div class="relative flex">
           <label
             for="img"
             class="bg-myRed flex items-center px-3 rounded-sm cursor-pointer"
           >
-            <ModalSVG name="imageIcon" />
-            <span class="text-xs text-white">Image +</span>
+            <div class="w-7 h-7 p-1 text-white mr-2">
+              <ModalSVG name="imageIcon" />
+            </div>
+            <span class="text-sm text-white whitespace-nowrap">Image +</span>
           </label>
           <div
-            v-if="post.post.name"
+            v-if="post.post?.name"
             class="bg-myBlue text-white px-2 py-1 text-xs ml-4 rounded-md"
           >
-            {{ post.post.name }}
+            {{ post.post?.name }}
           </div>
           <input
             @change="onSelectImage"
@@ -112,6 +106,7 @@
           />
         </div>
       </div>
+
       <div v-if="!confirmation" class="text-center mt-10">
         <button
           @click="confirmation = true"
@@ -155,17 +150,16 @@
 
 <script>
 import ModalSVG from "./modalSVG";
-import ConfettiGenerator from "confetti-js";
 import Icon from "../post/postSVG";
-import { onBeforeUnmount, reactive, ref, watchEffect } from "vue";
-import { addPostFn, postModalFn } from "../../composables/posts";
+import { reactive, ref, watchEffect } from "vue";
+import { addPostFn, postModalFn, isBlank } from "../../composables/posts";
 import InfoModal from "../../components/modals/infoModal";
 import { useToast } from "vue-toastification";
 
 export default {
   components: { ModalSVG, Icon, InfoModal },
-  emits: ["closeModal"],
-  setup() {
+  emits: ["closeModal", "confetti"],
+  setup(props, { emit }) {
     const confirmation = ref(false);
     const showInfo = ref(false);
     const toast = useToast();
@@ -188,16 +182,15 @@ export default {
         post.title = p.title;
         post.description = p.description;
         post.badgeName = p.badgeName;
-        post.post = p.image[0];
-        post.tags = p.tags;
         post.postId = p.postId;
+
+        if (p.tags) post.tags = p.tags;
+        if (p.image?.length > 0) post.post = p.image[0];
       }
     });
 
-    let confetti = null;
-
     const addTag = () => {
-      post.tags.push(tag.value);
+      if (!isBlank(tag.value)) post.tags.push(tag.value);
       tag.value = "";
     };
 
@@ -208,20 +201,11 @@ export default {
     const onSubmit = async () => {
       const res = await addPostFn(post, "PATCH");
 
-      const confettiSettings = {
-        target: "confetti-holder",
-        max: 160,
-        rotate: true,
-      };
-
       if (res === 0) {
-        confetti = new ConfettiGenerator(confettiSettings);
-        confetti.render();
-        toast.success("Post updated!🥳. Refresh the page to see the changes");
+        toast.success("Post successfully updated!🥳");
+        emit("closeModal", null);
       }
     };
-
-    onBeforeUnmount(() => confetti?.clear());
 
     return {
       tag,

@@ -7,25 +7,24 @@ import 'aos/dist/aos.css'
 import router from './router'
 import firebase from 'firebase/app'
 import './assets/tailwind.css'
+import './registerServiceWorker'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDVDVeUjgQ4MRV8371SCvMk4mQn02T_uZ0',
+  apiKey: process.env.VUE_APP_API_KEY,
   authDomain: 'pipo-api-oauth.firebaseapp.com',
   databaseURL:
     'https://pipo-api-oauth-default-rtdb.europe-west1.firebasedatabase.app',
   projectId: 'pipo-api-oauth',
   storageBucket: 'pipo-api-oauth.appspot.com',
-  messagingSenderId: '476866576555',
-  appId: '1:476866576555:web:dbfcf253fd5016eb8677ee',
-  measurementId: 'G-GVBMMPCS3S'
+  messagingSenderId: process.env.VUE_APP_MESSAGING_SENDER_ID,
+  appId: process.env.VUE_APP_APP_ID,
+  measurementId: process.env.VUE_APP_MEASUREMENT_ID
 }
 
 const clickOutside = {
   beforeMount: (el, binding) => {
     el.clickOutsideEvent = (event) => {
-      // here I check that click was outside the el and his children
       if (!(el === event.target || el.contains(event.target))) {
-        // and if it did, call method provided in attribute value
         binding.value()
       }
     }

@@ -1,15 +1,10 @@
 <template>
   <div
+    @click="$emit('closeModal')"
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-70 backdrop-filter backdrop-blur-3xl"
   />
-  <!-- Confetti background -->
-  <canvas
-    id="confetti-holder"
-    @click="$emit('closeModal')"
-    class="fixed top-0 w-full h-full z-20"
-  />
   <div
-    class="fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
+    class="addPostModal fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
   >
     <span
       @click="$emit('closeModal')"
@@ -40,7 +35,7 @@
             type="text"
             autocomplete="off"
             v-model="challengeTyped"
-            class="input-border pl-4 py-1 focus:outline-none font-gregular"
+            class="input-border pl-4 py-1 focus:outline-none font-glight"
             placeholder="Search"
             @focus="loadAll()"
             @blur="updatedChallenges = []"
@@ -53,7 +48,7 @@
             class="absolute w-full top-9 overflow-y-auto max-h-40 bg-white rounded-sm border border-gray-200 transition-transform p-2"
           >
             <li
-              class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-myBlue"
+              class="pl-4 py-2 font-glight cursor-pointer hover:bg-gray-100 border-b border-myBlue"
               v-for="(challenge, index) in updatedChallenges"
               :key="index"
               @mousedown="submitChallenge(challenge)"
@@ -89,40 +84,39 @@
           v-model="tag"
           @keydown.enter="addTag()"
         />
-      </div>
 
-      <!-- Tags display -->
-      <div class="mt-10 md:px-10">
-        <div
-          v-for="(t, index) in post.tags"
-          :key="index"
-          class="bg-myBlue text-white font-gbold inline-block rounded-md pl-3 py-1 mr-3"
-        >
-          <div class="flex items-center">
-            <span>{{ t }}</span>
-            <span
-              class="cursor-pointer font-glight"
-              @click="post.tags.splice(index, 1)"
-            >
-              <Icon name="close" />
-            </span>
+        <!-- Tags display -->
+        <div class="col-start-2 col-span-3">
+          <div
+            v-for="(t, index) in post.tags"
+            :key="index"
+            class="bg-myBlue text-white font-gbold inline-block rounded-md pl-3 py-1 mr-3 mt-2"
+          >
+            <div class="flex items-center">
+              <span>{{ t }}</span>
+              <span
+                class="cursor-pointer font-glight"
+                @click="post.tags.splice(index, 1)"
+              >
+                <Icon name="close" />
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="mt-10 my-4 md:px-10 flex">
-        <div class="font-gbold mr-3">Add Images</div>
+        <div class="font-gbold whitespace-nowrap">Add Image</div>
         <div class="relative flex">
           <label
             for="img"
             class="bg-myRed flex items-center px-3 rounded-sm cursor-pointer"
           >
-            <ModalSVG name="imageIcon" />
-            <span class="text-xs text-white">Image +</span>
+            <div class="w-7 h-7 p-1 text-white mr-2">
+              <ModalSVG name="imageIcon" />
+            </div>
+            <span class="text-sm text-white whitespace-nowrap">Image +</span>
           </label>
           <div
             v-if="post.post"
-            class="bg-myBlue text-white px-2 py-1 text-xs ml-4 rounded-md"
+            class="bg-myBlue text-white px-2 py-1 text-xs ml-4 rounded-md whitespace-nowrap"
           >
             {{ post.post.name }}
           </div>
@@ -134,7 +128,16 @@
             accept="image/*"
           />
         </div>
+        <div v-if="previewLink" class="col-span-full grid place-items-center">
+          <img
+            :src="previewLink"
+            alt="preview-img"
+            width="300"
+            @load="URL.revokeObjectURL(previewLink)"
+          />
+        </div>
       </div>
+
       <div v-if="!confirmation" class="text-center mt-10">
         <button
           @click="confirmation = true"
@@ -172,19 +175,21 @@
 </template>
 
 <script>
+import anime from "animejs/lib/anime.es.js";
 import ModalSVG from "./modalSVG";
-import ConfettiGenerator from "confetti-js";
 import Icon from "../post/postSVG";
 import { getBadges } from "../../composables/badges";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { addPostFn } from "../../composables/posts";
+import { addPostFn, isBlank } from "../../composables/posts";
 import InfoModal from "../../components/modals/infoModal";
 import { useToast } from "vue-toastification";
+import { focusSearch } from "../../composables/fuzzySearch";
 
 export default {
   components: { ModalSVG, Icon, InfoModal },
-  emits: ["closeModal"],
-  setup() {
+  emits: ["closeModal", "confetti"],
+  setup(props, { emit }) {
+    const { updateShouldFocusSearch } = focusSearch();
     const { getAllBadges, loadBadges } = getBadges();
     const challenges = ref([]);
     const updatedChallenges = ref([]);
@@ -195,6 +200,7 @@ export default {
 
     const challengeTyped = ref(null);
     const tag = ref("");
+    const previewLink = ref(null);
 
     const post = reactive({
       title: null,
@@ -204,9 +210,14 @@ export default {
       tags: [],
     });
 
-    let confetti = null;
-
     onMounted(async () => {
+      anime({
+        targets: ".addPostModal",
+        scale: ["0", "1"],
+        duration: 500,
+        easing: "easeOutCubic",
+      });
+      updateShouldFocusSearch(false);
       challenges.value = getAllBadges.value;
       if (challenges.value.length === 0) await loadBadges();
     });
@@ -222,12 +233,13 @@ export default {
     const loadAll = () => (updatedChallenges.value = getAllBadges.value);
 
     const addTag = () => {
-      post.tags.push(tag.value);
+      if (!isBlank(tag.value)) post.tags.push(tag.value);
       tag.value = "";
     };
 
     const onSelectImage = (event) => {
       post.post = event.target.files[0];
+      previewLink.value = URL.createObjectURL(event.target.files[0]);
     };
 
     const submitChallenge = (challenge) => {
@@ -239,20 +251,16 @@ export default {
     const onSubmit = async () => {
       const res = await addPostFn(post, "POST");
 
-      const confettiSettings = {
-        target: "confetti-holder",
-        max: 160,
-        rotate: true,
-      };
-
       if (res === 0) {
-        confetti = new ConfettiGenerator(confettiSettings);
-        confetti.render();
         toast.success("Yayy! another day another post!🥳");
+        emit("confetti", null);
+        emit("closeModal", null);
       }
     };
 
-    onBeforeUnmount(() => confetti?.clear());
+    onBeforeUnmount(() => {
+      updateShouldFocusSearch(true);
+    });
 
     return {
       tag,
@@ -265,6 +273,7 @@ export default {
       submitChallenge,
       onSelectImage,
       onSubmit,
+      previewLink,
       showInfo,
     };
   },

@@ -10,7 +10,7 @@
         @keydown.esc="searchResultsVisible = false"
         @input="searchResultsVisible = true"
         @keyup="performSearch()"
-        class="pl-4 border-b-2 w-full py-1 focus:outline-none font-gregular"
+        class="pl-4 border-b-2 w-full py-1 focus:outline-none font-glight"
         placeholder="Search (Press / to focus)"
         ref="search"
       />
@@ -33,7 +33,7 @@
       </li>
       <div class="overflow-y-auto max-h-48">
         <li
-          class="pl-4 py-2 font-gregular cursor-pointer hover:bg-gray-100 border-b border-myBlue"
+          class="pl-4 py-2 font-glight cursor-pointer hover:bg-gray-100 border-b border-myBlue"
           v-for="(post, index) in searchPosts"
           :key="index"
           @mousedown.prevent="showPost(post)"
@@ -51,7 +51,7 @@
           </div>
         </li>
       </div>
-      <li class="pl-4 py-2 font-gregular" v-if="searchPosts.length === 0">
+      <li class="pl-4 py-2 font-glight" v-if="searchPosts.length === 0">
         No results for your query 😓
       </li>
     </ul>

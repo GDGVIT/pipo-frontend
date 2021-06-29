@@ -4,20 +4,32 @@
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
   />
   <div
-    class="fixed bg-white p-14 h-3/4 z-20 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-1/3 font-glight"
+    class="addBadgeModal fixed bg-white px-14 py-10 h-4/5 z-20 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-1/3 font-glight"
   >
     <!-- Close btn -->
     <div
       @click="$emit('close', null)"
-      class="absolute top-10 right-10 cursor-pointer"
+      class="absolute top-12 right-12 cursor-pointer"
     >
-      x
+      <Icon name="close" />
     </div>
 
     <!-- Intro -->
     <div class="font-gbold text-center text-2xl mb-2">Add A Badge</div>
     <div class="text-center text-sm text-myRed">
       Only admins can post new badges
+    </div>
+    <div
+      v-if="user?.isAdmin"
+      class="bg-green-200 text-green-500 font-gbold rounded-md my-4 p-2 text-center"
+    >
+      You are an admin
+    </div>
+    <div
+      v-else
+      class="bg-red-200 text-red-400 font-gbold rounded-md my-4 p-2 text-center"
+    >
+      You're not an admin
     </div>
 
     <!-- Badge details -->
@@ -76,14 +88,17 @@
 </template>
 
 <script>
-import { ref, watch } from "vue";
-import { getBadges } from "../../composables/badges";
-import { setUser } from "../../composables/auth";
+import anime from "animejs/lib/anime.es.js";
+import { onMounted, ref, watch } from "vue";
+import { getBadges } from "@/composables/badges";
+import { setUser } from "@/composables/auth";
 import { useToast } from "vue-toastification";
+import Icon from "@/components/user/userIcons";
 
 export default {
-  emits: ["close"],
-  setup() {
+  components: { Icon },
+  emits: ["close", "confetti"],
+  setup(props, { emit }) {
     const badgeName = ref(null);
     const badgeDays = ref(null);
     const badgeHasStreak = ref(false);
@@ -98,29 +113,50 @@ export default {
       toast.error(alert.value);
     });
 
-    const submitBadge = () => {
+    onMounted(() => {
+      anime({
+        targets: ".addBadgeModal",
+        scale: ["0", "1"],
+        duration: 500,
+        easing: "easeOutCubic",
+      });
+    });
+
+    const submitBadge = async () => {
+      // TODO: Change this later from 25 to 1
+
       const data = {
         badgeName: badgeName.value,
         days: parseInt(badgeDays.value),
-        badgeUrl: badgeImageUrl.value,
-        hasStreak: badgeHasStreak.value,
-        upvotes: 1,
+        badgeImgUrl: badgeImageUrl.value,
+        hasChallenge: badgeHasStreak.value,
+        upvotes: 25,
       };
 
-      if (user.isAdmin) {
+      if (user.value?.isAdmin) {
         if (isLoggedIn.value) {
-          const message = postBadge(data);
-          alert.value = message;
+          const res = await postBadge(data);
+          console.log("Response on adding badge", res);
+          if (res === 0) {
+            emit("confetti", null);
+            emit("close", null);
+          }
         } else {
-          //TODO: Change this to toast later
           alert.value = "Not Logged in!";
         }
       } else {
-        alert.value = "Your not an admin!";
+        alert.value = "You're not an admin!";
       }
     };
 
-    return { badgeName, badgeDays, badgeHasStreak, badgeImageUrl, submitBadge };
+    return {
+      badgeName,
+      badgeDays,
+      badgeHasStreak,
+      badgeImageUrl,
+      submitBadge,
+      user,
+    };
   },
 };
 </script>

@@ -1,4 +1,6 @@
 <template>
+  <!-- Confetti background -->
+  <canvas id="confetti-holder" class="fixed top-0 w-full h-full -z-5" />
   <div
     class="absolute top-24 bg-white transform left-1/2 -translate-x-1/2 w-full md:w-4/5 xl:w-2/3 p-10 font-glight h-4/5"
   >
@@ -23,16 +25,19 @@
         My Badges
       </div>
       <div
-        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 place-items-center h-36 overflow-auto"
+        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 justify-items-center items-start h-36 overflow-auto"
       >
         <div
-          v-for="badge in myBadges"
-          :key="badge.badgeId"
-          class="grid place-items-center"
+          v-for="(badge, index) in myBadges"
+          :key="index"
+          class="grid justify-items-center items-start"
         >
           <img :src="badge.identicon" alt="badge-img" class="w-20 h-20" />
           <div class="text-center text-sm font-gbold">
             {{ badge.badgeName }}
+          </div>
+          <div class="text-xs rounded-full text-myBlue font-gbold px-2">
+            {{ badge.days }} days
           </div>
         </div>
       </div>
@@ -42,16 +47,19 @@
       <div class="text-xl text-myBlue font-gbold mt-4">Remaining Available</div>
 
       <div
-        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 place-items-center h-36 overflow-auto"
+        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 justify-items-center items-start h-36 overflow-auto"
       >
         <div
-          v-for="badge in available"
-          :key="badge.badgeId"
-          class="grid place-items-center"
+          v-for="(badge, index) in available"
+          :key="index"
+          class="grid justify-items-center items-start"
         >
           <img :src="badge.identicon" alt="badge-img" class="w-20 h-20" />
-          <div class="text-center text-sm font-gbold">
+          <div class="text-center text-base font-gbold my-2">
             {{ badge.badgeName }}
+          </div>
+          <div class="text-xs rounded-full text-myBlue font-gbold px-2">
+            {{ badge.days }} days
           </div>
         </div>
       </div>
@@ -59,13 +67,18 @@
   </div>
 
   <!-- Add a badge Modal -->
-  <BadgeModal v-if="badgeModal" @close="badgeModal = false" />
+  <BadgeModal
+    v-if="badgeModal"
+    @close="badgeModal = false"
+    @confetti="showConfetti = true"
+  />
 </template>
 <script>
 import BadgeModal from "@/components/modals/addBadgeModal";
-import { ref, watchEffect } from "vue";
-import { getBadges, getUserBadges } from "../../composables/badges";
-import { setUser } from "../../composables/auth";
+import { onBeforeUnmount, ref, watch, watchEffect } from "vue";
+import { getBadges, getUserBadges } from "@/composables/badges";
+import { setUser } from "@/composables/auth";
+import ConfettiGenerator from "confetti-js";
 
 export default {
   components: { BadgeModal },
@@ -112,7 +125,45 @@ export default {
       }
     });
 
-    return { badgeModal, myBadges, available, showMyBadges };
+    // For confetti showcase
+    const showConfetti = ref(false);
+    let confettiInterval = null;
+    let confetti = null;
+    const confettiSettings = {
+      target: "confetti-holder",
+      max: 150,
+      rotate: true,
+    };
+
+    const runConfetti = () => {
+      let time = 5;
+      confetti = new ConfettiGenerator(confettiSettings);
+      confetti.render();
+      confettiInterval = setInterval(() => {
+        if (!time) {
+          showConfetti.value = false;
+          confetti.clear();
+          clearInterval(confettiInterval);
+        }
+        console.log("Showing confetti for ", time);
+        time--;
+      }, 1000);
+    };
+
+    watch(showConfetti, () => {
+      if (showConfetti.value) {
+        runConfetti();
+      }
+    });
+
+    onBeforeUnmount(() => {
+      if (confettiInterval) {
+        clearInterval(confettiInterval);
+        showConfetti.value = false;
+      }
+    });
+
+    return { badgeModal, myBadges, available, showMyBadges, showConfetti };
   },
 };
 </script>

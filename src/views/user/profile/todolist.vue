@@ -33,7 +33,7 @@
       </div>
 
       <!-- Todolist -->
-      <div class="break-words text-black rounded-md h-72 overflow-y-auto py-10">
+      <div class="break-words text-black rounded-md h-64 overflow-y-auto">
         <!-- Delete all -->
         <div
           class="absolute top-10 right-10 bg-white text-black rounded-full"
@@ -54,23 +54,20 @@
           </div>
         </div>
         <!-- Display todos -->
-        <div
-          ref="masonry"
-          class="relative grid sm:grid-cols-2 md:grid-cols-3 auto-rows-1 gap-3"
-        >
+        <div class="relative grid gap-3 w-11/12 sm:w-2/3 lg:w-1/2 mx-auto ">
           <div
             class="post font-gbold rounded-lg bg-myRed text-white"
             v-for="(todo, index) in todolist"
             :key="index"
-            data-aos="zoom-in"
           >
-            <div class="relative px-8 py-5">
+            <div class="relative px-8 py-3">
               <span>{{ todo }}</span>
               <span
-                class="cursor-pointer absolute font-gregular top-2 right-2 grid place-items-center text-sm w-6 h-6 rounded-full"
+                class="cursor-pointer absolute font-glight top-2 right-2 grid place-items-center text-sm"
                 @click="del(index)"
-                >x</span
               >
+                <Icon name="close" />
+              </span>
             </div>
           </div>
         </div>
@@ -81,18 +78,15 @@
 
 <script>
 import Icon from "@/components/user/userIcons";
-import { getTodos } from "../../../composables/activities";
-import { onMounted, ref, watchEffect } from "vue";
-import { setUser } from "../../../composables/auth";
-import { resizing } from "../../../composables/posts";
+import { getTodos } from "@/composables/activities";
+import { ref, watchEffect } from "vue";
+import { setUser } from "@/composables/auth";
 
 export default {
   components: { Icon },
   setup() {
     const newTodo = ref("");
     const { isLoggedIn } = setUser();
-    const masonry = ref(null);
-    const { resizeGridItem } = resizing();
     const {
       loadTodos,
       todolist,
@@ -105,31 +99,21 @@ export default {
       console.log("Adding todo");
       await addTodo(newTodo.value);
       newTodo.value = "";
-      resizeGridItem(masonry.value);
     };
-
-    onMounted(() => resizeGridItem(masonry.value));
 
     const stopLoading = watchEffect(async () => {
       if (isLoggedIn.value && todolist.value.length === 0) {
         console.log("Loading todos");
         await loadTodos();
-        resizeGridItem(masonry.value);
         stopLoading();
       }
     });
 
     const del = async (index) => {
       await deleteTodo(index);
-      resizeGridItem(masonry.value);
     };
 
-    // For resizing the masonry
-    window.addEventListener("resize", () => resizeGridItem(masonry.value));
-
     return {
-      resizeGridItem,
-      masonry,
       newTodo,
       add,
       del,

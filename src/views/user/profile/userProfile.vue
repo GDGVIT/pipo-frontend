@@ -26,7 +26,7 @@
           <div
             class="absolute top-2 right-0 bg-white text-myRed text-xs px-2 rounded-full"
           >
-            20 pts
+            {{ profile?.user?.points }} pts
           </div>
         </div>
       </div>
@@ -35,7 +35,12 @@
         <div
           class="relative w-full text-2xl md:text-3xl font-gbold text-center my-2 mx-auto flex break-all"
         >
-          <label for="username" class="ml-2 absolute top-0 right-3">
+          <label
+            v-if="!updatingUsername"
+            for="username"
+            class="ml-2 absolute top-0 right-3"
+            data-aos="fade-left"
+          >
             <!-- TODO: Look into alignments of tooltips -->
             <Tooltip
               tooltipStyle="w-28"
@@ -45,6 +50,14 @@
               <Icon name="editPencil" />
             </Tooltip>
           </label>
+          <div
+            @click="updateUsernameByClick"
+            v-if="updatingUsername"
+            data-aos="fade-left"
+            class="ml-2 absolute top-2 right-3 cursor-pointer w-10 h-10"
+          >
+            <Icon name="tick" />
+          </div>
           <input
             @keydown="updatingUsername = true"
             v-click-outside="updateUsernameByClick"
@@ -118,7 +131,20 @@
             class="w-20 grid place-items-center"
           >
             <div v-if="badge" class="grid place-items-center">
-              <img :src="badge?.identicon" alt="badge-pic" class="w-16 h-16" />
+              <router-link
+                :to="{
+                  name: 'calendar',
+                  params: {
+                    challengeId: `${badge?.badgeId}`,
+                  },
+                }"
+              >
+                <img
+                  :src="badge?.identicon"
+                  alt="badge-pic"
+                  class="w-16 h-16"
+                />
+              </router-link>
               <span class="text-xs font-gbold">{{ badge?.badgeName }}</span>
             </div>
             <div
@@ -155,7 +181,20 @@
             class="w-20 grid place-items-center"
           >
             <div v-if="badge" class="grid place-items-center">
-              <img :src="badge?.identicon" alt="badge-pic" class="w-16 h-16" />
+              <router-link
+                :to="{
+                  name: 'calendar',
+                  params: {
+                    challengeId: `${badge?.badgeId}`,
+                  },
+                }"
+              >
+                <img
+                  :src="badge?.identicon"
+                  alt="badge-pic"
+                  class="w-16 h-16"
+                />
+              </router-link>
               <span class="text-xs font-gbold">{{ badge?.badgeName }}</span>
             </div>
             <div
@@ -230,14 +269,14 @@
 import Icon from "@/components/user/userIcons";
 import InfoModal from "@/components/modals/userRelatedInfoModal";
 
-import { getProfile } from "../../../composables/profile";
+import { getProfile } from "@/composables/profile";
 import { onMounted, ref, watchEffect } from "vue";
-import { setUser } from "../../../composables/auth";
-import { getUserBadges } from "../../../composables/badges";
-import { getTodos, getInterests } from "../../../composables/activities";
-import Tooltip from "../../../components/tooltips/tooltip";
+import { setUser } from "@/composables/auth";
+import { getUserBadges } from "@/composables/badges";
+import { getTodos, getInterests } from "@/composables/activities";
+import Tooltip from "@/components/tooltips/tooltip";
 import { useToast } from "vue-toastification";
-import { checkUserName } from "../../../composables/posts";
+import { checkUserName } from "@/composables/posts";
 
 export default {
   components: {
@@ -319,8 +358,11 @@ export default {
             changeUserDetails({ userName: next });
             updatingUsername.value = false;
           } else {
-            toast.error("Username doesn't match the criteria 🤔.");
+            toast.warning("Username doesn't match the criteria 🤔.");
           }
+        } else {
+          toast.warning("It's the same username 🤨");
+          updatingUsername.value = false;
         }
       }
     };

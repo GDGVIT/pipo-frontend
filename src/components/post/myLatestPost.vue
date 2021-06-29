@@ -1,6 +1,6 @@
 <template>
   <div v-if="!latestPost" data-aos="fade-up">
-    <LoadingMyLatestPost :masonry="masonry" />
+    <LoadingCard :masonry="masonry" isLatestPost="true" />
   </div>
   <div
     v-else
@@ -50,14 +50,14 @@
 </template>
 
 <script>
-import { watchEffect } from "vue";
+import { onUpdated, watchEffect } from "vue";
 import { getLatestPost, resizing } from "../../composables/posts";
 import { setUser } from "../../composables/auth";
 import { getProfile } from "../../composables/profile";
-import LoadingMyLatestPost from "@/components/loadComponents/LoadingMyLatestPost";
+import LoadingCard from "@/components/loadComponents/LoadingCard";
 
 export default {
-  components: { LoadingMyLatestPost },
+  components: { LoadingCard },
   props: ["masonry"],
   setup(props) {
     const { loadProfile, profile } = getProfile();
@@ -69,9 +69,10 @@ export default {
       if (isLoggedIn.value) {
         await loadProfile();
         await updateLatestPost();
-        resizeGridItem(props.masonry);
       }
     });
+
+    onUpdated(() => resizeGridItem(props.masonry));
 
     return { latestPost, profile, resizeGridItem };
   },

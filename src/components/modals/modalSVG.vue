@@ -1,9 +1,9 @@
 <template>
   <!-- Image Icon -->
   <svg
-    class="image-icon"
     v-if="name === 'imageIcon'"
     viewBox="0 0 24 24"
+    fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
   >
     <g>
@@ -52,18 +52,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.image-icon,
-.video-icon {
-  width: 25px;
-  background-color: #ff6666;
-  padding: 5px;
-  fill: white;
-  border-radius: 10px;
-}
-
-.image-icon:hover,
-.video-icon:hover {
-  cursor: pointer;
-}
-</style>
+<style scoped></style>

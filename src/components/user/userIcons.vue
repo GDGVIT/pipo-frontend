@@ -152,7 +152,7 @@
       d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
     />
   </svg>
-  <!-- Hashtag -->
+  <!-- Tick -->
   <svg
     v-else-if="name === 'tick'"
     xmlns="http://www.w3.org/2000/svg"
@@ -183,6 +183,22 @@
     />
     <path
       d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+    />
+  </svg>
+  <!-- Close -->
+  <svg
+    v-else-if="name === 'close'"
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-3 w-3 cursor-pointer"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M6 18L18 6M6 6l12 12"
     />
   </svg>
 </template>

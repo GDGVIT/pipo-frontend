@@ -6,12 +6,19 @@
       <div class="grid place-items-center">
         <div class="relative">
           <div v-if="randomUser?.user?.picture">
-            <img
-              class="w-32 h-32 md:w-40 md:h-40 rounded-full"
-              :src="randomUser?.user?.picture"
-              alt="profile-pic"
-              referrerpolicy="no-referrer"
-            />
+            <router-link
+              :to="{
+                name: 'randomUserProfile',
+                params: { userId: randomUser?.user?.userId },
+              }"
+            >
+              <img
+                class="w-32 h-32 md:w-40 md:h-40 rounded-full"
+                :src="randomUser?.user?.picture"
+                alt="profile-pic"
+                referrerpolicy="no-referrer"
+              />
+            </router-link>
           </div>
           <div v-else>
             <Icon name="profileIcon" />

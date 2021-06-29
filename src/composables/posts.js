@@ -11,6 +11,13 @@ const USERNAME_LENGTH_LIMIT = 10
 const toast = useToast()
 const err = ref('')
 
+// Semaphores
+const sem = reactive({
+  canAddPost: true,
+  canVote: true,
+  canComment: true
+})
+
 const posts = reactive({
   general: [],
   mine: [],
@@ -136,66 +143,74 @@ const myPostsFn = () => {
 
 // ADD POST
 const addPostFn = async (data, type) => {
-  const { config, user } = setUser()
+  if (sem.canAddPost) {
+    sem.canAddPost = false
+    const { config, user } = setUser()
+    try {
+      const formData = new FormData()
+      if (data.tags) {
+        let tags = ''
+        data.tags.forEach((tag) => {
+          tags += tag + ','
+        })
+        tags = tags.slice(0, -1)
+        formData.append('tags', tags)
+      }
+      if (!data.badgeName) {
+        throw new Error('User did not select any challenge')
+      }
+      if (!data.title) {
+        throw new Error('User has not given title to the post')
+      }
+      if (!data.description) {
+        throw new Error('User has not given any description')
+      }
 
-  try {
-    const formData = new FormData()
-    if (data.tags) {
-      let tags = ''
-      data.tags.forEach((tag) => {
-        tags += tag + ','
-      })
-      tags = tags.slice(0, -1)
-      formData.append('tags', tags)
-    }
-    if (!data.badgeName) {
-      throw new Error('User did not select any challenge')
-    }
-    if (!data.title) {
-      throw new Error('User has not given title to the post')
-    }
-    if (!data.description) {
-      throw new Error('User has not given any description')
-    }
+      formData.append('title', data.title)
+      formData.append('description', data.description)
+      formData.append('badgeName', data.badgeName)
+      formData.append('post', data.post)
 
-    formData.append('title', data.title)
-    formData.append('description', data.description)
-    formData.append('badgeName', data.badgeName)
-    formData.append('post', data.post)
+      console.log('Data from add post', data)
 
-    console.log('Data from add post', data)
+      if (type === 'POST') {
+        const result = await api.post('/posts', formData, config.value)
+        console.log('result', result)
 
-    if (type === 'POST') {
-      const result = await api.post('/posts', formData, config.value)
-      console.log('result', result)
-
-      const postCreated = filterMyPost(result.data.response.postCreated, user)
-
-      console.log('postCreated', postCreated)
-      posts.mine.unshift(postCreated)
-      latestPost.value = postCreated
-    } else if (type === 'PATCH') {
-      if (data.postId) {
-        const result = await api.patch(
-          `/posts/${data.postId}`,
-          formData,
-          config.value
+        const postCreated = filterMyPost(
+          result.data.response.postCreated,
+          user
         )
-        console.log('updated result', result)
 
-        if (!result.data.response.update) {
-          throw new Error(
-            "Couldn't update the post try again after sometime😕"
+        console.log('postCreated', postCreated)
+        posts.mine.unshift(postCreated)
+        latestPost.value = postCreated
+      } else if (type === 'PATCH') {
+        if (data.postId) {
+          const result = await api.patch(
+            `/posts/${data.postId}`,
+            formData,
+            config.value
           )
+          console.log('updated result', result)
+
+          if (!result.data.response.update) {
+            throw new Error(
+              "Couldn't update the post try again after sometime😕"
+            )
+          }
         }
       }
-    }
 
-    return 0
-  } catch (error) {
-    console.log('Error while sending post to the backend', error)
-    err.value = error.message
-    return 1
+      sem.canAddPost = true
+      return 0
+    } catch (error) {
+      console.log('Error while sending post to the backend', error)
+      err.value = error.message
+
+      sem.canAddPost = true
+      return 1
+    }
   }
 }
 
@@ -248,66 +263,70 @@ const postModalFn = () => {
   const openPost = (index) => (currIndex.value = index)
 
   const vote = async () => {
-    const index = currIndex.value
+    if (sem.canVote) {
+      sem.canVote = false
+      const index = currIndex.value
 
-    let toBeUpvoted = true
+      let toBeUpvoted = true
 
-    for (let i = 0; i < getCurrentPost.value.upvotes.length; i++) {
-      if (getCurrentPost.value.upvotes[i] === user.value.userId) {
-        toBeUpvoted = false
-      }
-    }
-
-    // If not yet upvoted
-    if (toBeUpvoted) {
-      try {
-        if (getCurrentPost.value?.postId) {
-          await api.post(
-            '/posts/upvote',
-            { postId: getCurrentPost.value.postId },
-            config.value
-          )
-          if (route.name === 'generalPosts') {
-            posts.general[index].upvotes.push(user.value.userId)
-          } else if (route.name === 'myPosts') {
-            posts.mine[index].upvotes.push(user.value.userId)
-          } else posts.randomUser[index].upvotes.push(user.value.userId)
+      for (let i = 0; i < getCurrentPost.value.upvotes.length; i++) {
+        if (getCurrentPost.value.upvotes[i] === user.value.userId) {
+          toBeUpvoted = false
         }
-      } catch (error) {
-        console.log('Error while upvoting the post', err)
-        err.value = 'Unable to upvote post 😑'
       }
-    } else {
-      // If already upvoted then downvote
-      try {
-        if (getCurrentPost.value?.postId) {
-          await api.post(
-            '/posts/removeUpvote',
-            { postId: getCurrentPost.value.postId },
-            config.value
-          )
-          // Removing the user from votes list
 
-          if (route.name === 'generalPosts') {
-            const rm = posts.general[index]?.upvotes?.indexOf(
-              user.value.userId
+      // If not yet upvoted
+      if (toBeUpvoted) {
+        try {
+          if (getCurrentPost.value?.postId) {
+            await api.post(
+              '/posts/upvote',
+              { postId: getCurrentPost.value.postId },
+              config.value
             )
-            posts.general[index]?.upvotes?.splice(rm, 1)
-          } else if (route.name === 'myPosts') {
-            const rm = posts.mine[index]?.upvotes?.indexOf(user.value.userId)
-            posts.mine[index]?.upvotes?.splice(rm, 1)
-          } else {
-            const rm = posts.randomUser[index]?.upvotes?.indexOf(
-              user.value.userId
-            )
-            posts.randomUser[index]?.upvotes?.splice(rm, 1)
+            if (route.name === 'generalPosts') {
+              posts.general[index].upvotes.push(user.value.userId)
+            } else if (route.name === 'myPosts') {
+              posts.mine[index].upvotes.push(user.value.userId)
+            } else posts.randomUser[index].upvotes.push(user.value.userId)
           }
+        } catch (error) {
+          console.log('Error while upvoting the post', err)
+          err.value = 'Unable to upvote post 😑'
         }
-      } catch (error) {
-        console.log('Error while downvoting the post', error)
-        err.value =
-          'Unable to downvote the post. Must be some issue from our servers!🙄'
+      } else {
+        // If already upvoted then downvote
+        try {
+          if (getCurrentPost.value?.postId) {
+            await api.post(
+              '/posts/removeUpvote',
+              { postId: getCurrentPost.value.postId },
+              config.value
+            )
+            // Removing the user from votes list
+
+            if (route.name === 'generalPosts') {
+              const rm = posts.general[index]?.upvotes?.indexOf(
+                user.value.userId
+              )
+              posts.general[index]?.upvotes?.splice(rm, 1)
+            } else if (route.name === 'myPosts') {
+              const rm = posts.mine[index]?.upvotes?.indexOf(user.value.userId)
+              posts.mine[index]?.upvotes?.splice(rm, 1)
+            } else {
+              const rm = posts.randomUser[index]?.upvotes?.indexOf(
+                user.value.userId
+              )
+              posts.randomUser[index]?.upvotes?.splice(rm, 1)
+            }
+          }
+        } catch (error) {
+          console.log('Error while downvoting the post', error)
+          err.value =
+            'Unable to downvote the post. Must be some issue from our servers!🙄'
+        }
       }
+      sem.canVote = true
     }
   }
 
@@ -354,7 +373,8 @@ const getComments = () => {
           : fuse.randomUser[currIndex?.value]?.postId
 
     try {
-      const res = await api.post(`/posts/getPost/${id}`, {}, config.value)
+      const res = await api.get(`/posts/getComments/${id}`, config.value)
+      console.log('Res on comments', res)
       comments.value = res.data.comments
     } catch (error) {
       console.log(
@@ -382,22 +402,27 @@ const getComments = () => {
   })
 
   const postComment = async (comment) => {
-    const data = {
-      comment,
-      postId:
-        route.name === 'generalPosts'
-          ? fuse.general[currIndex?.value]?.postId
-          : route.name === 'myPosts'
-            ? fuse.mine[currIndex?.value]?.postId
-            : fuse.randomUser[currIndex?.value]?.postId
-    }
+    if (sem.canComment) {
+      sem.canComment = false
+      const data = {
+        comment,
+        postId:
+          route.name === 'generalPosts'
+            ? fuse.general[currIndex?.value]?.postId
+            : route.name === 'myPosts'
+              ? fuse.mine[currIndex?.value]?.postId
+              : fuse.randomUser[currIndex?.value]?.postId
+      }
 
-    try {
-      const res = await api.post('/posts/comments', data, config.value)
-      comments.value.push(res.data.response)
-    } catch (error) {
-      console.log('Error while posting a comment to the post', error)
-      err.value = "Couldn't save your comment. 😣"
+      try {
+        const res = await api.post('/posts/comments', data, config.value)
+        comments.value.push(res.data.response)
+        console.log('New comment from backend', res)
+      } catch (error) {
+        console.log('Error while posting a comment to the post', error)
+        err.value = "Couldn't save your comment. 😣"
+      }
+      sem.canComment = true
     }
   }
 
@@ -441,6 +466,10 @@ const sortByPoints = (a, b) => b.points - a.points
 const sortByDate = (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
 const sortByPostDate = (a, b) =>
   new Date(b.updatedDate) - new Date(a.updatedDate)
+
+const isBlank = (str) => {
+  return !str || '^\\s*$'.test(str)
+}
 
 const filterPost = (posts) => {
   return posts
@@ -540,5 +569,6 @@ export {
   validateUserName,
   originalPosts,
   updateFuse,
+  isBlank,
   POSTS_COUNT
 }

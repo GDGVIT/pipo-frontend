@@ -36,7 +36,7 @@
         </div>
         <div
           :class="[
-            index % 2 === 0
+            index % 2 !== 0
               ? 'col-start-7 col-span-5'
               : 'col-start-1 col-span-5 row-start-1',
             'px-6 py-6 w-11/12 rounded-md border-myBlue border-2',

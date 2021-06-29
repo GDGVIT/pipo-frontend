@@ -16,9 +16,7 @@
   </div>
 </template>
 <script>
-export default {
-  name: "made-with-love",
-};
+export default {};
 </script>
 <style scoped>
 .love-icon {

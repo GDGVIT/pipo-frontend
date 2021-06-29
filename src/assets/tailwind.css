@@ -2,51 +2,16 @@
 @tailwind components;
 
 @font-face {
-  font-family: "Gilroy-Thin";
-  src: local("Gilroy-Thin"),
-    url("../../fonts/Gilroy-Thin.ttf") format("truetype");
-}
-
-@font-face {
   font-family: "Gilroy-Light";
-  src: local("Gilroy-Light"),
-    url("../../fonts/Gilroy-Light.otf") format("opentype");
-}
-
-@font-face {
-  font-family: "Gilroy-Regular";
-  src: local("Gilroy-Regular"),
-    url("../../fonts/Gilroy-Regular.ttf") format("truetype");
-}
-
-@font-face {
-  font-family: "Gilroy-Medium";
-  src: local("Gilroy-Medium"),
-    url("../../fonts/Gilroy-Medium.ttf") format("truetype");
-}
-
-@font-face {
-  font-family: "Gilroy-SemiBold";
-  src: local("Gilroy-Heavy"),
-    url("../../fonts/Gilroy-SemiBold.ttf") format("truetype");
-}
-
-@font-face {
-  font-family: "Gilroy-Bold";
-  src: local("Gilroy-Bold"),
-    url("../../fonts/Gilroy-Bold.ttf") format("truetype");
+  src: local("Gilroy-Light"), url("./fonts/Gilroy-Light.otf") format("opentype");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Gilroy-ExtraBold";
   src: local("Gilroy-ExtraBold"),
-    url("../../fonts/Gilroy-ExtraBold.otf") format("opentype");
-}
-
-@font-face {
-  font-family: "Gilroy-Heavy";
-  src: local("Gilroy-Heavy"),
-    url("../../fonts/Gilroy-Heavy.ttf") format("truetype");
+    url("./fonts/Gilroy-ExtraBold.otf") format("opentype");
+  font-display: swap;
 }
 
 @tailwind utilities;
@@ -59,10 +24,6 @@
   @apply px-2 bg-myRed rounded-full text-white font-glight;
 }
 
-.nav-icon {
-  @apply w-12 h-12 rounded-full object-cover mx-3;
-}
-
 .navbar {
   @apply fixed top-0 left-0 right-0 flex items-center justify-between h-16 font-gbold bg-white z-50;
 }
@@ -73,14 +34,6 @@
 
 .absolute-center {
   @apply transform -translate-x-1/2 -translate-y-1/2;
-}
-
-.add-post-btn {
-  @apply bg-myRed flex items-center rounded-full md:rounded-md md:py-2 px-2 md:px-4 absolute top-28 right-5 md:right-10 text-white font-gbold enlarge;
-}
-
-.container {
-  @apply absolute top-28 bg-white h-3/4 transform left-1/2 -translate-x-1/2 w-full lg:w-4/5 xl:w-4/5;
 }
 
 .posts-container {
