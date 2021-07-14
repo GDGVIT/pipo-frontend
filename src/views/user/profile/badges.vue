@@ -2,27 +2,23 @@
   <div class="px-10 py-5 h-full relative">
     <!-- Go back -->
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-10 left-24" />
+      <Icon name="leftArrow" class="absolute top-10 left-10" />
     </router-link>
 
     <!-- Intro -->
     <div class="text-center font-glight">
       <div
-        class="flex justify-center items-center text-2xl md:text-3xl font-gbold my-4"
+        class="flex justify-center items-center text-2xl md:text-3xl font-gbold my-5"
       >
         <span>Completed Badges</span>
         <div class="mx-4" @click="showCompletedInfo = true">
           <Icon name="info" />
         </div>
       </div>
-      <div class="my-8">
-        These are the badges you have achieved so far!. Flaunt them in front of
-        your friends. You deserve these badges!
-      </div>
     </div>
     <!-- Badges -->
     <div
-      class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center overflow-y-auto h-2/3 gap-4"
+      class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center overflow-y-auto h-l2 gap-4"
     >
       <div v-for="(badge, index) in completed" :key="index">
         <div v-if="badge?.badgeId" class="grid place-items-center">
@@ -60,9 +56,9 @@
 <script>
 import Icon from "@/components/user/userIcons";
 import InfoModal from "@/components/modals/userRelatedInfoModal";
-import { getUserBadges } from "../../../composables/badges";
+import { getUserBadges } from "@/composables/badges";
 import { onMounted, ref, watchEffect } from "vue";
-import { setUser } from "../../../composables/auth";
+import { setUser } from "@/composables/auth";
 
 export default {
   components: { Icon, InfoModal },
@@ -87,7 +83,6 @@ export default {
     watchEffect(async () => {
       if (isLoggedIn.value) {
         await loadCompleted();
-        console.log("I'm here!");
         showCompleted(getCompleted.value);
       }
     });

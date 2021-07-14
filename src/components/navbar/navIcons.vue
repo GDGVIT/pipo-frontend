@@ -96,9 +96,10 @@
   <!-- Notifications Icon -->
   <svg
     v-if="name === 'notificationsIcon'"
-    class="w-8 h-8 hidden xl:block"
+    class="w-6 h-6 cursor-pointer"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 54.377 54.377"
+    fill="currentColor"
   >
     <g transform="matrix(0.875, -0.485, 0.485, 0.875, 0, 19.392)">
       <rect />
@@ -118,33 +119,11 @@
       </g>
     </g>
   </svg>
-  <!-- Challenges Icon -->
-  <svg
-    v-if="name === 'challengesIcon'"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 50.403 50.403"
-    class="w-8 h-8 hidden xl:block"
-  >
-    <g transform="matrix(0.951, 0.309, -0.309, 0.951, 12.361, 0)">
-      <rect style="fill: none" width="40" height="40" />
-      <g transform="translate(5 1.667)">
-        <path
-          d="M22.667,5.333V3.667A1.667,1.667,0,0,0,21,2H6V37a1.667,1.667,0,1,0,3.333,0V22h10v1.667A1.667,1.667,0,0,0,21,25.333H36v-20Zm10,10H29.333v3.333h3.333V22H29.333V18.667H26V22H22.667V18.667H19.333V15.333H16v3.333H12.667V15.333H9.333V12h3.333V8.667H9.333V5.333h3.333V8.667H16V5.333h3.333V8.667h3.333V12H26V8.667h3.333V12h3.333Z"
-          transform="translate(-6 -2)"
-        />
-        <rect width="3" height="3" transform="translate(7 10.333)" />
-        <rect width="3" height="4" transform="translate(10 6.333)" />
-        <rect width="4" height="3" transform="translate(13 10.333)" />
-        <rect width="3" height="3" transform="translate(17 13.333)" />
-        <rect width="3" height="3" transform="translate(20 10.333)" />
-      </g>
-    </g>
-  </svg>
   <!-- hamburger Icon -->
   <svg
     :class="[
       open ? 'opened' : '',
-      'w-7 h-7 cursor-pointer mx-2 transition duration-500 xl:hidden',
+      'w-6 h-6 cursor-pointer mx-2 transition duration-500 xl:hidden',
     ]"
     @click="$emit('show')"
     v-if="name === 'hamburger'"
@@ -167,7 +146,7 @@
     width="208.053"
     height="77.765"
     viewBox="0 0 208.053 77.765"
-    class="w-20 md:w-28 mx-4"
+    class="w-20 mx-4"
   >
     <g transform="translate(-48.48 -56.611)">
       <path
@@ -258,7 +237,7 @@
   <svg
     v-else-if="name === 'search'"
     xmlns="http://www.w3.org/2000/svg"
-    class="w-6 h-6 cursor-pointer"
+    class="w-5 h-5 cursor-pointer"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -268,6 +247,39 @@
       stroke-linejoin="round"
       stroke-width="2"
       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+    />
+  </svg>
+  <!-- Close -->
+  <svg
+    v-else-if="name === 'close'"
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-3 w-3 cursor-pointer"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M6 18L18 6M6 6l12 12"
+    />
+  </svg>
+  <!-- Info icon -->
+  <svg
+    v-else-if="name === 'info'"
+    class="cursor-pointer"
+    xmlns="http://www.w3.org/2000/svg"
+    width="12"
+    height="12"
+    fill="currentColor"
+    viewBox="0 0 16 16"
+  >
+    <path
+      d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+    />
+    <path
+      d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
     />
   </svg>
 </template>

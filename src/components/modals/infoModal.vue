@@ -1,7 +1,7 @@
 <template>
   <div
     @click="$emit('close')"
-    class="fixed top-0 bottom-0 left-0 right-0 z-20 bg-black opacity-0 backdrop-filter backdrop-blur-3xl"
+    class="fixed top-0 bottom-0 left-0 right-0 z-20 bg-black opacity-0 "
   />
   <div
     class="fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
@@ -145,7 +145,7 @@
 
 <script>
 import { ref } from "@vue/reactivity";
-import Icon from "../post/postSVG.vue";
+import Icon from "@/components/post/postSVG.vue";
 
 export default {
   components: { Icon },

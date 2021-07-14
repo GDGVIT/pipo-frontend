@@ -23,6 +23,8 @@ export default {
     firebase.auth().onAuthStateChanged(async (u) => {
       if (u) {
         try {
+          console.log("Firebase info", u);
+
           showLoading.value = true;
           // token from firebase
           const idToken = await firebase.auth().currentUser.getIdToken();

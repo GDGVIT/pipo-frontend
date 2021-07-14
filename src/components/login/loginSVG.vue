@@ -6,7 +6,7 @@
     width="208.053"
     height="77.765"
     viewBox="0 0 208.053 77.765"
-    class="absolute top-2 left-7 w-32"
+    class="absolute top-2 left-7 w-28"
   >
     <g transform="translate(-48.48 -56.611)">
       <path

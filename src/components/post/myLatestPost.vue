@@ -34,11 +34,11 @@
       </div>
       <div class="flex mt-4">
         <div
-          class="border-2 border-white px-3 py-1 rounded-md text-sm mr-3"
+          class="border-2 border-white px-3 rounded-md text-sm mr-3"
           v-for="(tag, index) in latestPost?.tags"
           :key="index"
         >
-          {{ tag }}
+          # {{ tag }}
         </div>
       </div>
     </div>

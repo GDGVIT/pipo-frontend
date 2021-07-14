@@ -19,47 +19,68 @@
     >
       Post A Badge +
     </button>
-    <!-- My badges -->
-    <div>
-      <div class="text-xl text-myBlue font-gbold mt-4">
+
+    <div class="grid grid-cols-2 mt-4 place-items-center">
+      <div
+        @click="showMyBadges = true"
+        :class="[
+          showMyBadges ? 'border-b-2 border-myBlue' : '',
+          'text-myBlue font-gbold py-2 cursor-pointer transition-all',
+        ]"
+      >
         My Badges
       </div>
       <div
-        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 justify-items-center items-start h-36 overflow-auto"
+        @click="showMyBadges = false"
+        :class="[
+          !showMyBadges ? 'border-b-2 border-myBlue' : '',
+          ,
+          'text-myBlue font-gbold py-2 cursor-pointer transition-all',
+        ]"
       >
-        <div
-          v-for="(badge, index) in myBadges"
-          :key="index"
-          class="grid justify-items-center items-start"
-        >
-          <img :src="badge.identicon" alt="badge-img" class="w-20 h-20" />
-          <div class="text-center text-sm font-gbold">
-            {{ badge.badgeName }}
-          </div>
-          <div class="text-xs rounded-full text-myBlue font-gbold px-2">
-            {{ badge.days }} days
-          </div>
-        </div>
+        Remaining Available
       </div>
     </div>
-    <!-- Available -->
-    <div>
-      <div class="text-xl text-myBlue font-gbold mt-4">Remaining Available</div>
 
-      <div
-        class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 justify-items-center items-start h-36 overflow-auto"
-      >
+    <!-- My badges -->
+    <div>
+      <div class="h-80 overflow-auto">
+        <!-- My Badges -->
         <div
-          v-for="(badge, index) in available"
-          :key="index"
-          class="grid justify-items-center items-start"
+          v-if="showMyBadges"
+          class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 justify-items-center items-start"
         >
-          <img :src="badge.identicon" alt="badge-img" class="w-20 h-20" />
-          <div class="text-center text-base font-gbold my-2">
-            {{ badge.badgeName }}
+          <div
+            v-for="(badge, index) in myBadges"
+            :key="index"
+            class="grid justify-items-center items-start"
+          >
+            <img :src="badge.identicon" alt="badge-img" class="w-20 h-20" />
+            <div class="text-center text-sm font-gbold">
+              {{ badge.badgeName }}
+            </div>
+            <div class="text-xs rounded-full text-myBlue font-gbold px-2">
+              {{ badge.days }} days
+            </div>
           </div>
-          <div class="text-xs rounded-full text-myBlue font-gbold px-2">
-            {{ badge.days }} days
+        </div>
+        <!-- Available badges -->
+        <div
+          v-else
+          class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 justify-items-center items-start"
+        >
+          <div
+            v-for="(badge, index) in available"
+            :key="index"
+            class="grid justify-items-center items-start"
+          >
+            <img :src="badge.identicon" alt="badge-img" class="w-20 h-20" />
+            <div class="text-center text-base font-gbold my-2">
+              {{ badge.badgeName }}
+            </div>
+            <div class="text-xs rounded-full text-myBlue font-gbold px-2">
+              {{ badge.days }} days
+            </div>
           </div>
         </div>
       </div>

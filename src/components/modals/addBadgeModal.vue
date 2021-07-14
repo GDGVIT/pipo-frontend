@@ -1,7 +1,7 @@
 <template>
   <div
     @click="$emit('close', null)"
-    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
+    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 "
   />
   <div
     class="addBadgeModal fixed bg-white px-14 py-10 h-4/5 z-20 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-1/3 font-glight"

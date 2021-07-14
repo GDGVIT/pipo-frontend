@@ -6,11 +6,12 @@
     </router-link>
     <div class="font-glight">
       <!-- Introduction -->
-      <div class="w-4/5 m-auto text-center">
+      <div
+        class="w-4/5 m-auto text-center flex justify-center items-center gap-x-4"
+      >
         <div class="text-3xl font-gbold my-5">Todolist</div>
-        <div class="text-sm md:text-base lg:text-lg">
-          Tasks, Tasks and Tasks. Limit break your productivity and manage all
-          tasks here on your todolist
+        <div @click="showTodoInfo = true">
+          <Icon name="info" />
         </div>
       </div>
       <!-- Create a todo -->
@@ -18,7 +19,7 @@
         <div class="w-11/12 md:w-2/3 my-7 relative m-auto" data-aos="fade-up">
           <textarea
             class="shadow-md rounded-lg focus:outline-none resize-none p-5 w-full"
-            rows="1"
+            rows="2"
             placeholder="Enter your todo here.."
             v-model="newTodo"
             @keydown.enter="add()"
@@ -32,20 +33,31 @@
         </div>
       </div>
 
+      <!-- Delete all -->
+      <div
+        class="absolute top-10 right-10 bg-white text-black"
+        @click="deleteAllTodos()"
+      >
+        <Popper :hover="true" placement="top">
+          <button>
+            <Icon name="bin" />
+          </button>
+          <template #content>
+            <div
+              class="w-28 font-glight text-xs bg-myBlue text-white p-2 break-normal rounded-md"
+            >
+              Delete all todos
+            </div>
+          </template>
+        </Popper>
+      </div>
       <!-- Todolist -->
-      <div class="break-words text-black rounded-md h-64 overflow-y-auto">
-        <!-- Delete all -->
-        <div
-          class="absolute top-10 right-10 bg-white text-black rounded-full"
-          @click="deleteAllTodos()"
-        >
-          <Icon name="bin" />
-        </div>
+      <div class="break-words text-black rounded-md h-72 overflow-y-auto">
         <!-- If no todos -->
         <div
           v-if="todolist.length === 0"
-          data-aos="fade-up"
-          class="w-full md:w-2/3 m-auto text-center font-gbold p-6 overflow-y-auto h-40 rounded-md bg-myRed text-white"
+          data-aos="zoom-in"
+          class="w-full md:w-2/3 m-auto text-center font-gbold p-6 overflow-y-auto rounded-md bg-myRed text-white"
         >
           Work at your peak performance 🔥. List your tasks down here and work
           on them from time to time.
@@ -54,16 +66,16 @@
           </div>
         </div>
         <!-- Display todos -->
-        <div class="relative grid gap-3 w-11/12 sm:w-2/3 lg:w-1/2 mx-auto ">
+        <div class="relative grid gap-3 w-11/12 sm:w-2/3 lg:w-1/2 mx-auto">
           <div
-            class="post font-gbold rounded-lg bg-myRed text-white"
+            class="post font-gbold rounded-lg border-2 border-red-100 text-myRed"
             v-for="(todo, index) in todolist"
             :key="index"
           >
             <div class="relative px-8 py-3">
               <span>{{ todo }}</span>
               <span
-                class="cursor-pointer absolute font-glight top-2 right-2 grid place-items-center text-sm"
+                class="cursor-pointer absolute font-glight top-2 right-2 grid place-items-center text-sm text-red-300"
                 @click="del(index)"
               >
                 <Icon name="close" />
@@ -74,16 +86,24 @@
       </div>
     </div>
   </div>
+  <!-- Info on todo -->
+  <InfoModal
+    @close="showTodoInfo = false"
+    v-if="showTodoInfo"
+    modal="todoInfo"
+  />
 </template>
 
 <script>
 import Icon from "@/components/user/userIcons";
+import InfoModal from "@/components/modals/userRelatedInfoModal";
 import { getTodos } from "@/composables/activities";
 import { ref, watchEffect } from "vue";
 import { setUser } from "@/composables/auth";
+import { isBlank } from "@/composables/posts";
 
 export default {
-  components: { Icon },
+  components: { Icon, InfoModal },
   setup() {
     const newTodo = ref("");
     const { isLoggedIn } = setUser();
@@ -94,11 +114,14 @@ export default {
       deleteTodo,
       deleteAllTodos,
     } = getTodos();
+    const showTodoInfo = ref(false);
 
     const add = async () => {
       console.log("Adding todo");
-      await addTodo(newTodo.value);
-      newTodo.value = "";
+      if (!isBlank(newTodo.value)) {
+        await addTodo(newTodo.value);
+        newTodo.value = "";
+      }
     };
 
     const stopLoading = watchEffect(async () => {
@@ -119,6 +142,7 @@ export default {
       del,
       deleteAllTodos,
       todolist,
+      showTodoInfo,
     };
   },
 };

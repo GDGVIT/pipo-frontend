@@ -1,7 +1,7 @@
 <template>
   <div
     @click="$emit('close', null)"
-    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 backdrop-filter backdrop-blur-3xl"
+    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-80 "
   />
   <div
     class="postViewModal fixed bg-white text-black z-20 h-5/6 top-24 left-0 right-0 sm:left-10 sm:right-10 md:w-3/4 md:m-auto lg:w-2/3 font-glight"
@@ -89,23 +89,44 @@
           <!-- tags -->
           <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12 col-span-10">
             <div
-              class="text-xs bg-myBlue text-white font-gbold px-3 py-1 rounded-md mr-2"
+              class="text-xs text-myBlue font-gbold px-3 py-1 rounded-md mr-2"
               v-for="(tag, index) in postModal?.tags"
               :key="index"
             >
-              {{ tag }}
+              # {{ tag }}
             </div>
           </div>
           <!-- update and delete -->
-          <div @click="update()" v-if="isMyPosts" class="text-myBlue">
-            <UserIcon name="editPencil" />
-          </div>
-          <div
-            @click="showDeleteModal = true"
+          <Popper
+            :hover="true"
+            placement="top"
+            @click="update()"
             v-if="isMyPosts"
-            class="text-myBlue"
           >
-            <UserIcon name="bin" />
+            <button class="text-myBlue">
+              <UserIcon name="editPencil" />
+            </button>
+            <template #content>
+              <div
+                class="w-24 font-glight text-xs bg-myBlue text-white p-2 break-normal rounded-md text-center"
+              >
+                Update Post
+              </div>
+            </template>
+          </Popper>
+          <div @click="showDeleteModal = true" v-if="isMyPosts">
+            <Popper :hover="true" placement="top">
+              <button class="text-myBlue">
+                <UserIcon name="bin" />
+              </button>
+              <template #content>
+                <div
+                  class="w-24 font-glight absolute -top-6 -left-12 text-xs bg-myBlue text-white p-2 break-normal rounded-md text-center"
+                >
+                  Delete Post
+                </div>
+              </template>
+            </Popper>
           </div>
         </div>
       </div>
@@ -178,7 +199,11 @@
   </div>
 
   <!-- Update modal to update the post -->
-  <UpdateModal @closeModal="close()" v-if="showUpdateModal" />
+  <UpdateModal
+    @closeModal="close()"
+    @updated="$emit('confetti', null)"
+    v-if="showUpdateModal"
+  />
 
   <InfoModal
     @close="showDeleteModal = false"
@@ -294,7 +319,6 @@ export default {
     // close
     const close = () => {
       showUpdateModal.value = false;
-      emit("confetti", null);
       emit("close", null);
     };
 

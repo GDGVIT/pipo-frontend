@@ -1,15 +1,36 @@
-import { readonly, ref } from 'vue'
+import { readonly, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
-const shouldFocus = ref(true)
+const shouldFocus = ref(true);
 
 const focusSearch = () => {
-  const focus = readonly(shouldFocus)
+  const route = useRoute();
+
+  const focus = readonly(shouldFocus);
 
   const updateShouldFocusSearch = (bool) => {
-    shouldFocus.value = bool
-  }
+    shouldFocus.value = bool;
+  };
 
-  return { focus, updateShouldFocusSearch }
-}
+  watch(
+    () => route.name,
+    () => {
+      const routeName = route.name;
 
-export { focusSearch }
+      if (
+        routeName === "generalPosts" ||
+        routeName === "myPosts" ||
+        routeName === "randomUserPosts" ||
+        routeName === "home"
+      ) {
+        shouldFocus.value = true;
+      } else {
+        shouldFocus.value = false;
+      }
+    }
+  );
+
+  return { focus, updateShouldFocusSearch };
+};
+
+export { focusSearch };

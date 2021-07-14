@@ -41,14 +41,18 @@
             class="ml-2 absolute top-0 right-3"
             data-aos="fade-left"
           >
-            <!-- TODO: Look into alignments of tooltips -->
-            <Tooltip
-              tooltipStyle="w-28"
-              text="Edit username. 10 characters long with no spaces in lowercase"
-              alignment=""
-            >
-              <Icon name="editPencil" />
-            </Tooltip>
+            <Popper :hover="true" placement="top">
+              <button>
+                <Icon name="editPencil" />
+              </button>
+              <template #content>
+                <div
+                  class="w-32 font-glight text-xs bg-myBlue p-2 break-normal rounded-md"
+                >
+                  Edit username. 10 characters long with no spaces in lowercase
+                </div>
+              </template>
+            </Popper>
           </label>
           <div
             @click="updateUsernameByClick"
@@ -268,20 +272,17 @@
 <script>
 import Icon from "@/components/user/userIcons";
 import InfoModal from "@/components/modals/userRelatedInfoModal";
-
 import { getProfile } from "@/composables/profile";
 import { onMounted, ref, watchEffect } from "vue";
 import { setUser } from "@/composables/auth";
 import { getUserBadges } from "@/composables/badges";
 import { getTodos, getInterests } from "@/composables/activities";
-import Tooltip from "@/components/tooltips/tooltip";
 import { useToast } from "vue-toastification";
 import { checkUserName } from "@/composables/posts";
 
 export default {
   components: {
     Icon,
-    Tooltip,
     InfoModal,
   },
   setup() {

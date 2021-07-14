@@ -2,6 +2,23 @@
   <div class="relative w-full md:w-l3 mx-4">
     <DropdownFocus @keyup="slashSearch" />
     <div class="flex items-center">
+      <Popper :hover="true" placement="bottom">
+        <button class="enlarge">
+          <Icon name="info" />
+        </button>
+        <template #content>
+          <div
+            class="w-36 font-glight relative text-xs bg-myBlue text-white p-2 break-normal rounded-md"
+          >
+            <li class="list-disc">
+              Type '/all' for all posts
+            </li>
+            <li class="list-disc">
+              Click on tag of a post to search based on tags
+            </li>
+          </div>
+        </template>
+      </Popper>
       <input
         type="text"
         v-model="query"
@@ -10,12 +27,26 @@
         @keydown.esc="searchResultsVisible = false"
         @input="searchResultsVisible = true"
         @keyup="performSearch()"
+        @keyup.up.prevent="highlightPrevious"
+        @keydown.down.prevent="highlightNext"
+        @keydown.enter="showPostAtIndex()"
         class="pl-4 border-b-2 w-full py-1 focus:outline-none font-glight"
         placeholder="Search (Press / to focus)"
         ref="search"
       />
-      <div @click="fixSearch()" class="enlarge">
-        <Icon name="search" />
+      <div @click="fixSearch()">
+        <Popper :hover="true" placement="bottom">
+          <button class="enlarge">
+            <Icon name="search" />
+          </button>
+          <template #content>
+            <div
+              class="w-24 font-glight relative text-xs bg-myBlue text-white p-2 break-normal rounded-md text-center"
+            >
+              Find posts matching the criteria
+            </div>
+          </template>
+        </Popper>
       </div>
     </div>
 
@@ -31,9 +62,12 @@
           All Posts
         </div>
       </li>
-      <div class="overflow-y-auto max-h-48">
+      <div ref="results" class="overflow-y-auto max-h-48">
         <li
-          class="pl-4 py-2 font-glight cursor-pointer hover:bg-gray-100 border-b border-myBlue"
+          :class="[
+            highlightedIndex === index ? 'bg-gray-100' : '',
+            'pl-4 py-2 font-glight cursor-pointer hover:bg-gray-100 border-b border-myBlue',
+          ]"
           v-for="(post, index) in searchPosts"
           :key="index"
           @mousedown.prevent="showPost(post)"
@@ -47,7 +81,7 @@
             v-for="(tag, index) in post?.tags"
             :key="index"
           >
-            {{ tag }}
+            # {{ tag }}
           </div>
         </li>
       </div>
@@ -78,6 +112,8 @@ export default {
     const { immutablePosts } = originalPosts();
     const { generalUpdate, myUpdate, randomUserUpdate } = updateFuse();
     const { isLoggedIn } = setUser();
+    const highlightedIndex = ref(0);
+    const results = ref(null);
 
     const route = useRoute();
     let fuse = null;
@@ -109,7 +145,7 @@ export default {
     const performSearch = () => {
       const result = fuse?.search(query.value);
       if (Array.isArray(result)) {
-        if (!query.value.length) {
+        if (!query.value.length || query.value === "/all") {
           searchPosts.value = mainPosts.value;
         } else searchPosts.value = result.map((i) => i.item);
       }
@@ -130,15 +166,46 @@ export default {
       if (route.name === "generalPosts") generalUpdate(p);
       else if (route.name === "myPosts") myUpdate(p);
       else if (route.name === "randomUserPosts") {
-        console.log("random user i send", p);
         randomUserUpdate(p);
       }
+      query.value = "";
       searchResultsVisible.value = false;
+    };
+
+    const showPostAtIndex = () => {
+      if (query.value === "/all") {
+        showAll();
+      } else {
+        showPost(searchPosts.value[highlightedIndex.value]);
+      }
+      query.value = "";
     };
 
     const showAll = () => {
       searchPosts.value = mainPosts.value;
       fixSearch();
+    };
+
+    // For accessibility through keyboard
+
+    const highlightNext = () => {
+      if (highlightedIndex.value < searchPosts.value.length - 1) {
+        highlightedIndex.value++;
+        scrollToView();
+      }
+    };
+
+    const highlightPrevious = () => {
+      if (highlightedIndex.value > 0) {
+        highlightedIndex.value--;
+        scrollToView();
+      }
+    };
+
+    const scrollToView = () => {
+      results.value?.children[highlightedIndex.value].scrollIntoView({
+        block: "nearest",
+      });
     };
 
     const slashSearch = (e) => {
@@ -164,6 +231,11 @@ export default {
       showPost,
       setPosts,
       showAll,
+      highlightedIndex,
+      highlightNext,
+      highlightPrevious,
+      showPostAtIndex,
+      results,
     };
   },
 };

@@ -1,10 +1,18 @@
 <template>
   <!-- done -->
-  <div class="user-container">
-    <div class="title">Error 404</div>
-    <h1>Not Found</h1>
-    <div class="content">PiPo couldn't find the page you're looking for 😓</div>
-    <loginSVG name="pipoPenguin" class="pipo-penguin" />
+  <div
+    class="user-container font-gbold text-center bg-blue-100 text-myBlue h-screen"
+  >
+    <div class="text-5xl pt-8">Error 404</div>
+    <h1 class="text-3xl mt-5 mb-10">Not Found</h1>
+    <div class="w-3/5 mx-auto text-2xl md:text-3xl font-glight">
+      PiPo couldn't find the page you're looking for 😓
+    </div>
+    <div class="grid place-items-center">
+      <div class="mt-10 w-40">
+        <loginSVG name="pipoPenguin" />
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -17,28 +25,7 @@ export default {
 };
 </script>
 <style scoped>
-.title {
-  font-size: 50px;
-  font-family: Gilroy-Bold;
-  text-align: center;
-  padding-top: 30px;
-}
-h1 {
-  font-family: Gilroy-Bold;
-  text-align: center;
-  font-size: 30px;
-}
-.content {
-  width: 60%;
-  margin: 0 auto;
-  font-size: 30px;
-  text-align: center;
-}
 .pipo-penguin {
-  position: absolute;
-  margin-left: 50%;
-  margin-top: 30vh;
   width: 200px;
-  transform: translate(-50%, -50%);
 }
 </style>

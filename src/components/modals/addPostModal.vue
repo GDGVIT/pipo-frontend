@@ -1,10 +1,10 @@
 <template>
   <div
     @click="$emit('closeModal')"
-    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-70 backdrop-filter backdrop-blur-3xl"
+    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-70 "
   />
   <div
-    class="addPostModal fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
+    class="addPostModal fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-hidden"
   >
     <span
       @click="$emit('closeModal')"
@@ -26,7 +26,7 @@
         words. As most upvoted posts get to be in the main page!
       </div>
     </div>
-    <div>
+    <div class="h-2/3 overflow-y-auto">
       <div class="grid sm:grid-cols-4 gap-4 md:px-10 items-center">
         <label for="challenge">Challenge</label>
         <div class="col-span-3 relative">
@@ -90,10 +90,10 @@
           <div
             v-for="(t, index) in post.tags"
             :key="index"
-            class="bg-myBlue text-white font-gbold inline-block rounded-md pl-3 py-1 mr-3 mt-2"
+            class="text-myBlue border-2 border-myBlue font-gbold inline-block rounded-md pl-3 py-1 mr-3 mt-2"
           >
             <div class="flex items-center">
-              <span>{{ t }}</span>
+              <span># {{ t }}</span>
               <span
                 class="cursor-pointer font-glight"
                 @click="post.tags.splice(index, 1)"
@@ -133,7 +133,7 @@
             :src="previewLink"
             alt="preview-img"
             width="300"
-            @load="URL.revokeObjectURL(previewLink)"
+            @load="revoke()"
           />
         </div>
       </div>
@@ -176,14 +176,14 @@
 
 <script>
 import anime from "animejs/lib/anime.es.js";
-import ModalSVG from "./modalSVG";
-import Icon from "../post/postSVG";
-import { getBadges } from "../../composables/badges";
+import ModalSVG from "@/components/modals/modalSVG";
+import Icon from "@/components/post/postSVG";
+import { getBadges } from "@/composables/badges";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { addPostFn, isBlank } from "../../composables/posts";
-import InfoModal from "../../components/modals/infoModal";
+import { addPostFn, isBlank } from "@/composables/posts";
+import InfoModal from "@/components/modals/infoModal";
 import { useToast } from "vue-toastification";
-import { focusSearch } from "../../composables/fuzzySearch";
+import { focusSearch } from "@/composables/fuzzySearch";
 
 export default {
   components: { ModalSVG, Icon, InfoModal },
@@ -258,6 +258,10 @@ export default {
       }
     };
 
+    const revoke = () => {
+      URL.revokeObjectURL(previewLink);
+    };
+
     onBeforeUnmount(() => {
       updateShouldFocusSearch(true);
     });
@@ -275,6 +279,7 @@ export default {
       onSubmit,
       previewLink,
       showInfo,
+      revoke,
     };
   },
 };

@@ -4,22 +4,13 @@
 
 <script>
 import { onBeforeUnmount } from "@vue/runtime-core";
-import { useRoute } from "vue-router";
-import { focusSearch } from "../../composables/fuzzySearch";
+import { focusSearch } from "@/composables/fuzzySearch";
 export default {
   setup(props, { emit }) {
-    const route = useRoute();
     const { focus } = focusSearch();
 
     const handler = (event) => {
-      const routeName = route.name;
-
-      if (
-        focus.value &&
-        (routeName === "generalPosts" ||
-          routeName === "myPosts" ||
-          routeName === "randomUserPosts")
-      ) {
+      if (focus.value) {
         emit("keyup", event);
       }
     };

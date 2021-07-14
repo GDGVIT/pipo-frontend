@@ -8,7 +8,9 @@
   <div class="mt-24">
     <!-- Title -->
     <div class="text-white text-center font-gbold">
-      <div class="text-4xl md:text-5xl tracking-wide">PiPo Daily</div>
+      <div class="text-4xl md:text-5xl tracking-wide">
+        Leaderboard
+      </div>
       <div class="text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
         Add Posts. Gain Upvotes. Earn Points and Badges.
       </div>

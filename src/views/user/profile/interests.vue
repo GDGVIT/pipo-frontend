@@ -1,81 +1,98 @@
 <template>
-  <div class="px-10 py-5 h-full relative">
+  <div class="px-10 py-5 relative font-glight">
     <!-- Go back -->
     <router-link to="/user/profile">
       <Icon name="leftArrow" class="absolute top-10 left-10" />
     </router-link>
-    <div class="font-glight">
-      <!-- Introduction -->
-      <div class="w-4/5 m-auto text-center">
-        <div class="text-3xl font-gbold my-5">Interests</div>
-        <div class="text-lg">
-          Identify your interests and list them down here.
-        </div>
+    <!-- Introduction -->
+    <div
+      class="w-4/5 m-auto text-center flex justify-center items-center gap-x-4"
+    >
+      <div class="text-3xl font-gbold my-5">Interests</div>
+      <div @click="showInterestsInfo = true">
+        <Icon name="info" />
       </div>
-      <!-- Add your interest -->
-      <div class="w-11/12 md:w-2/3 my-7 relative m-auto" data-aos="fade-up">
-        <textarea
-          class="shadow-md rounded-lg focus:outline-none resize-none p-5 w-full"
-          cols="40"
-          rows="3"
-          placeholder="Enter your interest here.."
-          v-model="newInterest"
-          @keydown.enter="add()"
-        ></textarea>
-        <div
-          @click="add()"
-          class="absolute -bottom-3 right-6 w-10 h-10 bg-myRed grid place-items-center rounded-full text-white cursor-pointer"
-        >
-          <Icon name="plus" />
-        </div>
+    </div>
+    <!-- Add your interest -->
+    <div class="w-11/12 md:w-2/3 my-10 relative m-auto" data-aos="fade-up">
+      <textarea
+        class="shadow-md rounded-lg focus:outline-none resize-none p-5 w-full"
+        cols="40"
+        rows="2"
+        placeholder="Enter your interest here.."
+        v-model="newInterest"
+        @keydown.enter="add()"
+      ></textarea>
+      <div
+        @click="add()"
+        class="absolute -bottom-3 right-6 w-10 h-10 bg-myRed grid place-items-center rounded-full text-white cursor-pointer"
+      >
+        <Icon name="plus" />
       </div>
-      <!-- Display interests -->
-      <div class="px-10 relative break-words">
-        <!-- Delete all -->
-        <div class="absolute top-0 right-0" @click="deleteAllInterests()">
+    </div>
+    <!-- Delete all -->
+    <div class="absolute top-10 right-10" @click="deleteAllInterests()">
+      <Popper :hover="true" placement="top">
+        <button>
           <Icon name="bin" />
-        </div>
-
-        <!-- If no interests -->
-        <div
-          v-if="interestList.length === 0"
-          class="md:w-2/3 m-auto mt-10 text-center"
-          data-aos="fade-up"
-        >
-          No interests as of now.😭 Why not type some, it helps you connect with
-          people 🧑 who share the same passion 🔥 as you. Keep it minimal and
-          concise
-        </div>
-        <!-- If interests present -->
-        <div
-          v-else
-          class="inline-block bg-myRed text-white mr-3 rounded-md px-3 py-1 my-1"
-          v-for="(interest, index) in interestList"
-          :key="index"
-          data-aos="zoom-in"
-        >
-          <div class="flex items-center justify-between">
-            <span class="font-gbold">{{ interest }}</span>
-            <span
-              @click="deleteInterest(index)"
-              class="ml-3 cursor-pointer text-xs"
-              >x</span
-            >
+        </button>
+        <template #content>
+          <div
+            class="w-32 font-glight text-xs bg-myBlue text-white p-2 break-normal rounded-md"
+          >
+            Delete all interests
           </div>
+        </template>
+      </Popper>
+    </div>
+    <!-- Display interests -->
+    <div class="md:px-10 relative break-words max-h-72 overflow-y-auto">
+      <!-- If no interests -->
+      <div
+        v-if="interestList.length === 0"
+        class="md:w-2/3 m-auto mt-10 text-center"
+        data-aos="zoom-in"
+      >
+        No interests as of now.😭 Why not type some, it helps you connect with
+        people 🧑 who share the same passion 🔥 as you. Keep it minimal and
+        concise
+      </div>
+      <!-- If interests present -->
+      <div
+        v-else
+        class="inline-block bg-myRed text-white mr-3 rounded-md px-3 py-1 my-1"
+        v-for="(interest, index) in interestList"
+        :key="index"
+      >
+        <div class="flex items-center justify-between">
+          <span class="font-gbold">{{ interest }}</span>
+          <span
+            @click="deleteInterest(index)"
+            class="ml-3 cursor-pointer text-xs"
+            ><Icon name="close"
+          /></span>
         </div>
       </div>
     </div>
   </div>
+  <!-- Info on todo -->
+  <InfoModal
+    @close="showInterestsInfo = false"
+    v-if="showInterestsInfo"
+    modal="interestsInfo"
+  />
 </template>
 
 <script>
 import Icon from "@/components/user/userIcons";
-import { getInterests } from "../../../composables/activities";
+import InfoModal from "@/components/modals/userRelatedInfoModal";
+import { getInterests } from "@/composables/activities";
 import { ref, watchEffect } from "vue";
-import { setUser } from "../../../composables/auth";
+import { setUser } from "@/composables/auth";
+import { isBlank } from "@/composables/posts";
 
 export default {
-  components: { Icon },
+  components: { Icon, InfoModal },
   emits: ["click"],
   setup() {
     const newInterest = ref("");
@@ -87,11 +104,13 @@ export default {
       deleteAllInterests,
       interestList,
     } = getInterests();
+    const showInterestsInfo = ref(false);
 
     const add = async () => {
-      console.log("Add function called");
-      await addInterests(newInterest.value);
-      newInterest.value = "";
+      if (!isBlank(newInterest.value)) {
+        await addInterests(newInterest.value);
+        newInterest.value = "";
+      }
     };
 
     const stopLoading = watchEffect(async () => {
@@ -108,9 +127,10 @@ export default {
       deleteInterest,
       deleteAllInterests,
       interestList,
+      showInterestsInfo,
     };
   },
 };
 </script>
 
-<style></style>
+<style scoped></style>

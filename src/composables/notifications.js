@@ -9,12 +9,21 @@ const notifications = ref([]);
 const permissionNeeded = ref(true);
 const publicVapidIDKey = process.env.VUE_APP_PUBLIC_VAPID_KEY;
 
+/*
+notifications schema
+
+title
+message
+userId
+*/
+
 const notify = () => {
   const messaging = firebase.messaging();
 
   const receiveMessages = () => {
     console.log("can receive messages now");
     messaging.onMessage((payload) => {
+      notifications.value.push(payload);
       console.log("Message received :: ", payload);
     });
   };

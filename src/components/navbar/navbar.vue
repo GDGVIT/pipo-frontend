@@ -2,19 +2,21 @@
   <div class="navbar" ref="nav" v-click-outside="closeSideBar">
     <div class="flex items-center">
       <!-- Logo -->
-      <router-link :to="{ name: 'generalPosts' }">
+      <router-link :to="{ name: $route.name !== 'home' ? 'home' : 'login' }">
         <Icon name="pipoLogo" />
       </router-link>
 
       <!-- Routes -->
-      <div v-if="isLoggedIn" class="hidden xl:flex xl:items-center">
-        <router-link class="mx-8 ml-16" :to="{ name: 'generalPosts' }"
-          >Home</router-link
-        >
-        <router-link class="mx-8 whitespace-nowrap" :to="{ name: 'myPosts' }"
+      <div
+        v-if="isLoggedIn"
+        class="hidden xl:ml-8 xl:grid xl:grid-cols-4 xl:place-items-center xl:gap-x-10"
+      >
+        <router-link :to="{ name: 'home' }">Home</router-link>
+        <router-link :to="{ name: 'generalPosts' }">Leaderboard</router-link>
+        <router-link class="whitespace-nowrap" :to="{ name: 'myPosts' }"
           >My Posts</router-link
         >
-        <router-link class="mx-8" :to="{ name: 'badges' }">Badges</router-link>
+        <router-link :to="{ name: 'badges' }">Badges</router-link>
       </div>
     </div>
 
@@ -22,14 +24,25 @@
     <Dropdown />
 
     <div class="flex items-center">
+      <!-- Notifications -->
+      <div @click="showNotifications = true" class="hidden xl:block pr-4">
+        <Icon name="notificationsIcon" />
+      </div>
+      <Notifications
+        v-if="showNotifications"
+        @close="showNotifications = false"
+      />
+
       <!-- Profile pic -->
       <div class="hidden xl:block w-12 h-12">
         <router-link :to="{ name: 'userProfile' }">
-          <Icon v-if="!isLoggedIn" name="profileIcon" />
+          <div class="ml-4">
+            <Icon v-if="!isLoggedIn" name="profileIcon" />
+          </div>
           <img
-            v-if="isLoggedIn"
+            v-if="isLoggedIn && photo"
             class="w-12 h-12 rounded-full ml-4"
-            :src="photo && photo"
+            :src="photo"
             referrerpolicy="no-referrer"
           />
         </router-link>
@@ -57,42 +70,47 @@
     <div
       :class="[
         showSideBar ? '' : 'translate-x-full',
-        'fixed h-screen xl:hidden -z-10 w-80 bg-white right-0 top-0 transform transition-all duration-500',
+        'fixed h-screen xl:hidden -z-10 w-80 bg-white right-0 top-0 transform transition-all duration-500 overflow-y-auto',
       ]"
     >
-      <div class="flex flex-col mt-20 text-center">
+      <div class="mt-20 mb-5">
         <!-- Profile pic -->
         <div class="grid place-items-center pt-4 pb-10">
           <router-link :to="{ name: 'userProfile' }">
-            <div class="ml-4">
-              <Icon v-if="!isLoggedIn" name="profileIcon" />
+            <div class="relative">
+              <div class="ml-4">
+                <Icon v-if="!isLoggedIn" name="profileIcon" />
+              </div>
+              <img
+                v-if="isLoggedIn && photo"
+                class="w-24 h-24 rounded-full ml-4"
+                :src="photo"
+                referrerpolicy="no-referrer"
+              />
+              <div
+                @click="showNotifications = true"
+                class="absolute -top-6 -right-24 rounded-full bg-gray-100 p-1 border border-black"
+              >
+                <Icon name="notificationsIcon" />
+              </div>
             </div>
-            <img
-              v-if="isLoggedIn"
-              class="w-24 h-24 rounded-full ml-4"
-              :src="photo && photo"
-              referrerpolicy="no-referrer"
-            />
           </router-link>
         </div>
-        <router-link
-          class="my-10 text-xl font-glight"
-          :to="{ name: 'generalPosts' }"
-          >Home</router-link
+        <div
+          class="grid grid-rows-5 mt-5 font-glight text-lg gap-y-14 place-items-center"
         >
-        <router-link class="my-10 text-xl font-glight" :to="{ name: 'myPosts' }"
-          >My Posts</router-link
-        >
-        <router-link class="my-10 text-xl font-glight" :to="{ name: 'badges' }"
-          >Badges</router-link
-        >
-        <div>
-          <button
-            class="bg-myRed text-white my-14 px-4 py-2 cursor-pointer hover:opacity-90 rounded-md"
-            @click="signOutUser()"
-          >
-            Sign Out
-          </button>
+          <router-link :to="{ name: 'home' }">Home</router-link>
+          <router-link :to="{ name: 'generalPosts' }">Leaderboard</router-link>
+          <router-link :to="{ name: 'myPosts' }">My Posts</router-link>
+          <router-link :to="{ name: 'badges' }">Badges</router-link>
+          <div>
+            <button
+              class="bg-myRed text-white font-gbold text-base px-4 py-2 cursor-pointer hover:opacity-90 rounded-md"
+              @click="signOutUser()"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -105,29 +123,30 @@ import Dropdown from "./dropdown";
 import firebase from "firebase/app";
 import "firebase/auth";
 
-import { setUser } from "../../composables/auth";
-import { notify } from "../../composables/notifications";
+import Notifications from "@/components/navbar/notifications";
+import { setUser } from "@/composables/auth";
+import { notify } from "@/composables/notifications";
 import { ref, watch, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 export default {
-  name: "navbar",
-  components: { Icon, Dropdown },
+  components: { Icon, Dropdown, Notifications },
   setup() {
-    const { isLoggedIn } = setUser();
+    const { isLoggedIn, user } = setUser();
 
     const router = useRouter();
     const route = useRoute();
     const photo = ref(null);
     const showSideBar = ref(false);
     const isToggle = ref(false);
+    const showNotifications = ref(false);
 
     //notifications part
     const { requestPermission } = notify();
 
     watchEffect(() => {
       if (isLoggedIn.value) {
-        if (!photo.value) photo.value = firebase.auth()?.currentUser.photoURL;
+        if (!photo.value) photo.value = user.value.picture;
         requestPermission();
       }
     });
@@ -159,6 +178,7 @@ export default {
       goToProfile,
       isToggle,
       showSideBar,
+      showNotifications,
     };
   },
 };

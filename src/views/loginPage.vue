@@ -19,22 +19,55 @@
         <LoginSVG name="narrowDownArrow" />
       </div>
 
-      <!-- Login button -->
       <div
+        data-aos="fade-left"
         class="absolute top-1/4 w-full grid place-items-center md:w-auto md:top-8 md:translate-x-0 md:right-10 md:left-auto"
       >
-        <div class="font-gbold text-3xl text-white text-center mb-6 md:hidden">
-          Login
+        <!-- Login button -->
+        <div v-if="showLogin">
+          <div
+            class="font-gbold text-3xl text-white text-center mb-6 md:hidden"
+          >
+            Login
+          </div>
+          <button @click="signIn()">
+            <img
+              :src="require('@/assets/google-signin.png')"
+              alt="login"
+              class="cursor-pointer"
+              width="191"
+              height="46"
+            />
+          </button>
         </div>
-        <button @click="signIn()">
-          <img
-            :src="require('@/assets/google-signin.png')"
-            alt="login"
-            class="cursor-pointer"
-            width="191"
-            height="46"
-          />
-        </button>
+        <!-- Show dashboard -->
+        <div
+          v-else
+          class="flex flex-col md:flex-row justify-between items-center gap-3"
+        >
+          <!-- Profile pic of user -->
+          <router-link :to="{ name: 'userProfile' }">
+            <img
+              :src="user.picture"
+              alt="profile-pic"
+              referrerpolicy="no-referrer"
+              class="w-20 h-20 md:w-12 md:h-12 rounded-full"
+            />
+          </router-link>
+          <div class="text-white font-gbold text-xl md:hidden">
+            @{{ user.userName }}
+          </div>
+          <router-link :to="{ name: 'home' }">
+            <button>
+              <div
+                class="flex items-center gap-x-2 bg-myBlue rounded-sm px-2 py-1 font-gbold text-white"
+              >
+                <span>Dashboard</span>
+                <Icon name="rightArrow" blue="blue" />
+              </div>
+            </button>
+          </router-link>
+        </div>
       </div>
 
       <div
@@ -49,12 +82,17 @@
         </div>
       </div>
     </div>
-    <section class="bg-myRed py-20 font-gbold">
-      <div class="text-white text-4xl md:text-5xl text-center p-4">
+    <section class="bg-myRed py-20 font-gbold relative">
+      <div
+        class="absolute right-8 top-6 text-white px-4 rounded-full border-2 border-white cursor-pointer"
+      >
+        <span @click="showInstall = true" class="text-sm">Install PiPo</span>
+      </div>
+      <div class="text-white text-center p-4 text-3xl md:text-5xl">
         About PiPo
       </div>
       <!-- timeline container -->
-      <div class="ml-6 sm:ml-20 md:ml-40 mt-10">
+      <div class="pl-6 mx-auto w-11/12 md:w-2/3 lg:w-1/2 mt-10">
         <div
           v-for="(instruction, index) in timeline"
           :key="index"
@@ -70,8 +108,8 @@
             :data-aos-delay="index * 100"
             class="col-span-11 text-white p-4"
           >
-            <div class="text-3xl my-3">{{ instruction.title }}</div>
-            <div class="font-glight w-11/12 md:w-2/3 lg:w-1/2">
+            <div class="text-2xl md:text-3xl my-3">{{ instruction.title }}</div>
+            <div class="font-glight">
               {{ instruction.description }}
             </div>
             <div v-if="instruction.image">
@@ -101,7 +139,7 @@
         </div>
 
         <div class="animate-floating relative my-10">
-          <div class="absolute px-10" data-aos="fade-left">
+          <div class="absolute sm:px-10" data-aos="fade-left">
             <Post
               :post="temporaryPost"
               class="sm:w-l1 transform sm:rotate-12 sm:scale-90 z-10"
@@ -122,6 +160,8 @@
       <MadeWithLove />
     </div>
   </div>
+
+  <InstallPiPo @close="showInstall = false" v-if="showInstall" />
 </template>
 <script>
 import anime from "animejs/lib/anime.es.js";
@@ -133,6 +173,8 @@ import Icon from "@/components/user/userIcons";
 import LoginSVG from "@/components/login/loginSVG";
 import Background from "@/components/backgrounds/bgSVG";
 import MadeWithLove from "@/components/login/madeWithLove";
+import InstallPiPo from "@/components/login/installPiPo";
+
 import { setUser, templates } from "../composables/auth";
 import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -149,19 +191,20 @@ export default {
     MadeWithLove,
     Background,
     LoginSVG,
+    InstallPiPo,
     Post,
     Icon,
   },
   setup() {
     const router = useRouter();
     const { timeline, temporaryPost } = templates();
-
-    const { isLoggedIn, signInAttempt, hasAttemptedSignIn } = setUser();
-    const showLoading = ref(false);
-
-    if (hasAttemptedSignIn.value) showLoading.value = true;
+    const { isLoggedIn, user } = setUser();
+    const showInstall = ref(false);
+    const showLogin = ref(true);
 
     onMounted(() => {
+      if (isLoggedIn.value) showLogin.value = false;
+
       anime({
         targets: "#days",
         innerHTML: [0, 100],
@@ -179,22 +222,20 @@ export default {
 
     watch(isLoggedIn, async () => {
       if (isLoggedIn.value) {
-        showLoading.value = false;
         await router.push("/");
       }
     });
 
     const signIn = async () => {
       try {
-        signInAttempt();
         const provider = new firebase.auth.GoogleAuthProvider();
-        await firebase.auth().signInWithRedirect(provider);
+        await firebase.auth().signInWithPopup(provider);
       } catch (error) {
         console.log("Error while signing in with popup in firebase", error);
       }
     };
 
-    return { signIn, temporaryPost, showLoading, timeline };
+    return { signIn, temporaryPost, timeline, showInstall, showLogin, user };
   },
 };
 </script>

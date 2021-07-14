@@ -30,7 +30,7 @@
                   :src="people?.picture"
                   alt="profile-pic"
                   class="rounded-full"
-                  referrer="no-referrer"
+                  referrerpolicy="no-referrer"
                 />
                 <span
                   class="absolute top-2 -right-2 bg-myRed text-white rounded-full font-gbold px-2 text-xs"

@@ -40,11 +40,11 @@
       </div>
       <div class="flex mt-4">
         <div
-          class="text-white bg-myBlue border-2 text-sm border-myBlue mr-2 px-3 font-gbold rounded-md"
+          class="text-myBlue border-2 text-sm border-myBlue mr-2 px-3 font-gbold rounded-md"
           v-for="(tag, index) in post?.tags"
           :key="index"
         >
-          {{ tag }}
+          # {{ tag }}
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 <template>
   <div
     @click="$emit('closeModal')"
-    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-0 backdrop-filter backdrop-blur-3xl"
+    class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-0 "
   />
   <div
     class="fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
@@ -66,10 +66,10 @@
           <div
             v-for="(t, index) in post.tags"
             :key="index"
-            class="bg-myBlue text-white font-gbold inline-block rounded-md pl-3 py-1 mr-3"
+            class="text-myBlue border-2 border-myBlue font-gbold inline-block rounded-md pl-3 py-1 mr-3"
           >
             <div class="flex items-center">
-              <span>{{ t }}</span>
+              <span># {{ t }}</span>
               <span
                 class="cursor-pointer font-glight"
                 @click="post.tags?.splice(index, 1)"
@@ -158,7 +158,7 @@ import { useToast } from "vue-toastification";
 
 export default {
   components: { ModalSVG, Icon, InfoModal },
-  emits: ["closeModal", "confetti"],
+  emits: ["closeModal", "confetti", "updated"],
   setup(props, { emit }) {
     const confirmation = ref(false);
     const showInfo = ref(false);
@@ -203,6 +203,7 @@ export default {
 
       if (res === 0) {
         toast.success("Post successfully updated!🥳");
+        emit("updated", null);
         emit("closeModal", null);
       }
     };
