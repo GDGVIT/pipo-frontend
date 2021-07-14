@@ -153,7 +153,6 @@ export default {
 
     const signOutUser = async () => {
       await firebase.auth().signOut();
-      console.log("User has been signed out!");
       await router.push("/login");
     };
 

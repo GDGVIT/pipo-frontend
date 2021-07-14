@@ -79,7 +79,6 @@ export default {
     const showInProgress = (inp) => {
       if (inp) {
         const len = inp.length > 15 ? inp.length : 15;
-        console.log("inProgress", inProgress.value);
         for (let i = 0; i < len; i++)
           inProgress.value[i] = inp[i] ? inp[i] : {};
       }
@@ -88,7 +87,6 @@ export default {
     watchEffect(async () => {
       if (isLoggedIn.value) {
         await loadInProgress();
-        console.log("Logging");
         showInProgress(getInProgress.value);
       }
     });

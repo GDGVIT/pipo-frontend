@@ -136,7 +136,6 @@ export default {
       if (user.value?.isAdmin) {
         if (isLoggedIn.value) {
           const res = await postBadge(data);
-          console.log("Response on adding badge", res);
           if (res === 0) {
             emit("confetti", null);
             emit("close", null);

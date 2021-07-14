@@ -51,8 +51,8 @@ import {
   originalPosts,
   resizing,
   POSTS_COUNT,
-} from "../../composables/posts";
-import { setUser } from "../../composables/auth";
+} from "@/composables/posts";
+import { setUser } from "@/composables/auth";
 
 const Post = defineAsyncComponent({
   loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),

@@ -179,7 +179,6 @@ export default {
         if (profile.value?.amIFollowing) {
           isFollowing.value = profile.value.amIFollowing;
         }
-        console.log("Random user profile details", profile.value);
       }
     });
 

@@ -115,7 +115,6 @@ export default {
 
     const stopLoading = watchEffect(async () => {
       if (isLoggedIn.value && interestList.value.length === 0) {
-        console.log("Loading interests");
         await loadInterests();
         stopLoading();
       }

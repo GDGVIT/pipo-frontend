@@ -21,7 +21,6 @@ const postsOfAChallenge = () => {
           config.value
         )
         challengePosts.value = res.data.response.sort(sortByDate)
-        console.log('challenge posts so far..', challengePosts.value)
       } catch (err) {
         console.log('Error while loading posts of challenge from backend', err)
         error.value = err

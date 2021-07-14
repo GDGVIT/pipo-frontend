@@ -29,7 +29,7 @@
         @keyup="performSearch()"
         @keyup.up.prevent="highlightPrevious"
         @keydown.down.prevent="highlightNext"
-        @keydown.enter="showPostAtIndex()"
+        @keydown.enter="showPostAtIndex(highlightedIndex)"
         class="pl-4 border-b-2 w-full py-1 focus:outline-none font-glight"
         placeholder="Search (Press / to focus)"
         ref="search"
@@ -68,7 +68,7 @@
             highlightedIndex === index ? 'bg-gray-100' : '',
             'pl-4 py-2 font-glight cursor-pointer hover:bg-gray-100 border-b border-myBlue',
           ]"
-          v-for="(post, index) in searchPosts"
+          v-for="(post, index) in searches"
           :key="index"
           @mousedown.prevent="showPost(post)"
         >
@@ -85,7 +85,7 @@
           </div>
         </li>
       </div>
-      <li class="pl-4 py-2 font-glight" v-if="searchPosts.length === 0">
+      <li class="pl-4 py-2 font-glight" v-if="searches.length === 0">
         No results for your query 😓
       </li>
     </ul>
@@ -93,103 +93,41 @@
 </template>
 
 <script>
-import Fuse from "fuse.js";
 import Icon from "./navIcons.vue";
 import DropdownFocus from "./dropdownFocus.vue";
 import { ref, watchEffect } from "vue";
-import { onBeforeRouteUpdate, useRoute } from "vue-router";
-import { originalPosts, updateFuse } from "../../composables/posts";
-import { setUser } from "../../composables/auth";
+import { setUser } from "@/composables/auth";
+import { fuzzySearch } from "@/composables/fuzzySearch";
 
 export default {
   components: { DropdownFocus, Icon },
   setup() {
-    const query = ref("");
-    const searchPosts = ref([]);
-    const mainPosts = ref([]);
-    const searchResultsVisible = ref(false);
-    const search = ref(null);
-    const { immutablePosts } = originalPosts();
-    const { generalUpdate, myUpdate, randomUserUpdate } = updateFuse();
+    const {
+      query,
+      searches,
+      searchResultsVisible,
+      setPosts,
+      performSearch,
+      fixSearch,
+      showAll,
+      showPost,
+      showPostAtIndex,
+    } = fuzzySearch();
     const { isLoggedIn } = setUser();
-    const highlightedIndex = ref(0);
+
+    // for toggling and moving up and down using keyboard
     const results = ref(null);
-
-    const route = useRoute();
-    let fuse = null;
-    const options = {
-      includeMatches: true,
-      threshold: 0.5,
-      location: 0,
-      distance: 500,
-      maxPatternLength: 32,
-      minMatchCharLength: 1,
-      keys: ["badgeName", "title", "description", "tags"],
-    };
-
-    const setPosts = () => {
-      if (route.name === "generalPosts")
-        mainPosts.value = immutablePosts.general;
-      else if (route.name === "myPosts") mainPosts.value = immutablePosts.mine;
-      else if (route.name === "randomUserPosts")
-        mainPosts.value = immutablePosts.randomUser;
-      fuse = new Fuse(mainPosts.value, options);
-    };
+    const highlightedIndex = ref(0);
+    const search = ref(null);
 
     watchEffect(() => {
-      if (isLoggedIn.value) {
-        setPosts();
-      }
+      if (isLoggedIn.value) setPosts();
     });
-
-    const performSearch = () => {
-      const result = fuse?.search(query.value);
-      if (Array.isArray(result)) {
-        if (!query.value.length || query.value === "/all") {
-          searchPosts.value = mainPosts.value;
-        } else searchPosts.value = result.map((i) => i.item);
-      }
-    };
-
-    const fixSearch = () => {
-      if (route.name === "generalPosts") generalUpdate(searchPosts.value);
-      else if (route.name === "myPosts") myUpdate(searchPosts.value);
-      else if (route.name === "randomUserPosts")
-        randomUserUpdate(searchPosts.value);
-      searchResultsVisible.value = false;
-      query.value = "";
-    };
-
-    const showPost = (post) => {
-      const p = [];
-      p.push(post);
-      if (route.name === "generalPosts") generalUpdate(p);
-      else if (route.name === "myPosts") myUpdate(p);
-      else if (route.name === "randomUserPosts") {
-        randomUserUpdate(p);
-      }
-      query.value = "";
-      searchResultsVisible.value = false;
-    };
-
-    const showPostAtIndex = () => {
-      if (query.value === "/all") {
-        showAll();
-      } else {
-        showPost(searchPosts.value[highlightedIndex.value]);
-      }
-      query.value = "";
-    };
-
-    const showAll = () => {
-      searchPosts.value = mainPosts.value;
-      fixSearch();
-    };
 
     // For accessibility through keyboard
 
     const highlightNext = () => {
-      if (highlightedIndex.value < searchPosts.value.length - 1) {
+      if (highlightedIndex.value < searches.value.length - 1) {
         highlightedIndex.value++;
         scrollToView();
       }
@@ -214,27 +152,20 @@ export default {
       }
     };
 
-    onBeforeRouteUpdate(() => {
-      searchPosts.value = [];
-      searchResultsVisible.value = false;
-    });
-
     return {
       query,
+      searches,
       searchResultsVisible,
       search,
       performSearch,
-      slashSearch,
-      searchPosts,
-      mainPosts,
       fixSearch,
       showPost,
-      setPosts,
       showAll,
+      showPostAtIndex,
+      slashSearch,
       highlightedIndex,
       highlightNext,
       highlightPrevious,
-      showPostAtIndex,
       results,
     };
   },

@@ -21,7 +21,6 @@ const getProfile = () => {
       if (!userInfo.value && user.value?.userId) {
         const res = await api.get(`/user/${user.value.userId}`, config.value)
         userInfo.value = filterRandomUser(res.data)
-        console.log('user value', userInfo.value)
       }
     } catch (err) {
       console.log(
@@ -63,8 +62,6 @@ const socialCircle = () => {
           `/follow/following/${user.value.userId}`,
           config.value
         )
-
-        console.log('Following users', res.data)
         const len = res.data?.length
 
         if (len > 0) {
@@ -76,7 +73,7 @@ const socialCircle = () => {
             following.value?.push(u.data?.user)
           }
         }
-        console.log('Following', following.value)
+        // console.log('Following', following.value)
       } catch (err) {
         console.log('Error while fetching following of user from backend', err)
         error.value =
@@ -92,7 +89,6 @@ const socialCircle = () => {
           `/follow/followers/${user.value.userId}`,
           config.value
         )
-        console.log('Followers users', res.data)
         const len = res.data?.length
 
         if (len > 0) {
@@ -104,7 +100,7 @@ const socialCircle = () => {
             followers.value?.push(u.data?.user)
           }
         }
-        console.log('Followers', followers.value)
+        // console.log('Followers', followers.value)
       } catch (err) {
         console.log('Error while fetching followers of user from backend', err)
         error.value =
@@ -122,14 +118,11 @@ const socialCircle = () => {
           toast.warning("You can't follow yourself 🤨")
           return 1
         }
-
-        console.log('User id of the user to be followed..', userId)
         const res = await api.post(
           `/follow/toFollow/${userId}`,
           {},
           config.value
         )
-        console.log('Response from backend on following the user', res)
         if (res.data.message) {
           toast.error(res.data.message)
           return 1
@@ -160,7 +153,6 @@ const socialCircle = () => {
         const res = await api.get(`/user/${userId}`, config.value)
         const randomUserFiltered = filterRandomUser(res.data)
         randomUserInfo.value = randomUserFiltered
-        console.log('Random user details', randomUserInfo.value)
       } catch (err) {
         console.log(
           'Error while fetching random user details from backend',

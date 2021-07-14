@@ -166,7 +166,6 @@ export default {
           confetti.clear();
           clearInterval(confettiInterval);
         }
-        console.log("Showing confetti for ", time);
         time--;
       }, 1000);
     };

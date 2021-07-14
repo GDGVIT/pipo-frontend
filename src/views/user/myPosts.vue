@@ -119,7 +119,6 @@ export default {
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
-        console.log("Loading my posts");
         await loadMyPosts();
         myPosts.value = filtered.value;
 
@@ -155,7 +154,6 @@ export default {
           confetti.clear();
           clearInterval(confettiInterval);
         }
-        console.log("Showing confetti for ", time);
         time--;
       }, 1000);
     };

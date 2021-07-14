@@ -43,7 +43,6 @@ export default {
     const { messages } = notify();
 
     onMounted(async () => {
-      console.log("messages", messages.value);
       anime({
         targets: ".notificationsModal",
         scale: ["0", "1"],

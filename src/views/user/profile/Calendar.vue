@@ -89,7 +89,6 @@ export default {
     watchEffect(async () => {
       if (isLoggedIn.value) {
         // Get badge details
-        console.log("challengeId being sent", challengeId);
         badge.value = await badgeDetails(challengeId);
         await loadChallengePosts(challengeId);
       }

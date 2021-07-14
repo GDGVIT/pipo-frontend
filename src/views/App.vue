@@ -23,8 +23,6 @@ export default {
     firebase.auth().onAuthStateChanged(async (u) => {
       if (u) {
         try {
-          console.log("Firebase info", u);
-
           showLoading.value = true;
           // token from firebase
           const idToken = await firebase.auth().currentUser.getIdToken();
@@ -32,7 +30,7 @@ export default {
 
           const res = await api.post("/user/oAuth", { idToken: idToken });
 
-          console.log("User details from backend", res);
+          // console.log("User details from backend", res);
 
           // Retrieving details
           const userDetails = res.data.user;

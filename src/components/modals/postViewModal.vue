@@ -89,8 +89,9 @@
           <!-- tags -->
           <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12 col-span-10">
             <div
-              class="text-xs text-myBlue font-gbold px-3 py-1 rounded-md mr-2"
+              class="text-xs text-myBlue font-gbold px-3 py-1 rounded-md mr-2 cursor-pointer"
               v-for="(tag, index) in postModal?.tags"
+              @click="searchTag(tag + ' ')"
               :key="index"
             >
               # {{ tag }}
@@ -162,10 +163,9 @@
               v-if="comment.picture"
               :src="comment.picture"
               alt="profile-pic"
-              width="20"
-              height="20"
+              class="w-14 h-14 rounded-full"
             />
-            <Icon v-if="!comment.photoURL" name="profileIcon" />
+            <Icon v-if="!comment.picture" name="profileIcon" />
           </div>
           <!-- Comment -->
           <div class="col-span-full sm:col-span-10 lg:col-span-11 pl-3">
@@ -221,7 +221,7 @@ import PostSVG from "../post/postSVG";
 import UserIcon from "../user/userIcons.vue";
 import Icon from "@/components/navbar/navIcons";
 import { getComments, postModalFn } from "../../composables/posts";
-import { focusSearch } from "../../composables/fuzzySearch";
+import { focusSearch, fuzzySearch } from "../../composables/fuzzySearch";
 import { onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import { setUser } from "../../composables/auth";
 import { useRoute } from "vue-router";
@@ -254,6 +254,7 @@ export default {
       vote,
       deletePost,
     } = postModalFn();
+    const { query, performSearch, fixSearch } = fuzzySearch();
     const { loadComments, orderedComments, postComment } = getComments();
 
     onMounted(() => {
@@ -275,6 +276,13 @@ export default {
         if (route.name === "myPosts") isMyPosts.value = true;
       }
     });
+
+    const searchTag = (tag) => {
+      query.value = tag;
+      performSearch();
+      fixSearch();
+      emit("close", null);
+    };
 
     //update
     const update = () => (showUpdateModal.value = true);
@@ -305,7 +313,6 @@ export default {
     watchEffect(async () => {
       if (postModal.value) {
         await loadComments();
-        console.log("ordered comments are ", orderedComments.value);
       }
     });
 
@@ -338,6 +345,7 @@ export default {
       del,
       isMyPosts,
       close,
+      searchTag,
     };
   },
 };

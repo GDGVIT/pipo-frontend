@@ -117,7 +117,6 @@ export default {
     const showTodoInfo = ref(false);
 
     const add = async () => {
-      console.log("Adding todo");
       if (!isBlank(newTodo.value)) {
         await addTodo(newTodo.value);
         newTodo.value = "";
@@ -126,7 +125,6 @@ export default {
 
     const stopLoading = watchEffect(async () => {
       if (isLoggedIn.value && todolist.value.length === 0) {
-        console.log("Loading todos");
         await loadTodos();
         stopLoading();
       }
