@@ -208,7 +208,7 @@ const addPostFn = async (data, type) => {
       formData.append('badgeName', data.badgeName)
       formData.append('post', data.post)
 
-      console.log('Data from add post', data)
+      // console.log("Data from add post", data);
 
       if (type === 'POST') {
         const result = await api.post('/posts', formData, config.value)

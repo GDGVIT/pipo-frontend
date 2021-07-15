@@ -1,4 +1,10 @@
 <template>
+  <div @click="addPostModal = true">
+    <AddPostBtn />
+  </div>
+  <!-- Confetti background -->
+  <canvas id="confetti-holder" class="fixed top-0 w-full h-full -z-5" />
+  <!-- Followers posts display -->
   <div class="mt-24">
     <div class="text-white text-center font-gbold">
       <div class="text-4xl md:text-5xl tracking-wide">
@@ -31,18 +37,28 @@
     </div>
 
     <PostViewModal v-if="postModal" @close="postModal = false" />
+
+    <AddPostModal
+      v-if="addPostModal"
+      @confetti="showConfetti = true"
+      @closeModal="addPostModal = false"
+    />
   </div>
 </template>
 
 <script>
 import {
   defineAsyncComponent,
+  onBeforeUnmount,
   onMounted,
   onUpdated,
   ref,
   watch,
   watchEffect,
 } from "@vue/runtime-core";
+import ConfettiGenerator from "confetti-js";
+import AddPostModal from "@/components/modals/addPostModal";
+import AddPostBtn from "@/components/post/addPostBtn";
 import LoadMore from "@/components/loadComponents/loadMore";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
 import PostViewModal from "@/components/modals/postViewModal";
@@ -61,8 +77,9 @@ const Post = defineAsyncComponent({
 });
 
 export default {
-  components: { Post, PostViewModal, LoadMore },
+  components: { Post, PostViewModal, LoadMore, AddPostModal, AddPostBtn },
   setup() {
+    const addPostModal = ref(false);
     const postModal = ref(false);
     const homePosts = ref([]);
     const showLoadMore = ref(false);
@@ -94,8 +111,46 @@ export default {
     // For resizing the masonry
     window.addEventListener("resize", () => resizeGridItem(masonry.value));
 
+    // For confetti showcase
+    const showConfetti = ref(false);
+    let confettiInterval = null;
+    let confetti = null;
+    const confettiSettings = {
+      target: "confetti-holder",
+      max: 150,
+      rotate: true,
+    };
+
+    const runConfetti = () => {
+      let time = 5;
+      confetti = new ConfettiGenerator(confettiSettings);
+      confetti.render();
+      confettiInterval = setInterval(() => {
+        if (!time) {
+          showConfetti.value = false;
+          confetti.clear();
+          clearInterval(confettiInterval);
+        }
+        time--;
+      }, 1000);
+    };
+
+    watch(showConfetti, () => {
+      if (showConfetti.value) {
+        runConfetti();
+      }
+    });
+
+    onBeforeUnmount(() => {
+      if (confettiInterval) {
+        clearInterval(confettiInterval);
+        showConfetti.value = false;
+      }
+    });
+
     return {
       masonry,
+      addPostModal,
       postModal,
       homePosts,
       loadMore,

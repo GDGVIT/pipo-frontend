@@ -43,7 +43,9 @@
           >
             <Popper :hover="true" placement="top">
               <button>
-                <Icon name="editPencil" />
+                <label for="username">
+                  <Icon name="editPencil" />
+                </label>
               </button>
               <template #content>
                 <div
@@ -64,7 +66,6 @@
           </div>
           <input
             @keydown="updatingUsername = true"
-            v-click-outside="updateUsernameByClick"
             type="text"
             spellcheck="false"
             class="bg-myRed w-40 mx-auto text-center break-words focus:outline-none"
@@ -353,7 +354,6 @@ export default {
       if (updatingUsername.value) {
         const curr = profile.value?.user?.userName;
         const next = usernameRef.value;
-
         if (curr !== next) {
           if (checkUserName(next)) {
             changeUserDetails({ userName: next });

@@ -252,7 +252,9 @@ export default {
       const res = await addPostFn(post, "POST");
 
       if (res === 0) {
-        toast.success("Yayy! another day another post!🥳");
+        toast.success(
+          "Yayy! another day another post!🥳. Refresh the page to see the changes!"
+        );
         emit("confetti", null);
         emit("closeModal", null);
       }

@@ -21,7 +21,7 @@ export default {
     const router = useRouter();
 
     watchEffect(() => {
-      if (!isLoggedIn.value) router.push("/login");
+      if (isLoggedIn.value === false) router.push("/login");
     });
   },
 };
