@@ -1,25 +1,52 @@
 import { createApp } from 'vue'
 import App from './views/App.vue'
+import Toast, { POSITION } from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 import router from './router'
 import firebase from 'firebase/app'
-import store from './store'
+import Popper from 'vue3-popper'
+import './assets/tailwind.css'
+import './registerServiceWorker'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDVDVeUjgQ4MRV8371SCvMk4mQn02T_uZ0',
+  apiKey: process.env.VUE_APP_API_KEY,
   authDomain: 'pipo-api-oauth.firebaseapp.com',
   databaseURL:
     'https://pipo-api-oauth-default-rtdb.europe-west1.firebasedatabase.app',
   projectId: 'pipo-api-oauth',
   storageBucket: 'pipo-api-oauth.appspot.com',
-  messagingSenderId: '476866576555',
-  appId: '1:476866576555:web:dbfcf253fd5016eb8677ee',
-  measurementId: 'G-GVBMMPCS3S'
+  messagingSenderId: process.env.VUE_APP_MESSAGING_SENDER_ID,
+  appId: process.env.VUE_APP_APP_ID,
+  measurementId: process.env.VUE_APP_MEASUREMENT_ID
+}
+
+const clickOutside = {
+  beforeMount: (el, binding) => {
+    el.clickOutsideEvent = (event) => {
+      if (!(el === event.target || el.contains(event.target))) {
+        binding.value()
+      }
+    }
+    document.addEventListener('click', el.clickOutsideEvent)
+  },
+  unmounted: (el) => {
+    document.removeEventListener('click', el.clickOutsideEvent)
+  }
 }
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig)
 
-createApp(App)
+const app = createApp(App)
   .use(router)
-  .use(store)
+  .use(Toast, {
+    position: POSITION.TOP_CENTER,
+    toastClassName: 'font-gbold'
+  })
+  .directive('click-outside', clickOutside)
+  .component('Popper', Popper)
   .mount('#app')
+
+app.AOS = AOS.init()

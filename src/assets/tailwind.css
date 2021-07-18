@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+
+@font-face {
+  font-family: "Gilroy-Light";
+  src: local("Gilroy-Light"), url("./fonts/Gilroy-Light.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gilroy-ExtraBold";
+  src: local("Gilroy-ExtraBold"),
+    url("./fonts/Gilroy-ExtraBold.otf") format("opentype");
+  font-display: swap;
+}
+
+@tailwind utilities;
+
+.enlarge {
+  @apply transition duration-500 ease-in-out transform hover:scale-110;
+}
+
+.streak-btn {
+  @apply px-2 bg-myRed rounded-full text-white font-glight;
+}
+
+.navbar {
+  @apply fixed top-0 left-0 right-0 flex items-center justify-between h-16 font-gbold bg-white z-50;
+}
+
+.input-border {
+  @apply border-2 border-myBlue w-full block focus:outline-none;
+}
+
+.absolute-center {
+  @apply transform -translate-x-1/2 -translate-y-1/2;
+}
+
+.posts-container {
+  @apply sm:w-11/12 mx-auto mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-10 auto-rows-10;
+}
