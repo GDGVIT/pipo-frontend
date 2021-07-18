@@ -9,11 +9,21 @@
   >
     <div class="flex justify-between">
       <div class="flex items-center">
-        <span class="text-xl font-gbold">@ {{ profile?.user?.userName }}</span>
-        <span
-          class="bg-white text-myRed font-semibold ml-2 py-1 text-xs rounded-full px-2"
-          >{{ profile?.user?.points }} pts</span
-        >
+        <img
+          v-if="profile?.user?.picture"
+          :src="profile?.user.picture"
+          class="w-14 h-14 rounded-full mr-4"
+          alt="profile"
+          referrerpolicy="no-referrer"
+        />
+        <div>
+          <div class="text-xl font-gbold">@ {{ profile?.user?.userName }}</div>
+          <div
+            class="bg-white text-myRed font-semibold text-xs rounded-full px-2 inline-block"
+          >
+            {{ profile?.user?.points }} pts
+          </div>
+        </div>
       </div>
     </div>
     <div>

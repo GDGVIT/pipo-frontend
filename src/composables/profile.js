@@ -34,13 +34,18 @@ const getProfile = () => {
 
   const changeUserDetails = async (data) => {
     try {
-      await api.patch(
+      const res = await api.patch(
         '/user/update',
         {
           ...data
         },
         config.value
       )
+      const message = res.data.message
+      if (message) {
+        toast.warning(message)
+        throw new Error(message)
+      }
       toast.success('Username updated refresh page to see the changes')
     } catch (error) {
       console.log('Error while updating user details in the backend', error)

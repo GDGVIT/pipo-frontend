@@ -7,7 +7,7 @@ module.exports = {
     appleMobileWebAppStatusBarStyle: '#090B31',
     workboxPluginMode: 'InjectManifest',
     workboxOptions: {
-      swSrc: './firebase-messaging-sw.js'
+      swSrc: './public/firebase-messaging-sw.js'
     }
   }
 }

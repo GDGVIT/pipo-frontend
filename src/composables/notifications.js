@@ -74,7 +74,10 @@ const notify = () => {
   }
 
   const sendTokenToServer = (token) => {
-    return token
+    console.log(
+      'fcm token to be sent to server (console logged for backend verification purpose will be removed later)',
+      token
+    )
   }
 
   const messages = readonly(notifications)

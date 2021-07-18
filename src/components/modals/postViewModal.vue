@@ -14,25 +14,40 @@
         <!-- middle -->
         <div class="flex justify-between mt-4 items-center mx-5 md:mx-10">
           <!-- header -->
-          <div class="flex justify-start items-center">
-            <div class="text-lg font-gbold">
-              <router-link
-                :to="{
-                  name: 'randomUserPosts',
-                  params: {
-                    userId: `${postModal?.userId}`,
-                  },
-                }"
-                >@{{ postModal?.username }}</router-link
-              >
+          <router-link
+            :to="{
+              name: 'randomUserPosts',
+              params: {
+                userId: `${postModal?.userId}`,
+              },
+            }"
+          >
+            <div class="flex justify-start items-center">
+              <img
+                v-if="postModal.picture"
+                :src="postModal?.picture"
+                class="w-14 h-14 rounded-full mr-4"
+                alt="profile"
+                referrerpolicy="no-referrer"
+              />
+              <div>
+                <div
+                  :class="[
+                    !postModal.picture ? 'inline-block mr-4' : '',
+                    'text-xl font-gbold',
+                  ]"
+                >
+                  @{{ postModal?.username }}
+                </div>
+                <div
+                  v-if="postModal?.points"
+                  class="text-xs bg-myRed text-white font-gbold px-2 rounded-full inline-block"
+                >
+                  {{ postModal?.points }} pts
+                </div>
+              </div>
             </div>
-            <div
-              v-if="postModal?.points"
-              class="ml-3 text-xs bg-myRed text-white font-gbold px-2 rounded-full py-1"
-            >
-              {{ postModal?.points }} pts
-            </div>
-          </div>
+          </router-link>
           <div class="flex">
             <!-- Upvote and Comment -->
             <div class="flex items-center">
@@ -57,15 +72,15 @@
           </div>
         </div>
         <!-- Post Content -->
-        <div class="text-center mt-4">
+        <div class="text-center">
           <!-- title -->
-          <div class="text-2xl break-words my-7 font-gbold text-center px-10">
+          <div class="text-2xl break-words mb-7 font-gbold text-center px-10">
             {{ postModal?.title }}
           </div>
           <div
             :class="[
               postModal?.image?.length > 0 ? 'xl:grid-cols-3' : '',
-              'h-l1 overflow-y-auto grid px-20',
+              'h-96 overflow-y-auto grid px-20',
             ]"
           >
             <!-- Images -->
@@ -175,7 +190,66 @@
               </div>
               <div class="text-xs">{{ comment.createdAt }}</div>
             </div>
-            <div class="my-2">{{ comment.comment }}</div>
+            <div class="flex justify-between items-center">
+              <div v-if="!showUpdateComment">{{ comment.comment }}</div>
+              <div v-else class="relative w-full pr-4 sm:flex">
+                <input
+                  type="text"
+                  v-model="newComment"
+                  spellcheck="false"
+                  class="border-b-2 w-full focus:outline-none"
+                />
+                <div class="flex items-center gap-x-4">
+                  <div
+                    @click="updateCom(comment.commentId, newComment)"
+                    class="cursor-pointer w-6 h-6 text-myBlue"
+                  >
+                    <UserIcon name="tick" />
+                  </div>
+                  <div
+                    @click="showUpdateComment = false"
+                    class="cursor-pointer text-xs text-myBlue"
+                  >
+                    Close
+                  </div>
+                </div>
+              </div>
+              <div
+                class="flex items-center mt-2"
+                v-if="comment.userName === user.userName"
+              >
+                <div @click="deleteComment(comment.commentId)">
+                  <Popper :hover="true" placement="bottom">
+                    <button class="text-myBlue">
+                      <UserIcon name="bin" />
+                    </button>
+                    <template #content>
+                      <div
+                        class="w-28 font-glight relative -top-5 text-xs bg-myBlue text-white p-2 break-normal rounded-md text-center"
+                      >
+                        Delete Comment
+                      </div>
+                    </template>
+                  </Popper>
+                </div>
+                <Popper
+                  :hover="true"
+                  placement="bottom"
+                  @click="showUpdateComment = true"
+                >
+                  <button class="text-myBlue">
+                    <UserIcon name="editPencil" />
+                  </button>
+                  <template #content>
+                    <div
+                      class="w-32 relative -top-3 font-glight text-xs bg-myBlue text-white p-2 break-normal rounded-md text-center"
+                    >
+                      Update Comment
+                    </div>
+                  </template>
+                </Popper>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -214,16 +288,16 @@
 </template>
 
 <script>
+import { onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import anime from "animejs/lib/anime.es.js";
 import UpdateModal from "./updateModal.vue";
 import InfoModal from "./infoModal.vue";
-import PostSVG from "../post/postSVG";
-import UserIcon from "../user/userIcons.vue";
+import PostSVG from "@/components/post/postSVG";
+import UserIcon from "@/components/user/userIcons.vue";
 import Icon from "@/components/navbar/navIcons";
-import { getComments, postModalFn } from "../../composables/posts";
-import { focusSearch, fuzzySearch } from "../../composables/fuzzySearch";
-import { onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
-import { setUser } from "../../composables/auth";
+import { getComments, postModalFn } from "@/composables/posts";
+import { focusSearch, fuzzySearch } from "@/composables/fuzzySearch";
+import { setUser } from "@/composables/auth";
 import { useRoute } from "vue-router";
 
 export default {
@@ -243,6 +317,7 @@ export default {
     const userComment = ref(null);
     const showUpdateModal = ref(false);
     const showDeleteModal = ref(false);
+    const showUpdateComment = ref(false);
     const isMyPosts = ref(false);
     const route = useRoute();
     const { updateShouldFocusSearch } = focusSearch();
@@ -255,7 +330,13 @@ export default {
       deletePost,
     } = postModalFn();
     const { query, performSearch, fixSearch } = fuzzySearch();
-    const { loadComments, orderedComments, postComment } = getComments();
+    const {
+      loadComments,
+      orderedComments,
+      postComment,
+      updateComment,
+      deleteComment,
+    } = getComments();
 
     onMounted(() => {
       anime({
@@ -321,6 +402,11 @@ export default {
       userComment.value = null;
     };
 
+    const updateCom = (commentId, comment) => {
+      updateComment(commentId, comment);
+      showUpdateComment.value = false;
+    };
+
     onBeforeUnmount(() => updateShouldFocusSearch(true));
 
     // close
@@ -336,9 +422,12 @@ export default {
       upvoted,
       upvotePost,
       orderedComments,
+      updateCom,
+      deleteComment,
       isCommentActive,
       userComment,
       sendComment,
+      showUpdateComment,
       showUpdateModal,
       showDeleteModal,
       update,
@@ -346,6 +435,7 @@ export default {
       isMyPosts,
       close,
       searchTag,
+      user,
     };
   },
 };

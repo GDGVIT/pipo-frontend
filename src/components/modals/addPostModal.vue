@@ -172,12 +172,16 @@
   </div>
   <!-- Info modal for add post -->
   <InfoModal @close="showInfo = false" v-if="showInfo" modal="addPostInfo" />
+
+  <!-- Lost Streak modal -->
+  <LostStreakModal @close="showLostStreak = false" v-if="showLostStreak" />
 </template>
 
 <script>
 import anime from "animejs/lib/anime.es.js";
 import ModalSVG from "@/components/modals/modalSVG";
 import Icon from "@/components/post/postSVG";
+import LostStreakModal from "@/components/modals/lostStreakModal";
 import { getBadges } from "@/composables/badges";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { addPostFn, isBlank } from "@/composables/posts";
@@ -186,7 +190,7 @@ import { useToast } from "vue-toastification";
 import { focusSearch } from "@/composables/fuzzySearch";
 
 export default {
-  components: { ModalSVG, Icon, InfoModal },
+  components: { ModalSVG, Icon, InfoModal, LostStreakModal },
   emits: ["closeModal", "confetti"],
   setup(props, { emit }) {
     const { updateShouldFocusSearch } = focusSearch();
@@ -196,6 +200,7 @@ export default {
 
     const confirmation = ref(false);
     const showInfo = ref(false);
+    const showLostStreak = ref(false);
     const toast = useToast();
 
     const challengeTyped = ref(null);
@@ -257,6 +262,9 @@ export default {
         );
         emit("confetti", null);
         emit("closeModal", null);
+      } else if (res === 2) {
+        console.log("Setting the lost streak modal");
+        showLostStreak.value = true;
       }
     };
 
@@ -276,6 +284,7 @@ export default {
       challengeTyped,
       updatedChallenges,
       post,
+      showLostStreak,
       submitChallenge,
       onSelectImage,
       onSubmit,

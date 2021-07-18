@@ -39,7 +39,12 @@ const getBadges = () => {
 
         if (!badgeData.badgeName) throw new Error('Give the badge a name')
         if (!badgeData.days) throw new Error('Number of days must be filled')
-        if (!badgeData.hasChallenge) { throw new Error('Select whether the badge has streak or not') }
+        if (!badgeData.hasChallenge) {
+          throw new Error('Select whether the badge has streak or not')
+        }
+        if (!badgeData.badgeDescription) {
+          throw new Error('Give the badge some description!')
+        }
 
         const res = await api.post('/badge', badgeData, config.value)
         let { createdBadge } = res.data

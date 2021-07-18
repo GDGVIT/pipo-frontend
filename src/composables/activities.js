@@ -77,9 +77,8 @@ const getInterests = () => {
   }
 
   const deleteInterest = async (index) => {
-    const actualIndex = interests.value.length - index - 1
     try {
-      await api.delete('/tags', config.value, { arrIndex: actualIndex })
+      await api.delete('/tags', config.value, { arrIndex: index })
       interests.value.splice(index, 1)
     } catch (error) {
       console.log('Error while deleting interests from backend', error)

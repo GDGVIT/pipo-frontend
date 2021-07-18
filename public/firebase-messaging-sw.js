@@ -13,17 +13,22 @@ workbox.routing.registerRoute(
 
 // push notifs
 try {
-  firebase.initializeApp({
-    apiKey: 'AIzaSyDVDVeUjgQ4MRV8371SCvMk4mQn02T_uZ0',
-    authDomain: 'pipo-api-oauth.firebaseapp.com',
-    databaseURL:
-      'https://pipo-api-oauth-default-rtdb.europe-west1.firebasedatabase.app',
-    projectId: 'pipo-api-oauth',
-    storageBucket: 'pipo-api-oauth.appspot.com',
-    messagingSenderId: '476866576555',
-    appId: '1:476866576555:web:dbfcf253fd5016eb8677ee',
-    measurementId: 'G-GVBMMPCS3S'
+  // Set Firebase configuration, once available
+  self.addEventListener('fetch', () => {
+    const urlParams = new URLSearchParams(location.search)
+    self.firebaseConfig = Object.fromEntries(urlParams)
   })
+
+  // "Default" Firebase configuration (prevents errors)
+  const defaultConfig = {
+    apiKey: true,
+    projectId: true,
+    messagingSenderId: true,
+    appId: true
+  }
+
+  // Initialize Firebase app
+  firebase.initializeApp(self.firebaseConfig || defaultConfig)
 
   // Retrieve an instance of Firebase Messaging so that it can handle background
   // messages.

@@ -11,10 +11,26 @@
   >
     <div class="flex justify-between">
       <div class="flex items-center">
-        <span class="text-xl font-gbold">@ {{ post?.username }}</span>
-        <span class="streak-btn font-semibold ml-2 py-1 text-xs"
-          >{{ post?.points }} pts</span
-        >
+        <img
+          v-if="post.picture"
+          :src="post?.picture"
+          class="w-14 h-14 rounded-full mr-4"
+          alt="profile"
+          referrerpolicy="no-referrer"
+        />
+        <div>
+          <div
+            :class="[
+              !post.picture ? 'inline-block mr-4' : '',
+              'text-xl font-gbold',
+            ]"
+          >
+            @ {{ post?.username }}
+          </div>
+          <div class="streak-btn font-semibold text-xs inline-block">
+            {{ post?.points }} pts
+          </div>
+        </div>
       </div>
       <div class="flex items-center">
         <postSVG name="likeLight" />

@@ -150,10 +150,10 @@
 
 <script>
 import ModalSVG from "./modalSVG";
-import Icon from "../post/postSVG";
+import Icon from "@/components/post/postSVG";
 import { reactive, ref, watchEffect } from "vue";
-import { addPostFn, postModalFn, isBlank } from "../../composables/posts";
-import InfoModal from "../../components/modals/infoModal";
+import { addPostFn, postModalFn, isBlank } from "@/composables/posts";
+import InfoModal from "@/components/modals/infoModal";
 import { useToast } from "vue-toastification";
 
 export default {

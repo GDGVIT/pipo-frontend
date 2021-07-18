@@ -212,6 +212,11 @@ const addPostFn = async (data, type) => {
 
       if (type === 'POST') {
         const result = await api.post('/posts', formData, config.value)
+        if (result.data.response.isStreakBroken) {
+          toast.info(result.data.response.message)
+          sem.canAddPost = true
+          return 2
+        }
         const postCreated = filterMyPost(
           result.data.response.postCreated,
           user
@@ -455,7 +460,48 @@ const getComments = () => {
     }
   }
 
-  return { loadComments, orderedComments, postComment }
+  const updateComment = async (commentId, comment) => {
+    if (commentId) {
+      try {
+        await api.patch(
+          `/posts/updateComment/${commentId}`,
+          { comment },
+          config.value
+        )
+        const indexOfComment = comments.value.findIndex(
+          (obj) => obj.commentId === commentId
+        )
+        comments.value[indexOfComment].comment = comment
+        toast.success('Comment has been updated!')
+      } catch (error) {
+        console.log('Error while updating the comment', error)
+        err.value = error.message
+      }
+    }
+  }
+
+  const deleteComment = async (commentId) => {
+    if (commentId) {
+      try {
+        await api.delete(`/posts/deleteComment/${commentId}`, config.value)
+        comments.value = comments.value.filter(
+          (obj) => obj.commentId !== commentId
+        )
+        toast.success('Comment deleted!')
+      } catch (error) {
+        console.log('Error while deleting the comment', error)
+        err.value = error.message
+      }
+    }
+  }
+
+  return {
+    orderedComments,
+    loadComments,
+    postComment,
+    updateComment,
+    deleteComment
+  }
 }
 
 // POSTS OF A USER
