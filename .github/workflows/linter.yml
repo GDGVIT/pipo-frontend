@@ -56,5 +56,7 @@ jobs:
           VALIDATE_DOCKERFILE: false
           VALIDATE_DOCKERFILE_HADOLINT: false
           VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_JSCPD: false
           VALIDATE_BASH: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILTER_REGEX_EXCLUDE: .*src/.*assets/.*.css
