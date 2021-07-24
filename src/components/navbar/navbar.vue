@@ -16,7 +16,7 @@
         <router-link class="whitespace-nowrap" :to="{ name: 'myPosts' }"
           >My Posts</router-link
         >
-        <router-link :to="{ name: 'badges' }">Badges</router-link>
+        <router-link :to="{ name: 'badges' }">Challenges</router-link>
       </div>
     </div>
 
@@ -102,7 +102,7 @@
           <router-link :to="{ name: 'home' }">Home</router-link>
           <router-link :to="{ name: 'generalPosts' }">Leaderboard</router-link>
           <router-link :to="{ name: 'myPosts' }">My Posts</router-link>
-          <router-link :to="{ name: 'badges' }">Badges</router-link>
+          <router-link :to="{ name: 'badges' }">Challenges</router-link>
           <div>
             <button
               class="bg-myRed text-white font-gbold text-base px-4 py-2 cursor-pointer hover:opacity-90 rounded-md"
