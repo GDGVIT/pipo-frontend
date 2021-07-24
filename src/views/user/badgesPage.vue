@@ -140,17 +140,17 @@ export default {
 
         myBadges.value = getInProgress.value;
 
-        getCompleted.value.forEach((c) => {
+        getCompleted.value?.forEach((c) => {
           let found = false;
-          myBadges.value.forEach((m) => {
+          myBadges.value?.forEach((m) => {
             if (c.badgeId === m.badgeId) found = true;
           });
           if (!found) myBadges.value.push(c);
         });
 
-        available.value = getAllBadges.value.filter((a) => {
+        available.value = getAllBadges.value?.filter((a) => {
           let found = false;
-          myBadges.value.forEach((m) => {
+          myBadges.value?.forEach((m) => {
             if (a?.badgeId === m?.badgeId) found = true;
           });
           return !found;

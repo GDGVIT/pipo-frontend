@@ -174,7 +174,11 @@
   <InfoModal @close="showInfo = false" v-if="showInfo" modal="addPostInfo" />
 
   <!-- Lost Streak modal -->
-  <LostStreakModal @close="showLostStreak = false" v-if="showLostStreak" />
+  <LostStreakModal
+    @confetti="$emit('confetti', null)"
+    @close="closeCompletely()"
+    v-if="showLostStreak"
+  />
 </template>
 
 <script>
@@ -184,7 +188,7 @@ import Icon from "@/components/post/postSVG";
 import LostStreakModal from "@/components/modals/lostStreakModal";
 import { getBadges } from "@/composables/badges";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { addPostFn, isBlank } from "@/composables/posts";
+import { addPost, isBlank } from "@/composables/posts";
 import InfoModal from "@/components/modals/infoModal";
 import { useToast } from "vue-toastification";
 import { focusSearch } from "@/composables/fuzzySearch";
@@ -195,6 +199,8 @@ export default {
   setup(props, { emit }) {
     const { updateShouldFocusSearch } = focusSearch();
     const { getAllBadges, loadBadges } = getBadges();
+    const { addPostFn } = addPost();
+
     const challenges = ref([]);
     const updatedChallenges = ref([]);
 
@@ -263,9 +269,13 @@ export default {
         emit("confetti", null);
         emit("closeModal", null);
       } else if (res === 2) {
-        console.log("Setting the lost streak modal");
         showLostStreak.value = true;
       }
+    };
+
+    const closeCompletely = () => {
+      showLostStreak.value = false;
+      emit("closeModal", null);
     };
 
     const revoke = () => {
@@ -289,6 +299,7 @@ export default {
       onSelectImage,
       onSubmit,
       previewLink,
+      closeCompletely,
       showInfo,
       revoke,
     };

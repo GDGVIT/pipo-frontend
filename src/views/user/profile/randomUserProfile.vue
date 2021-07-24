@@ -157,16 +157,20 @@ import { ref, watchEffect } from "@vue/runtime-core";
 import { useRoute } from "vue-router";
 import { setUser } from "@/composables/auth";
 import { socialCircle } from "@/composables/profile";
+import { getUserBadges } from "@/composables/badges";
+
 export default {
   components: { Icon },
   setup() {
     const route = useRoute();
+    const completedBadges = ref([]);
     const { isLoggedIn } = setUser();
     const {
       followThisPerson,
       getRandomUserProfile,
       randomUserDetails,
     } = socialCircle();
+    const { loadCompletedOfRandomUser, getCompletedOfRandom } = getUserBadges();
     const isFollowing = ref(false);
     const completed = ref([]);
 
@@ -175,7 +179,11 @@ export default {
     watchEffect(async () => {
       if (route.params.userId && isLoggedIn.value) {
         await getRandomUserProfile(route.params.userId);
+        await loadCompletedOfRandomUser(route.params.userId);
         profile.value = randomUserDetails.value;
+        completedBadges.value = getCompletedOfRandom.value;
+
+        // console.log("Completed badges of random user", completedBadges.value);
         if (profile.value?.amIFollowing) {
           isFollowing.value = profile.value.amIFollowing;
         }

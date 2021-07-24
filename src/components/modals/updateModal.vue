@@ -152,7 +152,7 @@
 import ModalSVG from "./modalSVG";
 import Icon from "@/components/post/postSVG";
 import { reactive, ref, watchEffect } from "vue";
-import { addPostFn, postModalFn, isBlank } from "@/composables/posts";
+import { addPost, postModalFn, isBlank } from "@/composables/posts";
 import InfoModal from "@/components/modals/infoModal";
 import { useToast } from "vue-toastification";
 
@@ -166,6 +166,7 @@ export default {
 
     const tag = ref("");
     const { getCurrentPost } = postModalFn();
+    const { addPostFn } = addPost();
 
     const post = reactive({
       title: null,

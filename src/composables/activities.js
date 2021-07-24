@@ -10,7 +10,7 @@ const getTodos = () => {
   const loadTodos = async () => {
     try {
       const res = await api.get('/todo', config.value)
-      todos.value = res.data.message ? [] : res.data.reverse()
+      todos.value = res.data.message ? [] : res.data
     } catch (error) {
       console.log('Error while loading todos from backend', error)
     }
@@ -19,7 +19,7 @@ const getTodos = () => {
   const addTodo = async (data) => {
     try {
       await api.post('/todo', { todo: data }, config.value)
-      todos.value.unshift(data)
+      todos.value.push(data)
     } catch (error) {
       console.log('Error while adding todo to backend', error)
     }
@@ -60,7 +60,7 @@ const getInterests = () => {
     if (interests.value.length === 0) {
       try {
         const res = await api.get('/tags', config.value)
-        interests.value = res.data.message ? [] : res.data?.reverse()
+        interests.value = res.data.message ? [] : res.data
       } catch (error) {
         console.log('Error while loading interests from backend', error)
       }
@@ -70,7 +70,7 @@ const getInterests = () => {
   const addInterests = async (data) => {
     try {
       await api.post('/tags', { tag: data }, config.value)
-      interests.value.unshift(data)
+      interests.value.push(data)
     } catch (error) {
       console.log('Error while adding interest to backend', error)
     }

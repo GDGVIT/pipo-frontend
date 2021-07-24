@@ -34,6 +34,9 @@ const fuse = reactive({
   home: []
 })
 
+// current post to be sent
+const currentPost = ref(null)
+
 const latestPost = ref(null)
 const currIndex = ref(0)
 const count = ref(POSTS_COUNT)
@@ -79,6 +82,7 @@ const getLatestPost = () => {
       err.value = "Couldn't load your latest post 🙄"
     }
   }
+
   return { updateLatestPost, latestPost }
 }
 
@@ -95,10 +99,10 @@ const home = () => {
           config.value
         )
         const homePosts = res.data.posts.map((post) => {
-          const p = { ...post.postList, ...post.user }
-          p.username = post.user.userName
-          return p
+          post.username = post.userName
+          return post
         })
+        // console.log("home posts", homePosts);
         posts.home = filterPost(homePosts)
         fuse.home = filterPost(homePosts)
         // console.log('home posts', homePosts)
@@ -183,71 +187,154 @@ const myPostsFn = () => {
 }
 
 // ADD POST
-const addPostFn = async (data, type) => {
-  if (sem.canAddPost) {
-    sem.canAddPost = false
-    const { config, user } = setUser()
-    try {
-      const formData = new FormData()
-      if (data.tags) {
-        let tags = ''
-        data.tags.forEach((tag) => {
-          tags += tag + ','
-        })
-        tags = tags.slice(0, -1)
-        formData.append('tags', tags)
-      }
-      if (!data.badgeName) throw new Error('User did not select any challenge')
-      if (!data.title) throw new Error('User has not given title to the post')
-      if (!data.description) {
-        throw new Error('User has not given any description')
-      }
+const addPost = () => {
+  const { config, user } = setUser()
 
-      formData.append('title', data.title)
-      formData.append('description', data.description)
-      formData.append('badgeName', data.badgeName)
-      formData.append('post', data.post)
-
-      // console.log("Data from add post", data);
-
-      if (type === 'POST') {
-        const result = await api.post('/posts', formData, config.value)
-        if (result.data.response.isStreakBroken) {
-          toast.info(result.data.response.message)
-          sem.canAddPost = true
-          return 2
+  const addPostFn = async (data, type) => {
+    if (sem.canAddPost) {
+      sem.canAddPost = false
+      try {
+        const formData = new FormData()
+        if (data.tags) {
+          let tags = ''
+          data.tags.forEach((tag) => {
+            tags += tag + ','
+          })
+          tags = tags.slice(0, -1)
+          formData.append('tags', tags)
         }
+        if (!data.badgeName) { throw new Error('User did not select any challenge') }
+        if (!data.title) { throw new Error('User has not given title to the post') }
+        if (!data.description) {
+          throw new Error('User has not given any description')
+        }
+
+        // console.log("Data from add post", data);
+
+        formData.append('title', data.title)
+        formData.append('description', data.description)
+        formData.append('badgeName', data.badgeName)
+        formData.append('post', data.post)
+
+        currentPost.value = formData
+        // console.log("Data from add post", formData.get("title"));
+
+        if (type === 'POST') {
+          // console.log("Running post request");
+          const result = await api.post('/posts', formData, config.value)
+          // console.log("Response on adding post from backend", result);
+          if (result.data.response.isStreakBroken) {
+            toast.info(result.data.response.message)
+            sem.canAddPost = true
+            return 2
+          }
+          const postCreated = filterMyPost(
+            result.data.response.postCreated,
+            user
+          )
+          posts.mine.unshift(postCreated)
+          latestPost.value = postCreated
+
+          // no need to store
+          currentPost.value = null
+        } else if (type === 'PATCH') {
+          if (data.postId) {
+            const result = await api.patch(
+              `/posts/${data.postId}`,
+              formData,
+              config.value
+            )
+            if (!result.data.response.update) {
+              throw new Error(
+                "Couldn't update the post try again after sometime😕"
+              )
+            }
+          }
+        }
+
+        sem.canAddPost = true
+        return 0
+      } catch (error) {
+        console.log('Error while sending post to the backend', error)
+        err.value = error.message
+
+        sem.canAddPost = true
+        return 1
+      }
+    }
+  }
+
+  const restartPost = async () => {
+    if (sem.canAddPost) {
+      sem.canAddPost = false
+      // console.log("Data to be sent as of now", currentPost.value);
+      try {
+        const result = await api.post(
+          '/posts/restart',
+          currentPost.value,
+          config.value
+        )
+
+        const message = result.data?.response?.message
+        if (message) toast.info(message)
+
         const postCreated = filterMyPost(
           result.data.response.postCreated,
           user
         )
         posts.mine.unshift(postCreated)
         latestPost.value = postCreated
-      } else if (type === 'PATCH') {
-        if (data.postId) {
-          const result = await api.patch(
-            `/posts/${data.postId}`,
-            formData,
-            config.value
-          )
-          if (!result.data.response.update) {
-            throw new Error(
-              "Couldn't update the post try again after sometime😕"
-            )
-          }
-        }
+
+        // no need to store
+        currentPost.value = null
+        sem.canAddPost = true
+        return 0
+      } catch (error) {
+        console.log('Error while sending the post on restart', error)
+        err.value =
+          'Unable to upload a post right now. Try again after sometime! 🙄'
+        sem.canAddPost = true
+        return 1
       }
-
-      sem.canAddPost = true
-      return 0
-    } catch (error) {
-      console.log('Error while sending post to the backend', error)
-      err.value = error.message
-
-      sem.canAddPost = true
-      return 1
     }
   }
+
+  const usePoints = async () => {
+    if (sem.canAddPost) {
+      sem.canAddPost = false
+      // console.log("Data to be sent as of now", currentPost.value);
+      try {
+        const result = await api.post(
+          '/posts/usePoints',
+          currentPost.value,
+          config.value
+        )
+
+        const message = result.data?.response?.message
+        if (message) toast.info(message)
+
+        const postCreated = filterMyPost(
+          result.data.response.postCreated,
+          user
+        )
+        posts.mine.unshift(postCreated)
+        latestPost.value = postCreated
+
+        // no need to store
+        currentPost.value = null
+        sem.canAddPost = true
+        return 0
+      } catch (error) {
+        console.log('Error while sending the post on restart', error)
+        err.value =
+          'Unable to upload a post right now. Try again after sometime! 🙄'
+        sem.canAddPost = true
+        return 1
+      }
+    }
+  }
+
+  return { addPostFn, restartPost, usePoints }
 }
 
 // POST MODAL
@@ -266,9 +353,13 @@ const postModalFn = () => {
         ? fuse.mine
             ? fuse.mine[currIndex?.value]
             : null
-        : fuse.randomUser
-          ? fuse.randomUser[currIndex?.value]
-          : null
+        : route.name === 'randomUserPosts'
+          ? fuse.randomUser
+              ? fuse.randomUser[currIndex?.value]
+              : null
+          : fuse.home
+            ? fuse.home[currIndex?.value]
+            : null
   })
 
   const getNextPost = () => {
@@ -285,6 +376,11 @@ const postModalFn = () => {
     } else if (
       route.name === 'randomUserPosts' &&
       currIndex.value < fuse.randomUser.length - 1
+    ) {
+      currIndex.value++
+    } else if (
+      route.name === 'home' &&
+      currIndex.value < fuse.home.length - 1
     ) {
       currIndex.value++
     }
@@ -324,7 +420,11 @@ const postModalFn = () => {
               posts.general[index].upvotes.push(user.value.userId)
             } else if (route.name === 'myPosts') {
               posts.mine[index].upvotes.push(user.value.userId)
-            } else posts.randomUser[index].upvotes.push(user.value.userId)
+            } else if (route.name === 'randomUserPosts') {
+              posts.randomUser[index].upvotes.push(user.value.userId)
+            } else {
+              posts.home[index].upvotes.push(user.value.userId)
+            }
           }
         } catch (error) {
           console.log('Error while upvoting the post', err)
@@ -349,11 +449,14 @@ const postModalFn = () => {
             } else if (route.name === 'myPosts') {
               const rm = posts.mine[index]?.upvotes?.indexOf(user.value.userId)
               posts.mine[index]?.upvotes?.splice(rm, 1)
-            } else {
+            } else if (route.name === 'randomUserPosts') {
               const rm = posts.randomUser[index]?.upvotes?.indexOf(
                 user.value.userId
               )
               posts.randomUser[index]?.upvotes?.splice(rm, 1)
+            } else {
+              const rm = posts.home[index]?.upvotes?.indexOf(user.value.userId)
+              posts.home[index]?.upvotes?.splice(rm, 1)
             }
           }
         } catch (error) {
@@ -406,7 +509,11 @@ const getComments = () => {
         ? fuse.general[currIndex?.value]?.postId
         : route.name === 'myPosts'
           ? fuse.mine[currIndex?.value]?.postId
-          : fuse.randomUser[currIndex?.value]?.postId
+          : route.name === 'randomUserPosts'
+            ? fuse.randomUser[currIndex?.value]?.postId
+            : route.name === 'home'
+              ? fuse.home[currIndex?.value]?.postId
+              : ''
 
     try {
       const res = await api.get(`/posts/getComments/${id}`, config.value)
@@ -423,7 +530,6 @@ const getComments = () => {
   const orderedComments = computed(() => {
     return comments.value.sort(sortByDate).map((comment) => {
       // If username is null make it anonymous
-
       comment.userName = validateUserName(
         comment.userName ? comment.userName : 'anonymous'
       )
@@ -446,7 +552,9 @@ const getComments = () => {
             ? fuse.general[currIndex?.value]?.postId
             : route.name === 'myPosts'
               ? fuse.mine[currIndex?.value]?.postId
-              : fuse.randomUser[currIndex?.value]?.postId
+              : route.name === 'randomUserPosts'
+                ? fuse.randomUser[currIndex?.value]?.postId
+                : fuse.home[currIndex?.value].postId
       }
 
       try {
@@ -575,16 +683,18 @@ const filterMyPosts = (posts, user) => {
 
 const filterMyPost = (post, user) => {
   try {
-    post.upvotes = post.upvotes ? post.upvotes : []
-    post.points = user.value ? user.value.points : 0
-    post.username = validateUserName(user.value?.userName)
-    post.identicon = generateIdenticon(
-      post.badgeName ? post.badgeName : 'anonymous'
-    )
-    post.createDate = !post.createDate?.includes('ago')
-      ? timeAgo(new Date(), new Date(post.createDate))
-      : post.createDate
-    return post
+    if (post && user) {
+      post.upvotes = post.upvotes ? post.upvotes : []
+      post.points = user.value ? user.value.points : 0
+      post.username = validateUserName(user.value?.userName)
+      post.identicon = generateIdenticon(
+        post.badgeName ? post.badgeName : 'anonymous'
+      )
+      post.createDate = !post.createDate?.includes('ago')
+        ? timeAgo(new Date(), new Date(post.createDate))
+        : post.createDate
+      return post
+    }
   } catch (error) {
     console.log('Error while filtering my post', error)
   }
@@ -633,7 +743,7 @@ export {
   resizing,
   getPosts,
   postModalFn,
-  addPostFn,
+  addPost,
   getComments,
   getLatestPost,
   myPostsFn,

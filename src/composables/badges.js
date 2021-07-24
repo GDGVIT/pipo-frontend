@@ -9,6 +9,7 @@ const completed = ref([])
 const inProgress = ref([])
 const toast = useToast()
 const err = ref(null)
+const completedOfRandom = ref([])
 
 // semaphore
 const canAddBadge = ref(true)
@@ -103,14 +104,38 @@ const getUserBadges = () => {
     }
   }
 
+  const loadCompletedOfRandomUser = async (userId) => {
+    try {
+      const res = await api.get(`/badge/completed/${userId}`, config.value)
+      console.log('Loading completed badges of user from backend', res)
+      const completedBadges = res.data.completedBadges
+      completedOfRandom.value = addIdenticons(completedBadges)
+    } catch (error) {
+      console.log(
+        'Error while retrieving completed badges of random user',
+        error
+      )
+      err.value =
+        'Error while loading completed badges of this user. Try again later 🙄'
+    }
+  }
+
   const getInProgress = readonly(inProgress)
   const getCompleted = readonly(completed)
+  const getCompletedOfRandom = readonly(completedOfRandom)
 
-  return { loadInProgress, loadCompleted, getInProgress, getCompleted }
+  return {
+    loadInProgress,
+    loadCompleted,
+    loadCompletedOfRandomUser,
+    getInProgress,
+    getCompleted,
+    getCompletedOfRandom
+  }
 }
 
 const sortByUpvotes = (a, b) => b.upvotes - a.upvotes
-const addIdenticons = (badges) => badges.map((badge) => addIdenticon(badge))
+const addIdenticons = (badges) => badges?.map((badge) => addIdenticon(badge))
 const addIdenticon = (badge) => {
   badge.identicon = generateIdenticon(badge.badgeName)
   return badge

@@ -24,7 +24,7 @@
           >
             <div class="flex justify-start items-center">
               <img
-                v-if="postModal.picture"
+                v-if="postModal?.picture"
                 :src="postModal?.picture"
                 class="w-14 h-14 rounded-full mr-4"
                 alt="profile"
@@ -33,7 +33,7 @@
               <div>
                 <div
                   :class="[
-                    !postModal.picture ? 'inline-block mr-4' : '',
+                    !postModal?.picture ? 'inline-block mr-4' : '',
                     'text-xl font-gbold',
                   ]"
                 >
@@ -261,6 +261,7 @@
           class="border-b border-gray-400 col-span-11 w-full px-5 py-2"
           type="text"
           placeholder="write a comment here..."
+          @keydown.enter="sendComment"
         />
         <div
           @click="sendComment"

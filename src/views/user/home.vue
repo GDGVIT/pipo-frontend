@@ -10,12 +10,17 @@
       <div class="text-4xl md:text-5xl tracking-wide">
         Daily Feed
       </div>
+      <div class="text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
+        The up-to-date posts of people you follow
+      </div>
     </div>
     <div ref="masonry" class="posts-container">
       <Post
         v-for="(post, index) in homePosts"
         :masonry="masonry"
         :key="index"
+        data-aos="fade-up"
+        :data-aos-delay="index * 100"
         class="post"
         :post="post"
         :index="index"
@@ -153,6 +158,7 @@ export default {
       addPostModal,
       postModal,
       homePosts,
+      showConfetti,
       loadMore,
       showLoadMore,
     };
