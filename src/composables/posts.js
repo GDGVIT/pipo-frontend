@@ -500,26 +500,26 @@ const postModalFn = () => {
     }
   }
 
-  const deletePost = async (postId) => {
-    try {
-      if (postId) {
-        const result = await api.delete(`/posts/${postId}`, config.value)
-        if (result.data?.response?.message) {
-          toast.info(result.data.response.message)
-          return 0
-        }
-        const outcome = result.data.response.deleted
-        if (outcome && outcome === 1) {
-          toast.info(
-            "Post deleted successfully! Don't forget to add a new post to maintain your streak 😗. Refresh the page to see the changes"
-          )
-        }
-      }
-    } catch (error) {
-      console.log('Error while deleting this post from backend', error)
-      err.value = 'Some issue with deleting posts. Try again after sometime😣'
-    }
-  }
+  // const deletePost = async (postId) => {
+  //   try {
+  //     if (postId) {
+  //       const result = await api.delete(`/posts/${postId}`, config.value)
+  //       if (result.data?.response?.message) {
+  //         toast.info(result.data.response.message)
+  //         return 0
+  //       }
+  //       const outcome = result.data.response.deleted
+  //       if (outcome && outcome === 1) {
+  //         toast.info(
+  //           "Post deleted successfully! Don't forget to add a new post to maintain your streak 😗. Refresh the page to see the changes"
+  //         )
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log('Error while deleting this post from backend', error)
+  //     err.value = 'Some issue with deleting posts. Try again after sometime😣'
+  //   }
+  // }
 
   return {
     getCurrentPost,
@@ -527,8 +527,8 @@ const postModalFn = () => {
     getPrevPost,
     openPost,
     vote,
-    assignIndex,
-    deletePost
+    assignIndex
+    // deletePost
   }
 }
 

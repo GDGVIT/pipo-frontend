@@ -282,19 +282,19 @@
     v-if="showUpdateModal"
   />
 
-  <InfoModal
+  <!-- <InfoModal
     @close="showDeleteModal = false"
     @delete="del()"
     v-if="showDeleteModal"
     modal="deleteConfirmation"
-  />
+  /> -->
 </template>
 
 <script>
 import { onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import anime from "animejs/lib/anime.es.js";
 import UpdateModal from "./updateModal.vue";
-import InfoModal from "./infoModal.vue";
+// import InfoModal from "./infoModal.vue";
 import PostSVG from "@/components/post/postSVG";
 import UserIcon from "@/components/user/userIcons.vue";
 import Icon from "@/components/navbar/navIcons";
@@ -308,7 +308,7 @@ export default {
     PostSVG,
     Icon,
     UpdateModal,
-    InfoModal,
+    // InfoModal,
     UserIcon,
   },
   emits: ["close", "confetti"],
@@ -319,7 +319,7 @@ export default {
     const { isLoggedIn, user } = setUser();
     const userComment = ref(null);
     const showUpdateModal = ref(false);
-    const showDeleteModal = ref(false);
+    // const showDeleteModal = ref(false);
     const showUpdateComment = ref(false);
     const isMyPosts = ref(false);
     const route = useRoute();
@@ -330,7 +330,7 @@ export default {
       getNextPost,
       getPrevPost,
       vote,
-      deletePost,
+      // deletePost,
     } = postModalFn();
     const { query, performSearch, fixSearch } = fuzzySearch();
     const {
@@ -372,10 +372,10 @@ export default {
     const update = () => (showUpdateModal.value = true);
 
     //delete
-    const del = async () => {
-      await deletePost(postModal.value?.postId);
-      emit("close", null);
-    };
+    // const del = async () => {
+    //   await deletePost(postModal.value?.postId);
+    //   emit("close", null);
+    // };
 
     //Shift
     const next = () => {
@@ -432,9 +432,9 @@ export default {
       sendComment,
       showUpdateComment,
       showUpdateModal,
-      showDeleteModal,
+      // showDeleteModal,
       update,
-      del,
+      // del,
       isMyPosts,
       close,
       searchTag,

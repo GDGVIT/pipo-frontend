@@ -33,7 +33,7 @@
         </div>
       </div>
       <div class="flex items-center">
-        <postSVG name="likeLight" />
+        <PostSVG :name="upvoted ? 'likeDark' : 'likeLight'" />
         <span style="font-size:12px">{{ post?.upvotes?.length }}</span>
       </div>
     </div>
@@ -67,23 +67,33 @@
   </div>
 </template>
 <script>
-import postSVG from "./postSVG";
+import PostSVG from "@/components/post/postSVG";
 import { postModalFn, resizing } from "../../composables/posts";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
+import { ref, watchEffect } from "@vue/runtime-core";
+import { setUser } from "@/composables/auth";
 
 export default {
-  components: { postSVG, LoadingCard },
+  components: { PostSVG, LoadingCard },
   props: ["post", "index", "masonry"],
   setup(props, { emit }) {
+    const upvoted = ref(false);
     const { assignIndex } = postModalFn();
     const { resizeGridItem } = resizing();
+    const { user } = setUser();
+
+    watchEffect(() => {
+      upvoted.value = props.post?.upvotes.includes(user.value.userId)
+        ? true
+        : false;
+    });
 
     const openPostModal = () => {
       emit("open", null);
       assignIndex(props.index);
     };
 
-    return { openPostModal, resizeGridItem };
+    return { openPostModal, resizeGridItem, upvoted };
   },
 };
 </script>
