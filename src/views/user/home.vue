@@ -37,7 +37,7 @@
       <div></div>
     </div>
 
-    <div v-if="showLoadMore">
+    <div v-if="showMore">
       <LoadMore @click="loadMore()" />
     </div>
 
@@ -67,12 +67,7 @@ import AddPostBtn from "@/components/post/addPostBtn";
 import LoadMore from "@/components/loadComponents/loadMore";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
 import PostViewModal from "@/components/modals/postViewModal";
-import {
-  home,
-  originalPosts,
-  resizing,
-  POSTS_COUNT,
-} from "@/composables/posts";
+import { home, resizing, POSTS_COUNT } from "@/composables/posts";
 import { setUser } from "@/composables/auth";
 
 const Post = defineAsyncComponent({
@@ -87,25 +82,21 @@ export default {
     const addPostModal = ref(false);
     const postModal = ref(false);
     const homePosts = ref([]);
-    const showLoadMore = ref(false);
 
     const masonry = ref(null);
     const { isLoggedIn } = setUser();
     const { resizeGridItem } = resizing();
-    const { loadHomePosts, filtered, loadMore } = home();
-    const { immutablePosts } = originalPosts();
+    const { loadHomePosts, filtered, loadMore, showMore } = home();
 
     //for the purpose of loading cards
     onMounted(() => {
-      for (let i = 0; i < 5; i++) homePosts.value.push(null);
+      for (let i = 0; i < POSTS_COUNT; i++) homePosts.value.push(null);
     });
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
         await loadHomePosts();
         homePosts.value = filtered.value;
-        if (immutablePosts.general.length > POSTS_COUNT)
-          showLoadMore.value = true;
       }
     });
 
@@ -160,7 +151,7 @@ export default {
       homePosts,
       showConfetti,
       loadMore,
-      showLoadMore,
+      showMore,
     };
   },
 };

@@ -12,8 +12,8 @@
           <span class="text-myRed text-lg font-gbold"
             >{{ user?.userName ? user?.userName : "anonymous" }}.
           </span>
-          Here are all the posts you have posted so far. Post more or challenge
-          your buddies to earn points. Remember to maintain your streaks to earn
+          Here are all the posts you have posted so far. Earn points by gaining
+          more upvotes to your posts. Remember to maintain your streaks to earn
           those shiny badges ✨.
         </div>
       </div>
@@ -48,7 +48,7 @@
       challenge you would like to work on and earn badges.🔥
     </div>
 
-    <div v-if="showLoadMore">
+    <div v-if="showMore">
       <LoadMore @click="loadMore()" />
     </div>
 
@@ -73,12 +73,7 @@ import AddPostBtn from "@/components/post/addPostBtn";
 import AddPostModal from "@/components/modals/addPostModal";
 import ConfettiGenerator from "confetti-js";
 
-import {
-  myPostsFn,
-  resizing,
-  originalPosts,
-  POSTS_COUNT,
-} from "../../composables/posts";
+import { myPostsFn, resizing, POSTS_COUNT } from "../../composables/posts";
 import {
   defineAsyncComponent,
   onBeforeUnmount,
@@ -105,12 +100,10 @@ export default {
     const myPostModal = ref(false);
     const masonry = ref(null);
     const addPostModal = ref(false);
-    const showLoadMore = ref(false);
 
-    const { loadMyPosts, filtered, loadMore } = myPostsFn();
+    const { loadMyPosts, filtered, loadMore, showMore } = myPostsFn();
     const { isLoggedIn, user } = setUser();
     const { resizeGridItem } = resizing();
-    const { immutablePosts } = originalPosts();
 
     //for the purpose of loading cards
     onMounted(() => {
@@ -121,9 +114,6 @@ export default {
       if (isLoggedIn.value) {
         await loadMyPosts();
         myPosts.value = filtered.value;
-
-        if (immutablePosts.mine.length > POSTS_COUNT) showLoadMore.value = true;
-
         resizeGridItem(masonry.value);
       }
     });
@@ -178,7 +168,7 @@ export default {
       loadMore,
       masonry,
       user,
-      showLoadMore,
+      showMore,
       showConfetti,
     };
   },

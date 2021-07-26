@@ -76,8 +76,8 @@
       <div class="mt-20 mb-5">
         <!-- Profile pic -->
         <div class="grid place-items-center pt-4 pb-10">
-          <router-link :to="{ name: 'userProfile' }">
-            <div class="relative">
+          <div class="relative">
+            <router-link :to="{ name: 'userProfile' }">
               <div class="ml-4">
                 <Icon v-if="!isLoggedIn" name="profileIcon" />
               </div>
@@ -87,14 +87,14 @@
                 :src="photo"
                 referrerpolicy="no-referrer"
               />
-              <div
-                @click="showNotifications = true"
-                class="absolute -top-6 -right-24 rounded-full bg-gray-100 p-1 border border-black"
-              >
-                <Icon name="notificationsIcon" />
-              </div>
+            </router-link>
+            <div
+              @click="showNotifications = true"
+              class="absolute -top-6 -right-24 rounded-full bg-gray-100 p-1 border border-black"
+            >
+              <Icon name="notificationsIcon" />
             </div>
-          </router-link>
+          </div>
         </div>
         <div
           class="grid grid-rows-5 mt-5 font-glight text-lg gap-y-14 place-items-center"

@@ -90,6 +90,7 @@ const getLatestPost = () => {
 const home = () => {
   const { config } = setUser()
   count.value = POSTS_COUNT
+  const showLoadMore = ref(true)
 
   const loadHomePosts = async () => {
     if (config.value) {
@@ -106,6 +107,8 @@ const home = () => {
         posts.home = filterPost(homePosts)
         fuse.home = filterPost(homePosts)
         // console.log('home posts', homePosts)
+
+        if (count.value >= fuse.home.length) showLoadMore.value = false
       } catch (error) {
         console.log(
           'Error while receiving posts of people user is following from backend',
@@ -117,12 +120,17 @@ const home = () => {
     }
   }
 
-  const loadMore = async () =>
-    (count.value += fuse.home.length < count.value ? 0 : 8)
+  const showMore = readonly(showLoadMore)
 
+  const loadMore = async () => {
+    count.value += count.value < fuse.home ? 0 : 8
+
+    if (count.value >= fuse.home.length) showLoadMore.value = false
+    else showLoadMore.value = true
+  }
   const filtered = computed(() => fuse.home.slice(0, count.value))
 
-  return { loadHomePosts, loadMore, filtered }
+  return { loadHomePosts, loadMore, filtered, showMore }
 }
 
 // GENERAL POSTS
@@ -130,6 +138,7 @@ const getPosts = () => {
   // To reset the count to 8
   count.value = POSTS_COUNT
   const { config } = setUser()
+  const showLoadMore = ref(true)
 
   const loadPosts = async () => {
     if (config.value) {
@@ -138,6 +147,9 @@ const getPosts = () => {
         const latestPosts = res2.data.posts
         posts.general = filterPost(latestPosts)
         fuse.general = filterPost(latestPosts)
+
+        if (count.value >= fuse.general.length) showLoadMore.value = false
+
         // console.log('General posts', posts.general)
       } catch (error) {
         console.log('Error while receiving latest posts from backend', error)
@@ -146,18 +158,25 @@ const getPosts = () => {
     }
   }
 
-  const loadMore = async () =>
-    (count.value += fuse.general.length < count.value ? 0 : 8)
+  const showMore = readonly(showLoadMore)
+
+  const loadMore = async () => {
+    count.value += count.value < fuse.general ? 0 : 8
+
+    if (count.value >= fuse.general.length) showLoadMore.value = false
+    else showLoadMore.value = true
+  }
 
   const filtered = computed(() => fuse.general.slice(0, count.value))
 
-  return { loadPosts, loadMore, filtered }
+  return { loadPosts, loadMore, filtered, showMore }
 }
 
 // MY POSTS
 const myPostsFn = () => {
   count.value = POSTS_COUNT
   const { config, user } = setUser()
+  const showLoadMore = ref(true)
 
   const loadMyPosts = async () => {
     try {
@@ -170,6 +189,8 @@ const myPostsFn = () => {
         // console.log('my posts', myposts)
         posts.mine = myposts
         fuse.mine = myposts
+
+        if (count.value >= fuse.mine.length) showLoadMore.value = false
       }
     } catch (error) {
       console.log('Error while receiving latest posts from backend', error)
@@ -180,10 +201,16 @@ const myPostsFn = () => {
 
   const filtered = computed(() => fuse.mine.slice(0, count.value))
 
-  const loadMore = async () =>
-    (count.value += fuse.mine.length < fuse.mine ? 0 : 8)
+  const showMore = readonly(showLoadMore)
 
-  return { filtered, loadMore, loadMyPosts }
+  const loadMore = async () => {
+    count.value += count.value < fuse.mine.length ? 0 : 8
+
+    if (count.value >= fuse.mine.length) showLoadMore.value = false
+    else showLoadMore.value = true
+  }
+
+  return { filtered, loadMore, loadMyPosts, showMore }
 }
 
 // ADD POST
@@ -213,7 +240,7 @@ const addPost = () => {
           throw new Error('User has not given any description')
         }
 
-        console.log('Data from add post from UI', data)
+        // console.log("Data from add post from UI", data);
 
         formData.append('title', data.title)
         formData.append('description', data.description)
@@ -226,7 +253,7 @@ const addPost = () => {
         if (type === 'POST') {
           console.log('Running post request')
           const result = await api.post('/posts', formData, config.value)
-          console.log('Response on adding post from backend', result)
+          // console.log("Response on adding post from backend", result);
           if (result.data.response.isStreakBroken) {
             toast.info(result.data.response.message)
             sem.canAddPost = true

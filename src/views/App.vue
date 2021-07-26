@@ -30,7 +30,7 @@ export default {
 
           const res = await api.post("/user/oAuth", { idToken: idToken });
 
-          console.log("User details from backend", res);
+          // console.log("User details from backend", res);
 
           // Retrieving details
           const userDetails = res.data.user;
