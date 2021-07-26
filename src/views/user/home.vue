@@ -7,10 +7,10 @@
   <!-- Followers posts display -->
   <div class="mt-24">
     <div class="text-white text-center font-gbold">
-      <div class="text-4xl md:text-5xl tracking-wide">
+      <div class="text-2xl sm:text-4xl md:text-5xl tracking-wide">
         Daily Feed
       </div>
-      <div class="text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
+      <div class="text-sm sm:text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
         The up-to-date posts of people you follow
       </div>
     </div>

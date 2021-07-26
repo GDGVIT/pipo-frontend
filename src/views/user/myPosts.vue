@@ -4,10 +4,10 @@
     <div class="flex justify-between items-start py-8 md:py-10 md:px-20">
       <!-- Para -->
       <div class="text-white w-2/3 text-center sm:text-left mx-auto sm:ml-8">
-        <div class="font-gbold text-4xl lg:text-5xl tracking-wide">
+        <div class="font-gbold text-2xl sm:text-4xl lg:text-5xl tracking-wide">
           Your Posts🌠
         </div>
-        <div class="mt-6">
+        <div class="mt-6 text-sm sm:text-base">
           Welcome back!,
           <span class="text-myRed text-lg font-gbold"
             >{{ user?.userName ? user?.userName : "anonymous" }}.

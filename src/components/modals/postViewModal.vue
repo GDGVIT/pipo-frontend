@@ -72,9 +72,11 @@
           </div>
         </div>
         <!-- Post Content -->
-        <div class="text-center">
+        <div class="text-center mt-2">
           <!-- title -->
-          <div class="text-2xl break-words mb-7 font-gbold text-center px-10">
+          <div
+            class="text-xl sm:text-2xl break-words mb-7 font-gbold text-center px-10"
+          >
             {{ postModal?.title }}
           </div>
           <div
@@ -93,7 +95,7 @@
               </div>
             </div>
             <!-- content -->
-            <div class="px-8">
+            <div class="sm:px-8">
               {{ postModal?.description }}
             </div>
           </div>

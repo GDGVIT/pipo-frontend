@@ -203,13 +203,17 @@ const addPost = () => {
           tags = tags.slice(0, -1)
           formData.append('tags', tags)
         }
-        if (!data.badgeName) { throw new Error('User did not select any challenge') }
-        if (!data.title) { throw new Error('User has not given title to the post') }
+        if (!data.badgeName) {
+          throw new Error('User did not select any challenge')
+        }
+        if (!data.title) {
+          throw new Error('User has not given title to the post')
+        }
         if (!data.description) {
           throw new Error('User has not given any description')
         }
 
-        // console.log("Data from add post", data);
+        console.log('Data from add post from UI', data)
 
         formData.append('title', data.title)
         formData.append('description', data.description)
@@ -220,9 +224,9 @@ const addPost = () => {
         // console.log("Data from add post", formData.get("title"));
 
         if (type === 'POST') {
-          // console.log("Running post request");
+          console.log('Running post request')
           const result = await api.post('/posts', formData, config.value)
-          // console.log("Response on adding post from backend", result);
+          console.log('Response on adding post from backend', result)
           if (result.data.response.isStreakBroken) {
             toast.info(result.data.response.message)
             sem.canAddPost = true
@@ -473,6 +477,10 @@ const postModalFn = () => {
     try {
       if (postId) {
         const result = await api.delete(`/posts/${postId}`, config.value)
+        if (result.data?.response?.message) {
+          toast.info(result.data.response.message)
+          return 0
+        }
         const outcome = result.data.response.deleted
         if (outcome && outcome === 1) {
           toast.info(

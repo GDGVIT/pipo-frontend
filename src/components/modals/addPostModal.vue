@@ -4,7 +4,7 @@
     class="fixed top-0 bottom-0 left-0 right-0 z-10 bg-black opacity-70 "
   />
   <div
-    class="addPostModal fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-hidden"
+    class="addPostModal fixed bg-white h-4/5 z-30 top-28 p-14 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
   >
     <span
       @click="$emit('closeModal')"
@@ -13,23 +13,23 @@
       <Icon name="close" />
     </span>
     <div>
-      <div class="text-3xl font-gbold flex items-center">
+      <div class="text-xl sm:text-3xl font-gbold flex items-center">
         <span>Add a Post 🔖</span>
         <div @click="showInfo = true">
           <Icon name="info" />
         </div>
       </div>
-      <div class="my-6">
+      <div class="hidden sm:block my-6 text-sm sm:text-base">
         Record your experience with people around the world!. Select the
         challenge you wish to conquer!. Along with that enter the title,
         description and atleast one image of your work. Be creative with your
         words. As most upvoted posts get to be in the main page!
       </div>
     </div>
-    <div class="h-2/3 overflow-y-auto">
+    <div class="my-4 sm:px-7">
       <div class="grid sm:grid-cols-4 gap-4 md:px-10 items-center">
         <label for="challenge">Challenge</label>
-        <div class="col-span-3 relative">
+        <div class="col-span-full sm:col-span-3 relative">
           <input
             id="challengeInput"
             type="text"
@@ -59,7 +59,7 @@
         </div>
         <label for="title">Title</label>
         <input
-          class="input-border col-span-3"
+          class="input-border col-span-full sm:col-span-3"
           type="text"
           name="title"
           id="title"
@@ -70,7 +70,7 @@
         <textarea
           name="description"
           id="description"
-          class="input-border resize-none col-span-3"
+          class="input-border resize-none col-span-full sm:col-span-3"
           style="height:10em"
           autocomplete="off"
           v-model="post.description"
@@ -78,15 +78,14 @@
         <label for="tags">Tags</label>
         <input
           type="text"
-          class="input-border col-span-3"
+          class="input-border col-span-full sm:col-span-3"
           name="tags"
           autocomplete="off"
           v-model="tag"
           @keydown.enter="addTag()"
         />
-
         <!-- Tags display -->
-        <div class="col-start-2 col-span-3">
+        <div class="sm:col-start-2 col-span-full sm:col-span-3">
           <div
             v-for="(t, index) in post.tags"
             :key="index"
