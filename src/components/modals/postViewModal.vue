@@ -104,7 +104,7 @@
         <!-- Tags and update and delete -->
         <div class="grid grid-cols-12 items-center">
           <!-- tags -->
-          <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12 col-span-10">
+          <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12 col-span-11">
             <div
               class="text-xs text-myBlue font-gbold px-3 py-1 rounded-md mr-2 cursor-pointer"
               v-for="(tag, index) in postModal?.tags"
@@ -132,7 +132,7 @@
               </div>
             </template>
           </Popper>
-          <div @click="showDeleteModal = true" v-if="isMyPosts">
+          <!-- <div @click="showDeleteModal = true" v-if="isMyPosts">
             <Popper :hover="true" placement="top">
               <button class="text-myBlue">
                 <UserIcon name="bin" />
@@ -145,7 +145,7 @@
                 </div>
               </template>
             </Popper>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="absolute top-64 right-5 arrow-bounce" @click="next()">
