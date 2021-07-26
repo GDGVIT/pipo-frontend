@@ -230,6 +230,9 @@ const addPost = () => {
           tags = tags.slice(0, -1)
           formData.append('tags', tags)
         }
+        if (!data.tags?.length) {
+          throw new Error('User has not given any tags')
+        }
         if (!data.badgeName) {
           throw new Error('User did not select any challenge')
         }

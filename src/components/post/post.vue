@@ -83,7 +83,7 @@ export default {
     const { user } = setUser();
 
     watchEffect(() => {
-      upvoted.value = props.post?.upvotes.includes(user.value.userId)
+      upvoted.value = props.post?.upvotes.includes(user.value?.userId)
         ? true
         : false;
     });

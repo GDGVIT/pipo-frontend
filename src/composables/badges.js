@@ -86,6 +86,7 @@ const getUserBadges = () => {
       const res = await api.get('/badge/inProgress', config.value)
       const inProgressBadges = res.data.inProgressbadges
       inProgress.value = addIdenticons(inProgressBadges)
+      console.log('in progress badges', inProgress.value)
     } catch (error) {
       console.log('Error while retrieving in progress badges', error)
       err.value =
@@ -96,7 +97,7 @@ const getUserBadges = () => {
   const loadCompleted = async () => {
     try {
       const res = await api.get('/badge/completed', config.value)
-      const completedBadges = res.data.completedBadges
+      const completedBadges = res.data.completedbadges
       completed.value = addIdenticons(completedBadges)
     } catch (error) {
       console.log('Error while retrieving completed badges', error)
