@@ -254,7 +254,6 @@ const addPost = () => {
         // console.log("Data from add post", formData.get("title"));
 
         if (type === 'POST') {
-          console.log('Running post request')
           const result = await api.post('/posts', formData, config.value)
           // console.log("Response on adding post from backend", result);
           if (result.data.response.isStreakBroken) {

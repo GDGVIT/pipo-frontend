@@ -108,7 +108,6 @@ const getUserBadges = () => {
   const loadCompletedOfRandomUser = async (userId) => {
     try {
       const res = await api.get(`/badge/completed/${userId}`, config.value)
-      console.log('Loading completed badges of user from backend', res)
       const completedBadges = res.data.completedBadges
       completedOfRandom.value = addIdenticons(completedBadges)
     } catch (error) {
