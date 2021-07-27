@@ -7,8 +7,11 @@
   <!-- Followers posts display -->
   <div class="mt-24">
     <div class="text-white text-center font-gbold">
-      <div class="text-4xl md:text-5xl tracking-wide">
+      <div class="text-2xl sm:text-4xl md:text-5xl tracking-wide">
         Daily Feed
+      </div>
+      <div class="text-sm sm:text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
+        The up-to-date posts of people you follow
       </div>
     </div>
     <div ref="masonry" class="posts-container">
@@ -16,6 +19,8 @@
         v-for="(post, index) in homePosts"
         :masonry="masonry"
         :key="index"
+        data-aos="fade-up"
+        :data-aos-delay="index * 100"
         class="post"
         :post="post"
         :index="index"
@@ -32,7 +37,7 @@
       <div></div>
     </div>
 
-    <div v-if="showLoadMore">
+    <div v-if="showMore">
       <LoadMore @click="loadMore()" />
     </div>
 
@@ -62,12 +67,7 @@ import AddPostBtn from "@/components/post/addPostBtn";
 import LoadMore from "@/components/loadComponents/loadMore";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
 import PostViewModal from "@/components/modals/postViewModal";
-import {
-  home,
-  originalPosts,
-  resizing,
-  POSTS_COUNT,
-} from "@/composables/posts";
+import { home, resizing, POSTS_COUNT } from "@/composables/posts";
 import { setUser } from "@/composables/auth";
 
 const Post = defineAsyncComponent({
@@ -82,25 +82,21 @@ export default {
     const addPostModal = ref(false);
     const postModal = ref(false);
     const homePosts = ref([]);
-    const showLoadMore = ref(false);
 
     const masonry = ref(null);
     const { isLoggedIn } = setUser();
     const { resizeGridItem } = resizing();
-    const { loadHomePosts, filtered, loadMore } = home();
-    const { immutablePosts } = originalPosts();
+    const { loadHomePosts, filtered, loadMore, showMore } = home();
 
     //for the purpose of loading cards
     onMounted(() => {
-      for (let i = 0; i < 5; i++) homePosts.value.push(null);
+      for (let i = 0; i < POSTS_COUNT; i++) homePosts.value.push(null);
     });
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
         await loadHomePosts();
         homePosts.value = filtered.value;
-        if (immutablePosts.general.length > POSTS_COUNT)
-          showLoadMore.value = true;
       }
     });
 
@@ -153,8 +149,9 @@ export default {
       addPostModal,
       postModal,
       homePosts,
+      showConfetti,
       loadMore,
-      showLoadMore,
+      showMore,
     };
   },
 };

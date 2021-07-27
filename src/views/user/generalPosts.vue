@@ -8,10 +8,10 @@
   <div class="mt-24">
     <!-- Title -->
     <div class="text-white text-center font-gbold">
-      <div class="text-4xl md:text-5xl tracking-wide">
+      <div class="text-2xl sm:text-4xl md:text-5xl tracking-wide">
         Leaderboard
       </div>
-      <div class="text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
+      <div class="text-sm sm:text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
         Add Posts. Gain Upvotes. Earn Points and Badges.
       </div>
     </div>
@@ -30,7 +30,7 @@
       />
     </div>
 
-    <div v-if="showLoadMore">
+    <div v-if="showMore">
       <LoadMore @click="loadMore()" />
     </div>
   </div>
@@ -62,12 +62,7 @@ import PostViewModal from "@/components/modals/postViewModal";
 import AddPostBtn from "@/components/post/addPostBtn";
 import ConfettiGenerator from "confetti-js";
 import { setUser } from "@/composables/auth";
-import {
-  getPosts,
-  originalPosts,
-  POSTS_COUNT,
-  resizing,
-} from "@/composables/posts";
+import { getPosts, resizing, POSTS_COUNT } from "@/composables/posts";
 
 const Post = defineAsyncComponent({
   loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
@@ -89,25 +84,21 @@ export default {
     const addPostModal = ref(false);
     const postModal = ref(false);
     const posts = ref([]);
-    const showLoadMore = ref(false);
 
     const masonry = ref(null);
     const { isLoggedIn } = setUser();
-    const { loadPosts, filtered, loadMore } = getPosts();
+    const { loadPosts, filtered, loadMore, showMore } = getPosts();
     const { resizeGridItem } = resizing();
-    const { immutablePosts } = originalPosts();
 
     //for the purpose of loading cards
     onMounted(() => {
-      for (let i = 0; i < 5; i++) posts.value.push(null);
+      for (let i = 0; i < POSTS_COUNT; i++) posts.value.push(null);
     });
 
     watchEffect(async () => {
       if (isLoggedIn.value) {
         await loadPosts();
         posts.value = filtered.value;
-        if (immutablePosts.general.length > POSTS_COUNT)
-          showLoadMore.value = true;
       }
     });
 
@@ -161,7 +152,7 @@ export default {
       postModal,
       posts,
       loadMore,
-      showLoadMore,
+      showMore,
       showConfetti,
     };
   },

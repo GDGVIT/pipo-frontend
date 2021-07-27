@@ -31,26 +31,35 @@
         </div>
       </div>
       <!-- Content -->
+
       <div class="pt-3 pb-8 text-center md:text-left md:col-span-3 md:ml-4">
-        <div class="font-gbold text-4xl md:text-5xl py-5">
-          {{ randomUser?.user?.userName }}
-        </div>
-        <div class="text-sm">
-          <span class="pr-2">Following : {{ randomUser?.following }}</span>
-          <span class="p-2">Followers : {{ randomUser?.followers }}</span>
-        </div>
-        <div v-if="randomUser" class="mt-5">
-          <div v-if="randomUser?.user?.tags.length > 0" class="text-xs">
-            Interests
+        <router-link
+          :to="{
+            name: 'randomUserProfile',
+            params: { userId: randomUser?.user?.userId },
+          }"
+        >
+          <div class="font-gbold text-4xl md:text-5xl py-5">
+            {{ randomUser?.user?.userName }}
           </div>
-          <div
-            v-for="(interest, index) in randomUser?.user?.tags"
-            :key="index"
-            class="inline-block mr-2 py-1 font-gbold text-myRed break-all"
-          >
-            {{ interest }}
+          <div class="text-sm">
+            <span class="pr-2">Following : {{ randomUser?.following }}</span>
+            <span class="p-2">Followers : {{ randomUser?.followers }}</span>
           </div>
-        </div>
+          <div v-if="randomUser" class="mt-5">
+            <div v-if="randomUser?.user?.tags.length > 0" class="text-xs">
+              Interests
+            </div>
+            <div
+              v-for="(interest, index) in randomUser?.user?.tags"
+              :key="index"
+              class="inline-block mr-2 py-1 font-gbold text-myRed break-all"
+            >
+              {{ interest }}
+            </div>
+          </div>
+        </router-link>
+
         <div v-if="randomUser" class="pt-6">
           <button
             v-if="!isFollowing"

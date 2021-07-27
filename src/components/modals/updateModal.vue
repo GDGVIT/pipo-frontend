@@ -105,6 +105,14 @@
             accept="image/*"
           />
         </div>
+        <div v-if="previewLink" class="col-span-full grid place-items-center">
+          <img
+            :src="previewLink"
+            alt="preview-img"
+            width="300"
+            @load="revoke()"
+          />
+        </div>
       </div>
 
       <div v-if="!confirmation" class="text-center mt-10">
@@ -152,7 +160,7 @@
 import ModalSVG from "./modalSVG";
 import Icon from "@/components/post/postSVG";
 import { reactive, ref, watchEffect } from "vue";
-import { addPostFn, postModalFn, isBlank } from "@/composables/posts";
+import { addPost, postModalFn, isBlank } from "@/composables/posts";
 import InfoModal from "@/components/modals/infoModal";
 import { useToast } from "vue-toastification";
 
@@ -166,6 +174,8 @@ export default {
 
     const tag = ref("");
     const { getCurrentPost } = postModalFn();
+    const { addPostFn } = addPost();
+    const previewLink = ref(null);
 
     const post = reactive({
       title: null,
@@ -196,13 +206,20 @@ export default {
 
     const onSelectImage = (event) => {
       post.post = event.target.files[0];
+      previewLink.value = URL.createObjectURL(event.target.files[0]);
+    };
+
+    const revoke = () => {
+      URL.revokeObjectURL(previewLink);
     };
 
     const onSubmit = async () => {
       const res = await addPostFn(post, "PATCH");
 
       if (res === 0) {
-        toast.success("Post successfully updated!🥳");
+        toast.success(
+          "Post successfully updated!🥳. Refresh the page to see the changes"
+        );
         emit("updated", null);
         emit("closeModal", null);
       }
@@ -215,7 +232,9 @@ export default {
       post,
       onSelectImage,
       onSubmit,
+      revoke,
       showInfo,
+      previewLink,
     };
   },
 };

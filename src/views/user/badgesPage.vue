@@ -6,10 +6,13 @@
   >
     <!-- Intro -->
     <div class="p-10 pb-4">
-      <div class="font-gbold text-xl sm:text-2xl lg:text-3xl mb-5">Badges</div>
+      <div class="font-gbold text-xl sm:text-2xl lg:text-3xl mb-5">
+        Challenges
+      </div>
       <div class="text-sm sm:text-base">
-        These are all the badges PiPo can offer you🐧. More badges coming soon.
-        Gotta catch em all!
+        These are all the challenges PiPo can offer you🐧. More challenges
+        coming soon. At the end of each challenge you earn a badge. Gotta catch
+        em all!
       </div>
     </div>
     <!-- Post a badge btn -->
@@ -20,7 +23,7 @@
       Post A Badge +
     </button>
 
-    <div class="text-sm sm:text-base grid grid-cols-2 mt-4 place-items-center">
+    <div class="text-sm sm:text-base grid grid-cols-2 mt-2 place-items-center">
       <div
         @click="showMyBadges = true"
         :class="[
@@ -28,7 +31,7 @@
           'text-myBlue font-gbold py-2 cursor-pointer transition-all',
         ]"
       >
-        My Badges
+        My Challenges
       </div>
       <div
         @click="showMyBadges = false"
@@ -44,7 +47,7 @@
 
     <!-- My badges -->
     <div class="sm:px-10">
-      <div class="h-56 overflow-y-auto overflow-x-hidden">
+      <div class="h-72 overflow-y-auto overflow-x-hidden">
         <!-- My Badges -->
         <div
           v-if="showMyBadges"
@@ -115,7 +118,7 @@ export default {
   components: { BadgeInfoModal, BadgeModal },
   setup() {
     const { isLoggedIn } = setUser();
-    const showMyBadges = ref(true);
+    const showMyBadges = ref(false);
 
     const myBadges = ref([]);
     const available = ref([]);
@@ -140,17 +143,17 @@ export default {
 
         myBadges.value = getInProgress.value;
 
-        getCompleted.value.forEach((c) => {
+        getCompleted.value?.forEach((c) => {
           let found = false;
-          myBadges.value.forEach((m) => {
+          myBadges.value?.forEach((m) => {
             if (c.badgeId === m.badgeId) found = true;
           });
           if (!found) myBadges.value.push(c);
         });
 
-        available.value = getAllBadges.value.filter((a) => {
+        available.value = getAllBadges.value?.filter((a) => {
           let found = false;
-          myBadges.value.forEach((m) => {
+          myBadges.value?.forEach((m) => {
             if (a?.badgeId === m?.badgeId) found = true;
           });
           return !found;

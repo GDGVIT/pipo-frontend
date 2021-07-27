@@ -24,7 +24,7 @@
           >
             <div class="flex justify-start items-center">
               <img
-                v-if="postModal.picture"
+                v-if="postModal?.picture"
                 :src="postModal?.picture"
                 class="w-14 h-14 rounded-full mr-4"
                 alt="profile"
@@ -33,7 +33,7 @@
               <div>
                 <div
                   :class="[
-                    !postModal.picture ? 'inline-block mr-4' : '',
+                    !postModal?.picture ? 'inline-block mr-4' : '',
                     'text-xl font-gbold',
                   ]"
                 >
@@ -72,9 +72,11 @@
           </div>
         </div>
         <!-- Post Content -->
-        <div class="text-center">
+        <div class="text-center mt-2">
           <!-- title -->
-          <div class="text-2xl break-words mb-7 font-gbold text-center px-10">
+          <div
+            class="text-xl sm:text-2xl break-words mb-7 font-gbold text-center px-10"
+          >
             {{ postModal?.title }}
           </div>
           <div
@@ -93,7 +95,7 @@
               </div>
             </div>
             <!-- content -->
-            <div class="px-8">
+            <div class="sm:px-8">
               {{ postModal?.description }}
             </div>
           </div>
@@ -102,7 +104,7 @@
         <!-- Tags and update and delete -->
         <div class="grid grid-cols-12 items-center">
           <!-- tags -->
-          <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12 col-span-10">
+          <div class="flex py-2 h-10 overflow-y-auto mt-1 mx-12 col-span-11">
             <div
               class="text-xs text-myBlue font-gbold px-3 py-1 rounded-md mr-2 cursor-pointer"
               v-for="(tag, index) in postModal?.tags"
@@ -130,7 +132,7 @@
               </div>
             </template>
           </Popper>
-          <div @click="showDeleteModal = true" v-if="isMyPosts">
+          <!-- <div @click="showDeleteModal = true" v-if="isMyPosts">
             <Popper :hover="true" placement="top">
               <button class="text-myBlue">
                 <UserIcon name="bin" />
@@ -143,7 +145,7 @@
                 </div>
               </template>
             </Popper>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="absolute top-64 right-5 arrow-bounce" @click="next()">
@@ -261,6 +263,7 @@
           class="border-b border-gray-400 col-span-11 w-full px-5 py-2"
           type="text"
           placeholder="write a comment here..."
+          @keydown.enter="sendComment"
         />
         <div
           @click="sendComment"
@@ -279,19 +282,19 @@
     v-if="showUpdateModal"
   />
 
-  <InfoModal
+  <!-- <InfoModal
     @close="showDeleteModal = false"
     @delete="del()"
     v-if="showDeleteModal"
     modal="deleteConfirmation"
-  />
+  /> -->
 </template>
 
 <script>
 import { onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import anime from "animejs/lib/anime.es.js";
 import UpdateModal from "./updateModal.vue";
-import InfoModal from "./infoModal.vue";
+// import InfoModal from "./infoModal.vue";
 import PostSVG from "@/components/post/postSVG";
 import UserIcon from "@/components/user/userIcons.vue";
 import Icon from "@/components/navbar/navIcons";
@@ -305,7 +308,7 @@ export default {
     PostSVG,
     Icon,
     UpdateModal,
-    InfoModal,
+    // InfoModal,
     UserIcon,
   },
   emits: ["close", "confetti"],
@@ -316,7 +319,7 @@ export default {
     const { isLoggedIn, user } = setUser();
     const userComment = ref(null);
     const showUpdateModal = ref(false);
-    const showDeleteModal = ref(false);
+    // const showDeleteModal = ref(false);
     const showUpdateComment = ref(false);
     const isMyPosts = ref(false);
     const route = useRoute();
@@ -327,7 +330,7 @@ export default {
       getNextPost,
       getPrevPost,
       vote,
-      deletePost,
+      // deletePost,
     } = postModalFn();
     const { query, performSearch, fixSearch } = fuzzySearch();
     const {
@@ -369,10 +372,10 @@ export default {
     const update = () => (showUpdateModal.value = true);
 
     //delete
-    const del = async () => {
-      await deletePost(postModal.value?.postId);
-      emit("close", null);
-    };
+    // const del = async () => {
+    //   await deletePost(postModal.value?.postId);
+    //   emit("close", null);
+    // };
 
     //Shift
     const next = () => {
@@ -429,9 +432,9 @@ export default {
       sendComment,
       showUpdateComment,
       showUpdateModal,
-      showDeleteModal,
+      // showDeleteModal,
       update,
-      del,
+      // del,
       isMyPosts,
       close,
       searchTag,

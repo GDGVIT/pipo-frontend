@@ -10,7 +10,7 @@ const options = {
   distance: 500,
   maxPatternLength: 32,
   minMatchCharLength: 1,
-  keys: ['badgeName', 'title', 'description', 'tags']
+  keys: ['badgeName', 'title', 'description', 'tags', 'username']
 }
 
 const { immutablePosts } = originalPosts()
@@ -40,7 +40,9 @@ const fuzzySearch = () => {
   const setPosts = () => {
     if (route.name === 'generalPosts') allPosts.value = immutablePosts.general
     else if (route.name === 'myPosts') allPosts.value = immutablePosts.mine
-    else if (route.name === 'randomUserPosts') { allPosts.value = immutablePosts.randomUser } else if (route.name === 'home') allPosts.value = immutablePosts.home
+    else if (route.name === 'randomUserPosts') {
+      allPosts.value = immutablePosts.randomUser
+    } else if (route.name === 'home') allPosts.value = immutablePosts.home
     fuse = new Fuse(allPosts.value, options)
   }
 
@@ -62,7 +64,9 @@ const fuzzySearch = () => {
   const fixSearch = () => {
     if (route.name === 'generalPosts') generalUpdate(searchPosts.value)
     else if (route.name === 'myPosts') myUpdate(searchPosts.value)
-    else if (route.name === 'randomUserPosts') { randomUserUpdate(searchPosts.value) } else if (route.name === 'home') homeUpdate(searchPosts.value)
+    else if (route.name === 'randomUserPosts') {
+      randomUserUpdate(searchPosts.value)
+    } else if (route.name === 'home') homeUpdate(searchPosts.value)
     query.value = ''
     searchResultsVisible.value = false
   }

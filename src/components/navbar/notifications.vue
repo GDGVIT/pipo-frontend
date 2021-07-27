@@ -14,7 +14,7 @@
     </span>
     <div class="font-gbold text-xl md:text-2xl">Notifications</div>
     <div class="mt-3 h-l2 overflow-y-auto">
-      <div
+      <!-- <div
         v-for="(message, index) in messages"
         :key="index"
         class="border-2 border-myBlue p-4 py-2 rounded-md my-4"
@@ -25,6 +25,11 @@
           <button class="bg-myBlue px-2 py-1 rounded-sm">Accept</button>
           <button class="ml-5 bg-myRed px-2 py-1 rounded-sm">Reject</button>
         </div>
+      </div> -->
+      <div
+        class="grid place-items-center bg-red-50 text-myRed font-gbold p-10 h-full"
+      >
+        Coming soon !
       </div>
     </div>
   </div>

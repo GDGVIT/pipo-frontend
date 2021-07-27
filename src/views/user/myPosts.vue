@@ -4,16 +4,16 @@
     <div class="flex justify-between items-start py-8 md:py-10 md:px-20">
       <!-- Para -->
       <div class="text-white w-2/3 text-center sm:text-left mx-auto sm:ml-8">
-        <div class="font-gbold text-4xl lg:text-5xl tracking-wide">
+        <div class="font-gbold text-2xl sm:text-4xl lg:text-5xl tracking-wide">
           Your Posts🌠
         </div>
-        <div class="mt-6">
+        <div class="mt-6 text-sm sm:text-base">
           Welcome back!,
           <span class="text-myRed text-lg font-gbold"
             >{{ user?.userName ? user?.userName : "anonymous" }}.
           </span>
-          Here are all the posts you have posted so far. Post more or challenge
-          your buddies to earn points. Remember to maintain your streaks to earn
+          Here are all the posts you have posted so far. Earn points by gaining
+          more upvotes to your posts. Remember to maintain your streaks to earn
           those shiny badges ✨.
         </div>
       </div>
@@ -48,7 +48,7 @@
       challenge you would like to work on and earn badges.🔥
     </div>
 
-    <div v-if="showLoadMore">
+    <div v-if="showMore">
       <LoadMore @click="loadMore()" />
     </div>
 
@@ -73,12 +73,7 @@ import AddPostBtn from "@/components/post/addPostBtn";
 import AddPostModal from "@/components/modals/addPostModal";
 import ConfettiGenerator from "confetti-js";
 
-import {
-  myPostsFn,
-  resizing,
-  originalPosts,
-  POSTS_COUNT,
-} from "../../composables/posts";
+import { myPostsFn, resizing, POSTS_COUNT } from "../../composables/posts";
 import {
   defineAsyncComponent,
   onBeforeUnmount,
@@ -105,12 +100,10 @@ export default {
     const myPostModal = ref(false);
     const masonry = ref(null);
     const addPostModal = ref(false);
-    const showLoadMore = ref(false);
 
-    const { loadMyPosts, filtered, loadMore } = myPostsFn();
+    const { loadMyPosts, filtered, loadMore, showMore } = myPostsFn();
     const { isLoggedIn, user } = setUser();
     const { resizeGridItem } = resizing();
-    const { immutablePosts } = originalPosts();
 
     //for the purpose of loading cards
     onMounted(() => {
@@ -121,9 +114,6 @@ export default {
       if (isLoggedIn.value) {
         await loadMyPosts();
         myPosts.value = filtered.value;
-
-        if (immutablePosts.mine.length > POSTS_COUNT) showLoadMore.value = true;
-
         resizeGridItem(masonry.value);
       }
     });
@@ -178,7 +168,7 @@ export default {
       loadMore,
       masonry,
       user,
-      showLoadMore,
+      showMore,
       showConfetti,
     };
   },

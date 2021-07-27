@@ -37,10 +37,14 @@
 <script>
 import anime from "animejs/lib/anime.es.js";
 import { onMounted } from "@vue/runtime-core";
+import { addPost } from "../../composables/posts";
+import { useToast } from "vue-toastification";
 export default {
   emits: ["close"],
   setup(props, { emit }) {
     const giveUpPoints = 10;
+    const toast = useToast();
+    const { restartPost, usePoints } = addPost();
 
     onMounted(() => {
       anime({
@@ -51,13 +55,35 @@ export default {
       });
     });
 
-    const giveUpPts = () => {
-      console.log("Giving up 10 points");
+    const giveUpPts = async () => {
+      // console.log("Giving up 10 points");
+      const res = await usePoints();
+      if (res === 0) {
+        toast.success(
+          "Yayy! another day another post!🥳. Refresh the page to see the changes!"
+        );
+        emit("confetti", null);
+      } else {
+        toast.error(
+          "Error updating the information to our servers please try again😓"
+        );
+      }
       emit("close", null);
     };
 
-    const startOver = () => {
-      console.log("Start Over");
+    const startOver = async () => {
+      // console.log("Start Over");
+      const res = await restartPost();
+      if (res === 0) {
+        toast.success(
+          "Yayy! another day another post!🥳. Refresh the page to see the changes!"
+        );
+        emit("confetti", null);
+      } else {
+        toast.error(
+          "Error updating the information to our servers please try again😓"
+        );
+      }
       emit("close", null);
     };
 

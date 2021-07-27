@@ -9,6 +9,7 @@ const completed = ref([])
 const inProgress = ref([])
 const toast = useToast()
 const err = ref(null)
+const completedOfRandom = ref([])
 
 // semaphore
 const canAddBadge = ref(true)
@@ -85,6 +86,7 @@ const getUserBadges = () => {
       const res = await api.get('/badge/inProgress', config.value)
       const inProgressBadges = res.data.inProgressbadges
       inProgress.value = addIdenticons(inProgressBadges)
+      console.log('in progress badges', inProgress.value)
     } catch (error) {
       console.log('Error while retrieving in progress badges', error)
       err.value =
@@ -95,7 +97,7 @@ const getUserBadges = () => {
   const loadCompleted = async () => {
     try {
       const res = await api.get('/badge/completed', config.value)
-      const completedBadges = res.data.completedBadges
+      const completedBadges = res.data.completedbadges
       completed.value = addIdenticons(completedBadges)
     } catch (error) {
       console.log('Error while retrieving completed badges', error)
@@ -103,14 +105,37 @@ const getUserBadges = () => {
     }
   }
 
+  const loadCompletedOfRandomUser = async (userId) => {
+    try {
+      const res = await api.get(`/badge/completed/${userId}`, config.value)
+      const completedBadges = res.data.completedBadges
+      completedOfRandom.value = addIdenticons(completedBadges)
+    } catch (error) {
+      console.log(
+        'Error while retrieving completed badges of random user',
+        error
+      )
+      err.value =
+        'Error while loading completed badges of this user. Try again later 🙄'
+    }
+  }
+
   const getInProgress = readonly(inProgress)
   const getCompleted = readonly(completed)
+  const getCompletedOfRandom = readonly(completedOfRandom)
 
-  return { loadInProgress, loadCompleted, getInProgress, getCompleted }
+  return {
+    loadInProgress,
+    loadCompleted,
+    loadCompletedOfRandomUser,
+    getInProgress,
+    getCompleted,
+    getCompletedOfRandom
+  }
 }
 
 const sortByUpvotes = (a, b) => b.upvotes - a.upvotes
-const addIdenticons = (badges) => badges.map((badge) => addIdenticon(badge))
+const addIdenticons = (badges) => badges?.map((badge) => addIdenticon(badge))
 const addIdenticon = (badge) => {
   badge.identicon = generateIdenticon(badge.badgeName)
   return badge
