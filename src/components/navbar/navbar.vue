@@ -59,11 +59,9 @@
       </div>
 
       <!-- Hamburger -->
-      <Icon
-        name="hamburger"
-        :open="showSideBar"
-        @show="showSideBar = !showSideBar"
-      />
+      <div class="xl:hidden" @click="showSideBar = !showSideBar">
+        <Icon name="hamburger" :open="showSideBar" />
+      </div>
     </div>
 
     <!-- Sidebar -->

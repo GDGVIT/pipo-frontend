@@ -1,17 +1,17 @@
 <template>
   <div class="px-10 py-5 h-full relative">
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-10 left-10" />
+      <Icon name="leftArrow" class="absolute top-10 left-2 sm:left-10" />
     </router-link>
     <div class="text-center font-glight">
       <div class="text-2xl md:text-3xl font-gbold my-4">Following</div>
-      <div class="my-6">
+      <div class="my-6 hidden sm:block">
         Here are the list of people you are following. Click on any one of them
         and you will be redirected to their page
       </div>
       <!-- Display followers -->
       <div
-        class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-16 gap-6"
+        class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-16 gap-6 h-96 overflow-y-auto"
       >
         <div v-for="(people, index) in followingPeople" :key="index">
           <router-link
@@ -22,8 +22,6 @@
           >
             <div
               class="grid place-items-center p-2 border-2 border-myBlue rounded-md"
-              data-aos="fade-up"
-              :data-aos-delay="index * 100"
             >
               <div class="relative">
                 <img

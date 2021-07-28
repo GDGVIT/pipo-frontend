@@ -53,7 +53,7 @@ import {
   ref,
   watch,
   watchEffect,
-} from "vue";
+} from "@vue/runtime-core";
 import LoadMore from "@/components/loadComponents/loadMore";
 import LoadingCard from "@/components/loadComponents/LoadingCard";
 import MyLatestPost from "@/components/post/myLatestPost";

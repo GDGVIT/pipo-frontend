@@ -1,7 +1,7 @@
 <template>
   <div class="px-10 py-5 h-full relative font-gbold">
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-8 left-10" />
+      <Icon name="leftArrow" class="absolute top-8 left-2 sm:left-10" />
     </router-link>
     <!-- intro -->
     <div>

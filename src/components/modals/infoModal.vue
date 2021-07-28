@@ -1,14 +1,17 @@
 <template>
   <div
     @click="$emit('close')"
-    class="fixed top-0 bottom-0 left-0 right-0 z-20 bg-black opacity-0 "
+    :class="[
+      hideBackground ? 'opacity-80' : 'opacity-0',
+      'fixed top-0 bottom-0 left-0 right-0 z-20 bg-black',
+    ]"
   />
   <div
-    class="fixed bg-white p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
+    class="fixed bg-white px-7 py-14 sm:p-14 h-4/5 z-30 top-28 left-0 right-0 sm:left-10 sm:right-10 md:w-4/5 md:m-auto lg:w-2/3 font-glight overflow-y-auto"
   >
     <span
       @click="$emit('close')"
-      class="absolute top-16 right-16 cursor-pointer"
+      class="absolute top-16 right-3 sm:right-16 cursor-pointer"
     >
       <Icon name="close" />
     </span>
@@ -140,6 +143,54 @@
         </div>
       </div>
     </div>
+    <!-- Instructions for home page  -->
+    <div v-if="modal === 'homeInfo'">
+      <div class="overflow-y-auto overflow-x-hidden">
+        <div class="font-gbold text-2xl md:text-3xl">Your Home Page 🏡</div>
+        <div class="grid gap-10 my-10">
+          <div>
+            <div class="font-gbold mb-3">What is it about?</div>
+            <div class="text-sm">
+              Home Page is where you see the latest post posted by the people
+              you follow
+            </div>
+          </div>
+          <div>
+            <div class="font-gbold mb-3">Why is it empty?</div>
+            <div class="text-sm">
+              The page is empty most likely because you haven't followed anyone
+              yet i.e. no friends so far, if you're a new user
+              <span class="text-myRed font-gbold"
+                >start following others from leaderboard</span
+              >
+              to see their latest post on your daily feed.
+            </div>
+          </div>
+          <div>
+            <div class="font-gbold mb-3">How do I search for friends 🙄?</div>
+            <div class="text-sm">
+              Go to leaderboard and select a post you like whom you wish to
+              follow or if you already know the username of the person you can
+              type their name on the search bar. and select their post. Click on
+              their profile on top left corner. This will take them to their
+              <span class="text-myRed font-gbold">profile page</span>
+              where you can see all their posts and then click on follow to
+              follow that person. Voila! you made a new friend!
+            </div>
+          </div>
+          <div>
+            <div class="font-gbold mb-3">
+              I only wanna follow people who match my interests
+            </div>
+            <div class="text-sm">
+              Interests of that user will be visible in their profile page. You
+              can also click on their profile picture to know what all interests
+              they have and what all badges they have earned so far.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -149,7 +200,7 @@ import Icon from "@/components/post/postSVG.vue";
 
 export default {
   components: { Icon },
-  props: ["modal"],
+  props: ["modal", "hideBackground"],
   emits: ["close", "delete"],
   setup() {
     const confirmation = ref(false);

@@ -8,7 +8,10 @@
   <div class="mt-24">
     <div class="text-white text-center font-gbold">
       <div class="text-2xl sm:text-4xl md:text-5xl tracking-wide">
-        Daily Feed
+        <span>Daily Feed</span>
+        <div class="mx-2 inline-block" @click="showHomeInfo = true">
+          <Icon name="info" />
+        </div>
       </div>
       <div class="text-sm sm:text-xl text-myRed px-10 mt-5 mb-10 font-gbold">
         The up-to-date posts of people you follow
@@ -48,6 +51,14 @@
       @confetti="showConfetti = true"
       @closeModal="addPostModal = false"
     />
+
+    <!-- Info modal for completed badges -->
+    <InfoModal
+      @close="showHomeInfo = false"
+      v-if="showHomeInfo"
+      modal="homeInfo"
+      :hideBackground="true"
+    />
   </div>
 </template>
 
@@ -62,6 +73,7 @@ import {
   watchEffect,
 } from "@vue/runtime-core";
 import ConfettiGenerator from "confetti-js";
+import InfoModal from "@/components/modals/infoModal";
 import AddPostModal from "@/components/modals/addPostModal";
 import AddPostBtn from "@/components/post/addPostBtn";
 import LoadMore from "@/components/loadComponents/loadMore";
@@ -69,6 +81,7 @@ import LoadingCard from "@/components/loadComponents/LoadingCard";
 import PostViewModal from "@/components/modals/postViewModal";
 import { home, resizing, POSTS_COUNT } from "@/composables/posts";
 import { setUser } from "@/composables/auth";
+import Icon from "@/components/user/userIcons";
 
 const Post = defineAsyncComponent({
   loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),
@@ -77,11 +90,20 @@ const Post = defineAsyncComponent({
 });
 
 export default {
-  components: { Post, PostViewModal, LoadMore, AddPostModal, AddPostBtn },
+  components: {
+    Post,
+    PostViewModal,
+    LoadMore,
+    AddPostModal,
+    AddPostBtn,
+    Icon,
+    InfoModal,
+  },
   setup() {
     const addPostModal = ref(false);
     const postModal = ref(false);
     const homePosts = ref([]);
+    const showHomeInfo = ref(false);
 
     const masonry = ref(null);
     const { isLoggedIn } = setUser();
@@ -152,9 +174,10 @@ export default {
       showConfetti,
       loadMore,
       showMore,
+      showHomeInfo,
     };
   },
 };
 </script>
 
-<style></style>
+<style scoped></style>

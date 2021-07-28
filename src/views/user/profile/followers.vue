@@ -1,17 +1,17 @@
 <template>
   <div class="px-10 py-5 h-full relative">
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-10 left-10" />
+      <Icon name="leftArrow" class="absolute top-10 left-2 sm:left-10" />
     </router-link>
     <div class="text-center font-glight">
       <div class="text-2xl md:text-3xl font-gbold my-4">Followers</div>
-      <div class="my-6">
+      <div class="my-6 hidden sm:block">
         Here are the list of people who are your followers. You can visit their
         page on clicking them
       </div>
       <!-- Display followers -->
       <div
-        class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-16 gap-6"
+        class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-16 gap-6 h-96 overflow-y-auto"
       >
         <div v-for="(people, index) in followersPeople" :key="index">
           <router-link

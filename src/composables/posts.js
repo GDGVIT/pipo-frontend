@@ -230,9 +230,6 @@ const addPost = () => {
           tags = tags.slice(0, -1)
           formData.append('tags', tags)
         }
-        if (!data.tags?.length) {
-          throw new Error('User has not given any tags')
-        }
         if (!data.badgeName) {
           throw new Error('User did not select any challenge')
         }
@@ -241,6 +238,9 @@ const addPost = () => {
         }
         if (!data.description) {
           throw new Error('User has not given any description')
+        }
+        if (!data.tags?.length) {
+          throw new Error('User has not given any tags')
         }
 
         // console.log("Data from add post from UI", data);
@@ -288,10 +288,9 @@ const addPost = () => {
         sem.canAddPost = true
         return 0
       } catch (error) {
-        console.log('Error while sending post to the backend', error)
-        err.value = error.message
-
         sem.canAddPost = true
+        console.log('Error while sending post to the backend', error)
+        toast.error(error.message)
         return 1
       }
     }

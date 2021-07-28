@@ -1,24 +1,24 @@
 <template>
-  <div class="px-10 py-5 h-full relative">
+  <div class="md:px-10 py-5 h-full relative">
     <!-- Go back -->
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-10 left-10" />
+      <Icon name="leftArrow" class="absolute top-10 left-2 sm:left-10" />
     </router-link>
 
     <!-- Intro -->
     <div class="text-center font-glight">
       <div
-        class="flex justify-center items-center text-2xl md:text-3xl font-gbold my-5"
+        class="flex justify-center items-center text-xl sm:text-2xl md:text-3xl font-gbold my-5"
       >
         <span>In Progress Badges</span>
-        <div class="mx-4" @click="showInProgressInfo = true">
+        <div class="mx-2" @click="showInProgressInfo = true">
           <Icon name="info" />
         </div>
       </div>
     </div>
     <!-- Badges -->
     <div
-      class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center overflow-y-auto h-l2 gap-4"
+      class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center overflow-y-auto h-96 gap-4 px-5"
     >
       <div
         class="grid place-items-center"

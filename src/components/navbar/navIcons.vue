@@ -123,9 +123,8 @@
   <svg
     :class="[
       open ? 'opened' : '',
-      'w-6 h-6 cursor-pointer mx-2 transition duration-500 xl:hidden',
+      'w-6 h-6 cursor-pointer mx-2 transition duration-500',
     ]"
-    @click="$emit('show')"
     v-if="name === 'hamburger'"
     viewBox="0 0 100 100"
   >
@@ -287,7 +286,6 @@
 export default {
   name: "navbar-svg",
   props: ["name", "open"],
-  emits: ["show"],
 };
 </script>
 <style scoped>

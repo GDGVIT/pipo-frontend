@@ -1,10 +1,10 @@
 <template>
   <div
-    class="fixed bg-gray-50 p-14 h-full w-full z-30 top-0 bottom-0 left-0 right-0 md:m-auto font-glight overflow-y-auto"
+    class="fixed bg-gray-50 px-7 py-14 sm:p-14 h-full w-full z-30 top-0 bottom-0 left-0 right-0 md:m-auto font-glight overflow-y-auto"
   >
     <span
       @click="$emit('close')"
-      class="absolute top-16 right-16 cursor-pointer"
+      class="absolute top-16 right-3 sm:right-16 cursor-pointer"
     >
       <Icon name="close" />
     </span>
