@@ -2,7 +2,8 @@
   <div
     class="grid place-items-center h-screen bg-red-100 xl:bg-green-100 font-gbold"
   >
-    What color do you see ma? Green or Red?
+    Yo this is where PiPo does conducts experiments. How did you find this
+    secret lab. Well done! 🎉
   </div>
 </template>
 
