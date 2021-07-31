@@ -119,16 +119,16 @@ import {
   ref,
   watch,
   watchEffect,
-} from "vue";
-import { setUser } from "../../composables/auth";
+} from "@vue/runtime-core";
+import { setUser } from "@/composables/auth";
 import {
   getPostsOfUser,
   originalPosts,
   POSTS_COUNT,
   resizing,
-} from "../../composables/posts";
+} from "@/composables/posts";
 import { useRoute } from "vue-router";
-import { socialCircle } from "../../composables/profile";
+import { socialCircle } from "@/composables/profile";
 
 const Post = defineAsyncComponent({
   loader: () => import("@/components/post/post" /*webpackChunkName: "Post"*/),

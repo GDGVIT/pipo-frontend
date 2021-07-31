@@ -2,19 +2,24 @@
   <div class="px-10 py-5 relative font-glight">
     <!-- Go back -->
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-10 left-10" />
+      <Icon name="leftArrow" class="absolute top-10 left-2 sm:left-10" />
     </router-link>
     <!-- Introduction -->
     <div
       class="w-4/5 m-auto text-center flex justify-center items-center gap-x-4"
     >
-      <div class="text-3xl font-gbold my-5">Interests</div>
+      <div class="text-xl sm:text-2xl md:text-3xl font-gbold my-5">
+        Interests
+      </div>
       <div @click="showInterestsInfo = true">
         <Icon name="info" />
       </div>
     </div>
     <!-- Add your interest -->
-    <div class="w-11/12 md:w-2/3 my-10 relative m-auto" data-aos="fade-up">
+    <div
+      class="w-11/12 md:w-2/3 my-6 sm:my-10 relative m-auto"
+      data-aos="fade-up"
+    >
       <textarea
         class="shadow-md rounded-lg focus:outline-none resize-none p-5 w-full"
         cols="40"

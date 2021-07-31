@@ -30,14 +30,14 @@
           >
             Login
           </div>
-          <button @click="signIn()">
-            <img
-              :src="require('@/assets/google-signin.png')"
-              alt="login"
-              class="cursor-pointer"
-              width="191"
-              height="46"
-            />
+          <button
+            @click="signIn()"
+            class="bg-white google-login-btn flex items-center rounded-sm shadow-md"
+          >
+            <img :src="require('@/assets/google-logo.svg')" alt="" srcset="" />
+            <div class="font-roboto text-gray-600 px-3">
+              Sign in with Google
+            </div>
           </button>
         </div>
         <!-- Show dashboard -->
@@ -128,13 +128,19 @@
             Post More. Gain Upvotes. Earn Badges and Points.
           </div>
           <div class="my-8 ml-10 inline-block cursor-pointer">
-            <img
+            <button
               @click="signIn()"
-              :src="require('@/assets/google-signin.png')"
-              alt="login"
-              width="191"
-              height="46"
-            />
+              class="bg-white google-login-btn flex items-center rounded-sm shadow-md"
+            >
+              <img
+                :src="require('@/assets/google-logo.svg')"
+                alt=""
+                srcset=""
+              />
+              <div class="font-roboto text-gray-600 px-3">
+                Sign in with Google
+              </div>
+            </button>
           </div>
         </div>
 

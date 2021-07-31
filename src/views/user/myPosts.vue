@@ -82,7 +82,7 @@ import {
   ref,
   watch,
   watchEffect,
-} from "vue";
+} from "@vue/runtime-core";
 import { setUser } from "../../composables/auth";
 
 import LoadingCard from "@/components/loadComponents/LoadingCard";

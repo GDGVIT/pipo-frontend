@@ -5,7 +5,8 @@ module.exports = {
     extend: {
       fontFamily: {
         glight: ['Gilroy-Light'],
-        gbold: ['Gilroy-ExtraBold']
+        gbold: ['Gilroy-ExtraBold'],
+        roboto: ['Roboto']
       },
       colors: {
         myRed: '#FF6666',

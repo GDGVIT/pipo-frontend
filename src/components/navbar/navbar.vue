@@ -7,16 +7,15 @@
       </router-link>
 
       <!-- Routes -->
-      <div
-        v-if="isLoggedIn"
-        class="hidden xl:ml-8 xl:grid xl:grid-cols-4 xl:place-items-center xl:gap-x-10"
-      >
-        <router-link :to="{ name: 'home' }">Home</router-link>
-        <router-link :to="{ name: 'generalPosts' }">Leaderboard</router-link>
-        <router-link class="whitespace-nowrap" :to="{ name: 'myPosts' }"
-          >My Posts</router-link
-        >
-        <router-link :to="{ name: 'badges' }">Challenges</router-link>
+      <div v-if="isLoggedIn" class="hidden xl:block">
+        <div class="ml-8 grid grid-cols-4 place-items-center gap-x-10">
+          <router-link :to="{ name: 'home' }">Home</router-link>
+          <router-link :to="{ name: 'generalPosts' }">Leaderboard</router-link>
+          <router-link class="whitespace-nowrap" :to="{ name: 'myPosts' }"
+            >My Posts</router-link
+          >
+          <router-link :to="{ name: 'badges' }">Challenges</router-link>
+        </div>
       </div>
     </div>
 
@@ -59,11 +58,9 @@
       </div>
 
       <!-- Hamburger -->
-      <Icon
-        name="hamburger"
-        :open="showSideBar"
-        @show="showSideBar = !showSideBar"
-      />
+      <div class="xl:hidden" @click="showSideBar = !showSideBar">
+        <Icon name="hamburger" :open="showSideBar" />
+      </div>
     </div>
 
     <!-- Sidebar -->

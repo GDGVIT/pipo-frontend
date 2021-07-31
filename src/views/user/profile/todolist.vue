@@ -2,14 +2,16 @@
   <div class="px-10 py-5 h-full relative">
     <!-- Go back -->
     <router-link to="/user/profile">
-      <Icon name="leftArrow" class="absolute top-10 left-10" />
+      <Icon name="leftArrow" class="absolute top-10 left-2 sm:left-10" />
     </router-link>
     <div class="font-glight">
       <!-- Introduction -->
       <div
         class="w-4/5 m-auto text-center flex justify-center items-center gap-x-4"
       >
-        <div class="text-3xl font-gbold my-5">Todolist</div>
+        <div class="text-xl sm:text-2xl md:text-3xl font-gbold my-5">
+          Todolist
+        </div>
         <div @click="showTodoInfo = true">
           <Icon name="info" />
         </div>

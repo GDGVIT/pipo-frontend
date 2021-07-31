@@ -252,11 +252,13 @@
         </div>
         <div v-else class="w-4/5 pt-5 pb-10">
           <div
-            class="my-2 px-3 py-2 bg-red-50 text-myRed rounded-md grid grid-cols-12 items-baseline"
+            class="my-2 px-3 py-2 bg-red-50 text-myRed rounded-md flex items-center"
             v-for="(todo, index) in todos5"
             :key="index"
           >
-            <Icon name="tick" />
+            <div class="px-2">
+              <Icon name="tick" />
+            </div>
             <span class="col-span-11 font-gbold">{{ todo }}</span>
           </div>
         </div>
